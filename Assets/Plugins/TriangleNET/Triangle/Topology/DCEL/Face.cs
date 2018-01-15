@@ -87,6 +87,10 @@ namespace TriangleNet.Topology.DCEL
             }
         }
 
+        public Point GetPoint() {
+            return generator;
+        }
+
         /// <summary>
         /// Enumerates all half-edges of the face boundary.
         /// </summary>
