@@ -119,6 +119,13 @@ namespace TriangleNet.Geometry
             ymax = Math.Max(ymax, p.y);
         }
 
+        public void Expand(List<Vertex> verts) {
+            foreach (var v in verts)
+            {
+                Expand(v);
+            }
+        }
+
         /// <summary>
         /// Expand rectangle to include a list of points.
         /// </summary>
