@@ -38,22 +38,14 @@ namespace WorldGenerator {
 			VoronoiBase voronoi = Triangulator.generateVoronoi (initialPoints);
 			voronoi.ResolveBoundaryEdges();
 
-			List<Center> centers = createCenters(voronoi.Faces, worldSize);
+			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces);
+
+			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.HalfEdges);
+
+			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi.Edges, centers, corners);
 
 			assignMeshVertices (voronoi, mesh);
         }
-
-        private List<Center> createCenters(List<Face> faces, float worldSize) {
-			List<Center> centers = new List<Center>(faces.Count);
-
-			for (int i = 0; i < faces.Count; ++i) {
-				Face face = faces[i];
-				var position = face.GetPoint();
-				centers.Add(new Center(i, new Coord(position.X, position.Y)));
-			}
-
-			return centers;
-		}
 
 		private void assignMeshVertices(VoronoiBase voronoi, Mesh mesh) {
 			List<int> indices;

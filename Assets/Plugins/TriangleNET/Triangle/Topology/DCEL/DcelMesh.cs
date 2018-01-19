@@ -64,7 +64,7 @@ namespace TriangleNet.Topology.DCEL
         /// <summary>
         /// Gets the collection of edges of the Voronoi diagram.
         /// </summary>
-        public IEnumerable<IEdge> Edges
+        public List<IEdge> Edges
         {
             get { return EnumerateEdges(); }
         }
@@ -248,7 +248,7 @@ namespace TriangleNet.Topology.DCEL
         /// <remarks>
         /// This method assumes that each half-edge has a twin (i.e. NOT null).
         /// </remarks>
-        protected virtual IEnumerable<IEdge> EnumerateEdges()
+        protected virtual List<IEdge> EnumerateEdges()
         {
             var edges = new List<IEdge>(this.edges.Count / 2);
 
