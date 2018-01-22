@@ -35,14 +35,14 @@ namespace WorldGenerator {
                 initialPoints.Add(new Vector2((float)pointRandom.NextDouble() * worldSize, (float)pointRandom.NextDouble() * worldSize));
             }
 
-			VoronoiBase voronoi = Triangulator.generateVoronoi (initialPoints);
+			VoronoiBase voronoi = Triangulator.generateVoronoi(initialPoints);
 			voronoi.ResolveBoundaryEdges();
 
 			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces);
 
 			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.HalfEdges);
 
-			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi.Edges, centers, corners);
+			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi.Edges, voronoi.Vertices, centers, corners, voronoi.Faces);
 
 			assignMeshVertices (voronoi, mesh);
         }

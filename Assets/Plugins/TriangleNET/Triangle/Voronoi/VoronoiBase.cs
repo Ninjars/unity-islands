@@ -266,7 +266,7 @@ namespace TriangleNet.Voronoi
             }
         }
 
-        protected override IEnumerable<IEdge> EnumerateEdges()
+        protected override List<IEdge> EnumerateEdges()
         {
             var edges = new List<IEdge>(this.edges.Count / 2);
 

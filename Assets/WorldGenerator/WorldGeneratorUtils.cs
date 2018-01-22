@@ -13,7 +13,7 @@ namespace WorldGenerator {
 			for (int i = 0; i < faces.Count; ++i) {
 				Face face = faces[i];
 				var position = face.GetPoint();
-				centers.Add(new Center(i, new Coord(position.X, position.Y)));
+				centers.Add(new Center(i, new Coord(face.GetPoint().X, face.GetPoint().Y)));
 			}
 
 			return centers;
@@ -23,16 +23,76 @@ namespace WorldGenerator {
             List<Corner> corners = new List<Corner>(halfEdges.Count);
 			for (int i = 0; i < halfEdges.Count; ++i) {
 				HalfEdge edge = halfEdges[i];
-				var position = edge.Origin;
-				corners.Add(new Corner(i, new Coord(position.X, position.Y)));
+				var vertex = edge.Origin;
+				corners.Add(new Corner(vertex.ID, new Coord(vertex.X, vertex.Y)));
 			}
 			return corners;
         }
 
-        internal static List<Edge> createEdges(List<IEdge> voronoiEdges, List<Center> centers, List<Corner> corners) {
+        internal static List<Edge> createEdges(List<IEdge> voronoiEdges, List<TriangleNet.Topology.DCEL.Vertex> vertices, 
+												List<Center> centers, List<Corner> corners, List<Face> faces) {
             List<Edge> edges = new List<Edge>(voronoiEdges.Count);
 
+			for (int i = 0; i < edges.Count; ++i) {
+				IEdge voronoiEdge = voronoiEdges[i];
+
+				var neighbouringCenters = getCentersByEdge(voronoiEdge, centers, faces;
+				Center center0 = neighbouringCenters.Count > 0 ? neighbouringCenters[0] : null;
+				Center center1 = neighbouringCenters.Count > 1 ? neighbouringCenters[1] : null;
+
+				TriangleNet.Topology.DCEL.Vertex v0 = vertices[voronoiEdge.P0];
+				TriangleNet.Topology.DCEL.Vertex v1 = vertices[voronoiEdge.P1];
+				Corner corner0 = null;
+				Corner corner1 = null;
+				foreach (Corner corner in corners) {
+					if (corner0 == null && corner.matchesId(v0.ID)) {
+						corner0 = corner;
+					} else if (corner1 == null && corner.matchesId(v1.ID)) {
+						corner1 = corner;
+					}
+					if (corner0 != null && corner1 != null) {
+						break;
+					}
+				}
+				Debug.Assert(corner0 != null);
+				Debug.Assert(corner1 != null);
+				edges.Add(makeEdge(i, corner0, corner1, center0, center1));
+			}
 			return edges;
         }
+
+		private static Edge makeEdge(int index, Corner corner0, Corner corner1, Center center0, Center center1) {
+			Edge edge = new Edge(index, corner0, corner1, center0, center1);
+			if (center0 != null && center1 != null) {
+				center0.AddNeighbour(center1);
+				center1.AddNeighbour(center0);
+			}
+			corner0.AddEdge(edge);
+			corner0.AddCenter(center0);
+			corner0.AddCenter(center1);
+			corner1.AddEdge(edge);
+			corner1.AddCenter(center0);
+			corner1.AddCenter(center1);
+			corner0.AddAdjacent(corner1);
+			corner1.AddAdjacent(corner0);
+			return edge;
+		}
+
+        private static List<Center> getCentersByEdge(IEdge edge, List<Center> centers, List<Face> faces) {
+			List<Center> found = new List<Center>(2);
+			foreach (Center center in centers) {
+				int matches = 0;
+				Face face = faces[center.index];
+				foreach (HalfEdge corner in face.EnumerateEdges()) {
+					if (corner.ID.Equals(edge.P0) || corner.ID.Equals(edge.P1)) {
+						matches++;
+					}
+				}
+				if (matches == 2) {
+					found.Add(center);
+				}
+			}
+			return found;
+		}
     }
 }
