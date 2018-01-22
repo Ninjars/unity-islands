@@ -13,17 +13,26 @@ namespace WorldGenerator {
 			for (int i = 0; i < faces.Count; ++i) {
 				Face face = faces[i];
 				var position = face.GetPoint();
-				centers.Add(new Center(i, new Coord(face.GetPoint().X, face.GetPoint().Y)));
+				double x = 0;
+				double y = 0;
+				int count = 0;
+				foreach (var corner in face.EnumerateEdges()) {
+					x += corner.Origin.X;
+					y += corner.Origin.Y;
+					count++;
+				}
+				x /= count;
+				y /= count;
+				centers.Add(new Center(i, new Coord(x, y)));
 			}
 
 			return centers;
 		}
 
-        internal static List<Corner> createCorners(List<HalfEdge> halfEdges) {
-            List<Corner> corners = new List<Corner>(halfEdges.Count);
-			for (int i = 0; i < halfEdges.Count; ++i) {
-				HalfEdge edge = halfEdges[i];
-				var vertex = edge.Origin;
+        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices) {
+            List<Corner> corners = new List<Corner>(vertices.Count);
+			for (int i = 0; i < vertices.Count; ++i) {
+				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];
 				corners.Add(new Corner(vertex.ID, new Coord(vertex.X, vertex.Y)));
 			}
 			return corners;
@@ -33,10 +42,10 @@ namespace WorldGenerator {
 												List<Center> centers, List<Corner> corners, List<Face> faces) {
             List<Edge> edges = new List<Edge>(voronoiEdges.Count);
 
-			for (int i = 0; i < edges.Count; ++i) {
+			for (int i = 0; i < voronoiEdges.Count; ++i) {
 				IEdge voronoiEdge = voronoiEdges[i];
 
-				var neighbouringCenters = getCentersByEdge(voronoiEdge, centers, faces;
+				var neighbouringCenters = getCentersByEdge(voronoiEdge, centers, faces);
 				Center center0 = neighbouringCenters.Count > 0 ? neighbouringCenters[0] : null;
 				Center center1 = neighbouringCenters.Count > 1 ? neighbouringCenters[1] : null;
 
@@ -56,13 +65,30 @@ namespace WorldGenerator {
 				}
 				Debug.Assert(corner0 != null);
 				Debug.Assert(corner1 != null);
-				edges.Add(makeEdge(i, corner0, corner1, center0, center1));
+				bool isBorder = neighbouringCenters.Count < 2;
+				edges.Add(makeEdge(i, isBorder, corner0, corner1, center0, center1));
 			}
 			return edges;
         }
 
-		private static Edge makeEdge(int index, Corner corner0, Corner corner1, Center center0, Center center1) {
-			Edge edge = new Edge(index, corner0, corner1, center0, center1);
+        internal static void improveCorners(List<Corner> corners) {
+			foreach (Corner corner in corners) {
+				double x = 0;
+				double y = 0;
+
+				foreach (Center center in corner.GetTouches()) {
+					x += center.coord.x;
+					y += center.coord.y;
+				}
+
+				x /= corner.GetTouches().Count;
+				y /= corner.GetTouches().Count;
+				corner.setPosition(x, y);
+			}
+        }
+
+        private static Edge makeEdge(int index, bool isBorder, Corner corner0, Corner corner1, Center center0, Center center1) {
+			Edge edge = new Edge(index, isBorder, corner0, corner1, center0, center1);
 			if (center0 != null && center1 != null) {
 				center0.AddNeighbour(center1);
 				center1.AddNeighbour(center0);
@@ -70,26 +96,33 @@ namespace WorldGenerator {
 			corner0.AddEdge(edge);
 			corner0.AddCenter(center0);
 			corner0.AddCenter(center1);
+			corner0.AddAdjacent(corner1);
+			corner0.isBorder = isBorder;
+
 			corner1.AddEdge(edge);
 			corner1.AddCenter(center0);
 			corner1.AddCenter(center1);
-			corner0.AddAdjacent(corner1);
 			corner1.AddAdjacent(corner0);
+			corner1.isBorder = isBorder;
+
+			if (center0 != null && isBorder) {
+				center0.isBorder = isBorder;
+			}
+			if (center1 != null && isBorder) {
+				center1.isBorder = isBorder;
+			}
 			return edge;
 		}
 
         private static List<Center> getCentersByEdge(IEdge edge, List<Center> centers, List<Face> faces) {
 			List<Center> found = new List<Center>(2);
 			foreach (Center center in centers) {
-				int matches = 0;
 				Face face = faces[center.index];
 				foreach (HalfEdge corner in face.EnumerateEdges()) {
 					if (corner.ID.Equals(edge.P0) || corner.ID.Equals(edge.P1)) {
-						matches++;
+						found.Add(center);
+						break;
 					}
-				}
-				if (matches == 2) {
-					found.Add(center);
 				}
 			}
 			return found;

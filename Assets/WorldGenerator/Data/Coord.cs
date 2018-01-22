@@ -1,23 +1,28 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace WorldGenerator {
 	public class Coord {
-		private double x;
-		private double y;
+		public double x {
+			get;
+			private set;
+		}
+		public double y {
+			get;
+			private set;
+		}
 
 		public Coord(double x, double y) {
 			this.x = x;
 			this.y = y;
 		}
-		
-		public double getX() {
-			return x;
-		}
 
-		public double getY() {
-			return y;
-		}
-	}
+        internal void set(double x, double y)
+        {
+            this.x = x;
+			this.y = y;
+        }
+    }
 }

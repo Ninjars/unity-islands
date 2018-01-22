@@ -7,10 +7,18 @@ using UnityEngine;
 
 namespace WorldGenerator {
     public class Corner {
-        private int index;
+        public int index {
+            get;
+            private set;
+        }
         public Coord coord {
             get;
             private set;
+        }
+
+        public bool isBorder {
+            get;
+            set;
         }
 
         private List<Edge> edges = new List<Edge>();
@@ -34,11 +42,23 @@ namespace WorldGenerator {
 
         internal void AddCenter(Center center)
         {
-            centers.Add(center);
+            if (center != null) {
+                centers.Add(center);
+            }
         }
 
         internal void AddAdjacent(Corner corner) {
             adjacent.Add(corner);
+        }
+
+        internal List<Center> GetTouches()
+        {
+            return centers;
+        }
+
+        internal void setPosition(double x, double y)
+        {
+            coord.set(x, y);
         }
     }
 }

@@ -3,6 +3,9 @@ using UnityEngine;
 using TriangleNet.Voronoi;
 using System;
 using TriangleNet.Topology.DCEL;
+using TriangleNet.Geometry;
+using TriangleNet.Meshing;
+using TriangleNet.Topology;
 
 namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
@@ -40,17 +43,37 @@ namespace WorldGenerator {
 
 			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces);
 
-			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.HalfEdges);
+			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices);
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi.Edges, voronoi.Vertices, centers, corners, voronoi.Faces);
 
-			assignMeshVertices (voronoi, mesh);
+			WorldGeneratorUtils.improveCorners(corners);
+
+			assignMeshVertices(corners, edges, mesh);
         }
 
-		private void assignMeshVertices(VoronoiBase voronoi, Mesh mesh) {
-			List<int> indices;
-			List<Vector3> positions;
-			Triangulator.triangulateVoronoi(voronoi, out indices, out positions);
+		private void assignMeshVertices(List<Corner> corners, List<Edge> edges, Mesh mesh) {
+			List<int> indices = new List<int>();
+			List<Vector3> positions = new List<Vector3>();
+			// Triangulator.triangulateVoronoi(voronoi, out indices, out positions);
+
+			Polygon poly = new Polygon();
+			Dictionary<int, TriangleNet.Geometry.Vertex> vertices = new Dictionary<int, TriangleNet.Geometry.Vertex>(corners.Count);
+			foreach (Corner corner in corners) {
+				var vertex = new TriangleNet.Geometry.Vertex(corner.coord.x, corner.coord.y);
+				vertices.Add(corner.index, vertex);
+				poly.Add(vertex);
+			}
+
+			IMesh triangulated = poly.Triangulate();
+			foreach (TriangleNet.Geometry.Vertex vert in triangulated.Vertices) {
+				positions.Add(new Vector3((float) vert.X, 0, (float) vert.Y));
+			}
+			foreach (Triangle tri in triangulated.Triangles) {
+				indices.Add(tri.GetVertexID(0));
+				indices.Add(tri.GetVertexID(1));
+				indices.Add(tri.GetVertexID(2));
+			}
 
 			mesh.Clear();
 			mesh.vertices = positions.ToArray();

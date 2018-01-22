@@ -15,6 +15,11 @@ namespace WorldGenerator {
             private set;
         }
 
+        public bool isBorder {
+            get;
+            set;
+        }
+
         private List<Center> neighbours = new List<Center>();
         public Center(int index, Coord coord) {
             this.index = index;
