@@ -105,6 +105,17 @@ namespace WorldGenerator {
 			corner1.AddAdjacent(corner0);
 			corner1.isBorder = isBorder;
 
+			if (center0 != null) {
+				center0.AddCorner(corner0);
+				center0.AddCorner(corner1);
+				center0.AddEdge(edge);
+			}
+			if (center1 != null) {
+				center1.AddCorner(corner0);
+				center1.AddCorner(corner1);
+				center1.AddEdge(edge);
+			}
+
 			if (center0 != null && isBorder) {
 				center0.isBorder = isBorder;
 			}
