@@ -34,12 +34,15 @@ namespace WorldGenerator {
             get;
             private set;   
         }
+        public TerrainType terrainType { get; internal set; }
+
         public Center(int index, Coord coord) {
             this.index = index;
             this.coord = coord;
             neighbours = new List<Center>();
             corners = new List<Corner>();
             edges = new List<Edge>();
+            terrainType = TerrainType.LAND;
         }
 
         internal void AddNeighbour(Center center) {

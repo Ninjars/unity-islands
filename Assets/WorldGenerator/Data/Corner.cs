@@ -20,6 +20,7 @@ namespace WorldGenerator {
             get;
             set;
         }
+        public TerrainType terraintype { get; internal set; }
 
         private List<Edge> edges = new List<Edge>();
         private List<Center> centers = new List<Center>();
@@ -59,6 +60,14 @@ namespace WorldGenerator {
         internal void setPosition(double x, double y)
         {
             coord.set(x, y);
+        }
+
+        internal bool isWater() {
+            return terraintype.Equals(TerrainType.LAKE) || terraintype.Equals(TerrainType.OCEAN);
+        }
+
+        internal bool isLand() {
+            return !isWater();
         }
     }
 }
