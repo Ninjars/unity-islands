@@ -19,14 +19,16 @@ namespace WorldGenerator {
             MeshFilter meshFilter = gameObj.AddComponent<MeshFilter>();
             gameObj.AddComponent<MeshRenderer>();
 
+            int seed = 12335;
+            World world = generateWorldGeometry(seed);
+
             Mesh mesh = meshFilter.mesh;
-            generateWorld(mesh);
+			assignMeshVertices(world, mesh);
 
             gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
         }
 
-        private void generateWorld(Mesh mesh) {
-            int seed = 12335;
+        private World generateWorldGeometry(int seed) {
             
             List<Vector2> initialPoints = new List<Vector2>(pointCount);
 			initialPoints.Add(new Vector2(0, 0));
@@ -49,17 +51,17 @@ namespace WorldGenerator {
 
 			WorldGeneratorUtils.improveCorners(corners);
 
-			assignMeshVertices(corners, edges, mesh);
+			return new World(centers, corners, edges);
         }
 
-		private void assignMeshVertices(List<Corner> corners, List<Edge> edges, Mesh mesh) {
+		private void assignMeshVertices(World world, Mesh mesh) {
 			List<int> indices = new List<int>();
 			List<Vector3> positions = new List<Vector3>();
 			// Triangulator.triangulateVoronoi(voronoi, out indices, out positions);
 
 			Polygon poly = new Polygon();
-			Dictionary<int, TriangleNet.Geometry.Vertex> vertices = new Dictionary<int, TriangleNet.Geometry.Vertex>(corners.Count);
-			foreach (Corner corner in corners) {
+			Dictionary<int, TriangleNet.Geometry.Vertex> vertices = new Dictionary<int, TriangleNet.Geometry.Vertex>(world.corners.Count);
+			foreach (Corner corner in world.corners) {
 				var vertex = new TriangleNet.Geometry.Vertex(corner.coord.x, corner.coord.y);
 				vertices.Add(corner.index, vertex);
 				poly.Add(vertex);
