@@ -22,6 +22,8 @@ namespace WorldGenerator {
             int seed = 12335;
             World world = generateWorldGeometry(seed);
 
+			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
+
             Mesh mesh = meshFilter.mesh;
 			assignMeshVertices(world, mesh);
 

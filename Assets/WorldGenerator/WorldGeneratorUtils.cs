@@ -7,12 +7,13 @@ using UnityEngine;
 
 namespace WorldGenerator {
 	public static class WorldGeneratorUtils {
+
+		private const float LAKE_THRESHOLD = 0.3f;
         internal static List<Center> createCenters(List<Face> faces) {
 			List<Center> centers = new List<Center>(faces.Count);
 
 			for (int i = 0; i < faces.Count; ++i) {
 				Face face = faces[i];
-				var position = face.GetPoint();
 				double x = 0;
 				double y = 0;
 				int count = 0;
@@ -27,6 +28,59 @@ namespace WorldGenerator {
 			}
 
 			return centers;
+		}
+
+        internal static void separateTheLandFromTheWater(World world, PerlinIslandShape perlinIslandShape) {
+			// assign coarse water/land separation to corners
+            foreach (Corner corner in world.corners) {
+				bool isWater = !isInsideShape(perlinIslandShape, corner.coord);
+				if (corner.isBorder) {
+					corner.terraintype = TerrainType.OCEAN;
+				} else if (isWater) {
+					corner.terraintype = TerrainType.LAKE;
+				} else {
+					corner.terraintype = TerrainType.LAND;
+				}
+			}
+
+			// assign coarse water/land separation to centers
+			List<Center> borderCenters = new List<Center>();
+			foreach (Center center in world.centers) {
+				int waterCornerCount = 0;
+				foreach (Corner corner in center.corners) {
+					if (corner.isBorder) {
+						center.terrainType = TerrainType.OCEAN;
+						borderCenters.Add(center);
+						continue;
+					}
+					if (corner.isWater()) {
+						waterCornerCount++;
+					}
+				}
+				if (center.terrainType != TerrainType.OCEAN
+						&& waterCornerCount >= center.corners.Count * LAKE_THRESHOLD) {
+					center.terrainType = TerrainType.LAKE;
+				}
+			}
+
+			// flood fill center's ocean property
+			int i = 0;
+			while (i < borderCenters.Count) {
+				Center c = borderCenters[i];
+				foreach (Center other in c.neighbours) {
+					if (other.terrainType == TerrainType.LAKE) {
+						other.terrainType = TerrainType.OCEAN;
+						borderCenters.Add(other);
+					}
+				}
+				i++;
+			}
+
+			// TODO: coast and shallows
+        }
+
+		private static bool isInsideShape(PerlinIslandShape shape, Coord coordinate) {
+			return shape.isInside((float) coordinate.x, (float) coordinate.y);
 		}
 
         internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices) {
