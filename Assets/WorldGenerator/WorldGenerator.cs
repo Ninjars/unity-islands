@@ -10,6 +10,7 @@ using TriangleNet.Topology;
 namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
 
+		public Material material;
 		private const float worldSize = 1000;
 		private const int pointCount = 100;
 
@@ -29,6 +30,7 @@ namespace WorldGenerator {
 			assignMeshVertices(world, mesh);
 
             gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
+			gameObj.GetComponent<Renderer>().material = material;
         }
 
 		private List<Vector2> generateInitialPoints(int seed) {
