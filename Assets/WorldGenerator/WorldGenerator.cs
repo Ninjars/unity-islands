@@ -25,6 +25,29 @@ namespace WorldGenerator {
             World world = generateWorldGeometry(initialPoints);
 
 			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
+			
+			foreach (Vector2 point in initialPoints) {
+            	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
+				debugIndicator.name = "point " + point;
+				debugIndicator.transform.position = new Vector3(point.x, 0, point.y);
+				debugIndicator.transform.localScale = new Vector3(10, 10, 10);
+			}
+			foreach (Center center in world.centers) {
+            	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
+				debugIndicator.name = "center " + center;
+				debugIndicator.transform.position = new Vector3((float) center.coord.x, 5, (float) center.coord.y);
+				debugIndicator.transform.localScale = new Vector3(10, 10, 10);
+				// debugIndicator.GetComponent<MeshRenderer>().material.color = center.isBorder ? Color.black : Color.gray;
+				debugIndicator.GetComponent<MeshRenderer>().material.color = Color.black;
+			}
+			foreach (Corner corner in world.corners) {
+            	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
+				debugIndicator.name = "corner " + corner;
+				debugIndicator.transform.position = new Vector3((float) corner.coord.x, 5, (float) corner.coord.y);
+				debugIndicator.transform.localScale = new Vector3(10, 10, 10);
+				// debugIndicator.GetComponent<MeshRenderer>().material.color = corner.isBorder ? Color.black : Color.gray;
+				debugIndicator.GetComponent<MeshRenderer>().material.color = Color.gray;
+			}
 
             Mesh mesh = meshFilter.mesh;
 			assignMeshVertices(world, mesh);
