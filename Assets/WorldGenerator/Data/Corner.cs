@@ -25,11 +25,16 @@ namespace WorldGenerator {
         private List<Edge> edges = new List<Edge>();
         private List<Center> centers = new List<Center>();
         private List<Corner> adjacent = new List<Corner>();
+        public List<int> vertexIndices {
+            get;
+            private set;
+        }
 
         public Corner(int index, Coord coord)
         {
             this.index = index;
             this.coord = coord;
+            vertexIndices = new List<int>();
         }
         internal bool matchesId(int id)
         {
@@ -68,6 +73,10 @@ namespace WorldGenerator {
 
         internal bool isLand() {
             return !isWater();
+        }
+
+        internal void addVertexIndex(int index) {
+            vertexIndices.Add(index);
         }
     }
 }

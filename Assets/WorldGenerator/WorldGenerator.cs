@@ -51,6 +51,7 @@ namespace WorldGenerator {
 
             Mesh mesh = meshFilter.mesh;
 			assignMeshVertices(world, mesh);
+			// assignVertexColors(world, mesh);
 
             gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
 			gameObj.GetComponent<Renderer>().material = material;
@@ -99,6 +100,10 @@ namespace WorldGenerator {
 
 			IMesh triangulated = poly.Triangulate();
 			foreach (TriangleNet.Geometry.Vertex vert in triangulated.Vertices) {
+				Corner corner = findCorner(world.corners, vert.X, vert.Y);
+				if (corner != null) {
+					corner.addVertexIndex(positions.Count);
+				}
 				positions.Add(new Vector3((float) vert.X, 0, (float) vert.Y));
 			}
 			foreach (Triangle tri in triangulated.Triangles) {
@@ -120,7 +125,49 @@ namespace WorldGenerator {
 			mesh.uv = myUVs;
 		}
 
-		private void flipMeshNormals(Mesh mesh) {
+        private Corner findCorner(List<Corner> corners, double x, double y) {
+            foreach (Corner corner in corners) {
+				Coord coord = corner.coord;
+				if (coord.matches(x, y)) {
+					return corner;
+				}
+			}
+			return null;
+        }
+
+        private void assignVertexColors(World world, Mesh mesh) {
+			Color[] colors = new Color[mesh.vertices.Length];
+			foreach (Corner corner in world.corners) {
+				foreach (int index in corner.vertexIndices) {
+					colors[index] = getColorFromCorner(corner);
+				}
+			}
+			mesh.colors = colors;
+		}
+
+		private Color getColorFromCorner(Corner corner) {
+			switch (corner.terraintype) {
+				case TerrainType.OCEAN:
+					return Color.blue;
+				case TerrainType.LAKE:
+					return Color.cyan;
+				case TerrainType.LAND:
+					return Color.grey;
+				default:
+					return Color.magenta;
+			}
+		}
+
+        //private Corner findCorner(List<Corner> corners, int i) {
+        //    foreach (Corner corner in corners) {
+		//		if (corner.vertexIndices.Contains(i)) {
+		//			return corner;
+		//		}
+		//	}
+		//	return null;
+        //}
+
+        private void flipMeshNormals(Mesh mesh) {
 			var indices = mesh.triangles;
 			var triangleCount = indices.Length / 3;
 			for (var i = 0; i < triangleCount; i++) {

@@ -24,5 +24,11 @@ namespace WorldGenerator {
             this.x = x;
 			this.y = y;
         }
+
+        internal bool matches(double x, double y) {
+			double diffX = Math.Abs(this.x * .000001);
+			double diffY = Math.Abs(this.y * .000001);
+			return (Math.Abs(this.x - x) <= diffX) && (Math.Abs(this.y - y) <= diffY);
+        }
     }
 }
