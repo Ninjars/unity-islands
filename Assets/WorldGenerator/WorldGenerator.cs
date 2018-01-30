@@ -51,7 +51,7 @@ namespace WorldGenerator {
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi.Edges, voronoi.Vertices, centers, corners, voronoi.Faces);
 
-			WorldGeneratorUtils.improveCorners(corners);
+			// WorldGeneratorUtils.improveCorners(corners);
 
 			return new World(centers, corners, edges);
         }
