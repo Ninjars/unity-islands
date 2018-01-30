@@ -20,7 +20,8 @@ namespace WorldGenerator {
             gameObj.AddComponent<MeshRenderer>();
 
             int seed = 12335;
-            World world = generateWorldGeometry(seed);
+			List<Vector2> initialPoints = generateInitialPoints(seed);
+            World world = generateWorldGeometry(initialPoints);
 
 			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 
@@ -30,9 +31,8 @@ namespace WorldGenerator {
             gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
         }
 
-        private World generateWorldGeometry(int seed) {
-            
-            List<Vector2> initialPoints = new List<Vector2>(pointCount);
+		private List<Vector2> generateInitialPoints(int seed) {
+			List<Vector2> initialPoints = new List<Vector2>(pointCount);
 			initialPoints.Add(new Vector2(0, 0));
 			initialPoints.Add(new Vector2(worldSize, 0));
 			initialPoints.Add(new Vector2(0, worldSize));
@@ -41,7 +41,10 @@ namespace WorldGenerator {
             for (int i = 0; i < pointCount; i++) {
                 initialPoints.Add(new Vector2((float)pointRandom.NextDouble() * worldSize, (float)pointRandom.NextDouble() * worldSize));
             }
+			return initialPoints;
+		}
 
+        private World generateWorldGeometry(List<Vector2> initialPoints) {
 			VoronoiBase voronoi = Triangulator.generateVoronoi(initialPoints);
 			voronoi.ResolveBoundaryEdges();
 
