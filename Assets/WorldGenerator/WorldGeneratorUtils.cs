@@ -3,32 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using TriangleNet.Geometry;
 using TriangleNet.Topology.DCEL;
+using TriangleNet.Voronoi;
 using UnityEngine;
 
 namespace WorldGenerator {
 	public static class WorldGeneratorUtils {
 
 		private const float LAKE_THRESHOLD = 0.3f;
-        internal static List<Center> createCenters(List<Face> faces) {
-			List<Center> centers = new List<Center>(faces.Count);
-
-			for (int i = 0; i < faces.Count; ++i) {
-				Face face = faces[i];
-				double x = 0;
-				double y = 0;
-				int count = 0;
-				foreach (var corner in face.EnumerateEdges()) {
-					x += corner.Origin.X;
-					y += corner.Origin.Y;
-					count++;
-				}
-				x /= count;
-				y /= count;
-				centers.Add(new Center(i, new Coord(x, y)));
-			}
-
-			return centers;
-		}
 
         internal static void separateTheLandFromTheWater(World world, PerlinIslandShape perlinIslandShape) {
 			// assign coarse water/land separation to corners
@@ -83,44 +64,49 @@ namespace WorldGenerator {
 			return shape.isInside((float) coordinate.x, (float) coordinate.y);
 		}
 
+        internal static List<Center> createCenters(List<Face> faces) {
+			List<Center> centers = new List<Center>(faces.Count);
+			foreach (Face face in faces) {
+				Center c = new Center(face.ID, new Coord(face.GetPoint().X, face.GetPoint().Y));
+				centers.Add(c);
+			}
+			return centers;
+		}
+
         internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices) {
             List<Corner> corners = new List<Corner>(vertices.Count);
-			for (int i = 0; i < vertices.Count; ++i) {
-				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];
+			foreach (TriangleNet.Topology.DCEL.Vertex vertex in vertices) {
 				corners.Add(new Corner(vertex.ID, new Coord(vertex.X, vertex.Y)));
+				Debug.Log("creating corner " + vertex.ID);
 			}
 			return corners;
         }
 
-        internal static List<Edge> createEdges(List<IEdge> voronoiEdges, List<TriangleNet.Topology.DCEL.Vertex> vertices, 
-												List<Center> centers, List<Corner> corners, List<Face> faces) {
+        internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, List<Corner> corners) {
+			List<IEdge> voronoiEdges = voronoi.Edges;
             List<Edge> edges = new List<Edge>(voronoiEdges.Count);
+			List<HalfEdge> halfEdges = voronoi.HalfEdges;
+			
+			foreach (IEdge voronoiEdge in voronoiEdges) {
+				HalfEdge e0 = halfEdges[voronoiEdge.P0];
+				HalfEdge e1 = halfEdges[voronoiEdge.P1];
+				Center center0 = centers[e0.Face.ID];
+				Center center1 = centers[e1.Face.ID];
+				Debug.Assert(center0 != null);
+				Debug.Assert(center1 != null);
 
-			for (int i = 0; i < voronoiEdges.Count; ++i) {
-				IEdge voronoiEdge = voronoiEdges[i];
+				TriangleNet.Topology.DCEL.Vertex v0 = e0.Origin;
+				TriangleNet.Topology.DCEL.Vertex v1 = e1.Origin;
+				Debug.Log("v0: " + v0.ID);
+				Debug.Log("v1: " + v1.ID);
 
-				var neighbouringCenters = getCentersByEdge(voronoiEdge, centers, faces);
-				Center center0 = neighbouringCenters.Count > 0 ? neighbouringCenters[0] : null;
-				Center center1 = neighbouringCenters.Count > 1 ? neighbouringCenters[1] : null;
-
-				TriangleNet.Topology.DCEL.Vertex v0 = vertices[voronoiEdge.P0];
-				TriangleNet.Topology.DCEL.Vertex v1 = vertices[voronoiEdge.P1];
-				Corner corner0 = null;
-				Corner corner1 = null;
-				foreach (Corner corner in corners) {
-					if (corner0 == null && corner.matchesId(v0.ID)) {
-						corner0 = corner;
-					} else if (corner1 == null && corner.matchesId(v1.ID)) {
-						corner1 = corner;
-					}
-					if (corner0 != null && corner1 != null) {
-						break;
-					}
-				}
+				Corner corner0 = corners[v0.ID];
+				Corner corner1 = corners[v1.ID];
 				Debug.Assert(corner0 != null);
 				Debug.Assert(corner1 != null);
-				bool isBorder = neighbouringCenters.Count < 2;
-				edges.Add(makeEdge(i, isBorder, corner0, corner1, center0, center1));
+				bool isBorder = e0 == null || e1 == null;
+				Debug.Log("is border " + center0.index + " " + center1.index + ": " + isBorder);
+				edges.Add(makeEdge(isBorder, corner0, corner1, center0, center1));
 			}
 			return edges;
         }
@@ -141,8 +127,8 @@ namespace WorldGenerator {
 			}
         }
 
-        private static Edge makeEdge(int index, bool isBorder, Corner corner0, Corner corner1, Center center0, Center center1) {
-			Edge edge = new Edge(index, isBorder, corner0, corner1, center0, center1);
+        private static Edge makeEdge(bool isBorder, Corner corner0, Corner corner1, Center center0, Center center1) {
+			Edge edge = new Edge(isBorder, corner0, corner1, center0, center1);
 			if (center0 != null && center1 != null) {
 				center0.AddNeighbour(center1);
 				center1.AddNeighbour(center0);
@@ -177,20 +163,6 @@ namespace WorldGenerator {
 				center1.isBorder = isBorder;
 			}
 			return edge;
-		}
-
-        private static List<Center> getCentersByEdge(IEdge edge, List<Center> centers, List<Face> faces) {
-			List<Center> found = new List<Center>(2);
-			foreach (Center center in centers) {
-				Face face = faces[center.index];
-				foreach (HalfEdge corner in face.EnumerateEdges()) {
-					if (corner.ID.Equals(edge.P0) || corner.ID.Equals(edge.P1)) {
-						found.Add(center);
-						break;
-					}
-				}
-			}
-			return found;
 		}
     }
 }

@@ -7,7 +7,6 @@ using UnityEngine;
 namespace WorldGenerator {
     public class Edge
     {
-        private int index;
 
          // Voronoi corner
         public Corner v0 {
@@ -26,8 +25,7 @@ namespace WorldGenerator {
             private set;
         }
 
-        public Edge(int index, bool isBorder, Corner v0, Corner v1, Center d0, Center d1) {
-            this.index = index;
+        public Edge(bool isBorder, Corner v0, Corner v1, Center d0, Center d1) {
             this.isBorder = isBorder;
             this.v0 = v0;
             this.v1 = v1;
