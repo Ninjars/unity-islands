@@ -74,9 +74,9 @@ namespace WorldGenerator {
 			VoronoiBase voronoi = Triangulator.generateVoronoi(initialPoints);
 			voronoi.ResolveBoundaryEdges();
 
-			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces);
-
 			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices);
+
+			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces, corners);
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi, centers, corners);
 

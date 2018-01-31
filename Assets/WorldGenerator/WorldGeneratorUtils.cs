@@ -64,11 +64,14 @@ namespace WorldGenerator {
 			return shape.isInside((float) coordinate.x, (float) coordinate.y);
 		}
 
-        internal static List<Center> createCenters(List<Face> faces) {
+        internal static List<Center> createCenters(List<Face> faces, List<Corner> corners) {
 			List<Center> centers = new List<Center>(faces.Count);
 			foreach (Face face in faces) {
 				Center c = new Center(face.ID, new Coord(face.GetPoint().X, face.GetPoint().Y));
 				centers.Add(c);
+				foreach (HalfEdge halfEdge in face.EnumerateEdges()) {
+					c.AddCorner(corners[halfEdge.Origin.ID]);
+				}
 			}
 			return centers;
 		}
@@ -145,13 +148,9 @@ namespace WorldGenerator {
 			corner1.isBorder = isBorder;
 
 			if (center0 != null) {
-				center0.AddCorner(corner0);
-				center0.AddCorner(corner1);
 				center0.AddEdge(edge);
 			}
 			if (center1 != null) {
-				center1.AddCorner(corner0);
-				center1.AddCorner(corner1);
 				center1.AddEdge(edge);
 			}
 
