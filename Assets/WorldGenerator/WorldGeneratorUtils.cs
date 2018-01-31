@@ -77,7 +77,6 @@ namespace WorldGenerator {
             List<Corner> corners = new List<Corner>(vertices.Count);
 			foreach (TriangleNet.Topology.DCEL.Vertex vertex in vertices) {
 				corners.Add(new Corner(vertex.ID, new Coord(vertex.X, vertex.Y)));
-				Debug.Log("creating corner " + vertex.ID);
 			}
 			return corners;
         }
@@ -90,26 +89,26 @@ namespace WorldGenerator {
 			foreach (IEdge voronoiEdge in voronoiEdges) {
 				HalfEdge e0 = halfEdges[voronoiEdge.P0];
 				HalfEdge e1 = halfEdges[voronoiEdge.P1];
-				Center center0 = centers[e0.Face.ID];
-				Center center1 = centers[e1.Face.ID];
-				Debug.Assert(center0 != null);
-				Debug.Assert(center1 != null);
 
 				TriangleNet.Topology.DCEL.Vertex v0 = e0.Origin;
 				TriangleNet.Topology.DCEL.Vertex v1 = e1.Origin;
-				Debug.Log("v0: " + v0.ID);
-				Debug.Log("v1: " + v1.ID);
 
 				Corner corner0 = corners[v0.ID];
 				Corner corner1 = corners[v1.ID];
-				Debug.Assert(corner0 != null);
-				Debug.Assert(corner1 != null);
-				bool isBorder = e0 == null || e1 == null;
-				Debug.Log("is border " + center0.index + " " + center1.index + ": " + isBorder);
+
+				Face face0 = e0.Face;
+				Face face1 = e0.Twin == null ? null : e0.Twin.Face;
+				Center center0 = face0 == null ? null : centers[face0.ID];
+				Center center1 = face1 == null ? null : centers[face1.ID];
+				bool isBorder = checkIfBorder(corner0.coord) || checkIfBorder(corner1.coord);
 				edges.Add(makeEdge(isBorder, corner0, corner1, center0, center1));
 			}
 			return edges;
         }
+
+		private static bool checkIfBorder(Coord coord) {
+			return coord.x == 0 || coord.y == 0 || coord.x == WorldGenerator.worldSize || coord.y == WorldGenerator.worldSize;
+		}
 
         internal static void improveCorners(List<Corner> corners) {
 			foreach (Corner corner in corners) {

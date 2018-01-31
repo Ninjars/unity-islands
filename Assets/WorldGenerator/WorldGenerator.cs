@@ -11,7 +11,7 @@ namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
 
 		public Material material;
-		private const float worldSize = 1000;
+		internal const float worldSize = 1000;
 		private const int pointCount = 100;
 
         private void Start() {
