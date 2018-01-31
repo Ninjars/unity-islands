@@ -26,12 +26,6 @@ namespace WorldGenerator {
 
 			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
-			foreach (Vector2 point in initialPoints) {
-            	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-				debugIndicator.name = "point " + point;
-				debugIndicator.transform.position = new Vector3(point.x, 0, point.y);
-				debugIndicator.transform.localScale = new Vector3(10, 10, 10);
-			}
 			foreach (Center center in world.centers) {
             	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 				debugIndicator.name = "center " + center.index;
