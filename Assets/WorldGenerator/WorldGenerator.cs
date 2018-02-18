@@ -85,10 +85,10 @@ namespace WorldGenerator {
 		private void triangulate(World world, Mesh mesh) {
 			List<int> indices = new List<int>();
 			List<Vector3> positions = new List<Vector3>();
-			// foreach (Center center in world.centers) {
-			// 	addTrianglesForCenter(center, indices, positions);
-			// }
-			addTrianglesForCenter(world.centers[18], indices, positions);
+			foreach (Center center in world.centers) {
+				addTrianglesForCenter(center, indices, positions);
+			}
+			//addTrianglesForCenter(world.centers[18], indices, positions);
 			mesh.Clear();
 			mesh.vertices = positions.ToArray();
 			mesh.triangles = indices.ToArray();
@@ -96,32 +96,26 @@ namespace WorldGenerator {
 			flipMeshNormals (mesh);
 		}
 
-		private void addTrianglesForCenter(Center center, List<int> indices, List<Vector3> positions) {
-			int indicesOffset = positions.Count;
-			Vector3 centerPos = new Vector3((float)center.coord.x, 0, (float) center.coord.y);
-			positions.Add(centerPos);
-			List<Corner> corners = center.corners;
-			Debug.Log("Count " + corners.Count + " offset " + indicesOffset);
-			for (int i = 1; i < corners.Count; i++) {
-				positions.Add(new Vector3((float)corners[i].coord.x, 0, (float) corners[i].coord.y));
-				indices.Add(indicesOffset);
-				indices.Add(indicesOffset + i);
-				indices.Add(indicesOffset + (i + 1) % corners.Count);
-				Debug.Log("added vector " + corners[i].coord.x + " " + corners[i].coord.y);
-				Debug.Log("Adding " + indicesOffset + " " + (indicesOffset + i) + " " + (indicesOffset + i + 1));
-			}
-			positions.Add(new Vector3((float)corners[corners.Count - 1].coord.x, 0, (float) corners[corners.Count - 1].coord.y));
-			Debug.Log("added vector " + corners[corners.Count - 1].coord.x + " " + corners[corners.Count - 1].coord.y);
-			indices.Add(indicesOffset);
-			indices.Add(indicesOffset + corners.Count);
-			indices.Add(indicesOffset + 1);
-			Debug.Log("Adding " + indicesOffset + " " + (indicesOffset + corners.Count) + " " + (indicesOffset + 1));
+        private void addTrianglesForCenter(Center center, List<int> indices, List<Vector3> positions) {
+            int indicesOffset = positions.Count;
+            Vector3 centerPos = new Vector3((float)center.coord.x, 0, (float)center.coord.y);
+            positions.Add(centerPos);
+            List<Corner> corners = center.corners;
+            for (int i = 1; i < corners.Count; i++) {
+                positions.Add(new Vector3((float)corners[i].coord.x, 0, (float)corners[i].coord.y));
+                indices.Add(indicesOffset);
+                indices.Add(indicesOffset + i);
+                indices.Add(indicesOffset + i + 1);
+            }
+            positions.Add(new Vector3((float)corners[0].coord.x, 0, (float)corners[0].coord.y));
+            indices.Add(indicesOffset);
+            indices.Add(indicesOffset + corners.Count);
+            indices.Add(indicesOffset + 1);
 		}
 
 		private void assignMeshVertices(World world, Mesh mesh) {
 			List<int> indices = new List<int>();
 			List<Vector3> positions = new List<Vector3>();
-			// Triangulator.triangulateVoronoi(voronoi, out indices, out positions);
 
 			Polygon poly = new Polygon();
 			Dictionary<int, TriangleNet.Geometry.Vertex> vertices = new Dictionary<int, TriangleNet.Geometry.Vertex>(world.corners.Count);
