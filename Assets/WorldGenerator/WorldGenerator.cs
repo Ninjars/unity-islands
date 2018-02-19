@@ -129,7 +129,9 @@ namespace WorldGenerator {
 					return Color.cyan;
 				case TerrainType.LAND:
 					return Color.grey;
-				default:
+                case TerrainType.COAST:
+                    return Color.grey;
+                default:
 					return Color.magenta;
 			}
 		}

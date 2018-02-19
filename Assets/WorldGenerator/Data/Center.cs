@@ -62,5 +62,13 @@ namespace WorldGenerator {
                 edges.Add(edge);
             }
         }
+
+        internal bool isLand() {
+            return terrainType == TerrainType.LAND || terrainType == TerrainType.COAST;
+        }
+
+        internal bool isOcean() {
+            return terrainType == TerrainType.OCEAN;
+        }
     }
 }

@@ -38,26 +38,58 @@ namespace WorldGenerator {
 						waterCornerCount++;
 					}
 				}
-				if (center.terrainType != TerrainType.OCEAN
-						&& waterCornerCount >= center.corners.Count * LAKE_THRESHOLD) {
+                if (center.terrainType == TerrainType.OCEAN) {
+                    continue;
+                } else if (waterCornerCount >= center.corners.Count * LAKE_THRESHOLD) {
 					center.terrainType = TerrainType.LAKE;
-				}
+				} else {
+                    center.terrainType = TerrainType.LAND;
+                }
 			}
 
-			// flood fill center's ocean property
-			int i = 0;
-			while (i < borderCenters.Count) {
-				Center c = borderCenters[i];
-				foreach (Center other in c.neighbours) {
-					if (other.terrainType == TerrainType.LAKE) {
-						other.terrainType = TerrainType.OCEAN;
-						borderCenters.Add(other);
-					}
-				}
-				i++;
-			}
+            floodFillOceanCenters(borderCenters);
 
-			// TODO: coast and shallows
+            markOceanCenters(world.centers);
+
+            // TODO: coast and shallows
+        }
+
+        private static void markOceanCenters(List<Center> centers) {
+            foreach (Center center in centers) {
+                int oceans = 0;
+                int lands = 0;
+                foreach (Center c in center.neighbours) {
+                    if (c.isLand()) {
+                        lands++;
+                    } else if (c.isOcean()) {
+                        oceans++;
+                    }
+                    if (oceans > 0 && lands > 0) {
+                        break;
+                    }
+                }
+                if (oceans > 0 && lands > 0) {
+                    if (center.isLand()) {
+                        center.terrainType = TerrainType.COAST;
+                    } else {
+                        center.terrainType = TerrainType.OCEAN;
+                    }
+                }
+            }
+        }
+
+        private static void floodFillOceanCenters(List<Center> borderCenters) {
+            int i = 0;
+            while (i < borderCenters.Count) {
+                Center c = borderCenters[i];
+                foreach (Center other in c.neighbours) {
+                    if (other.terrainType == TerrainType.LAKE) {
+                        other.terrainType = TerrainType.OCEAN;
+                        borderCenters.Add(other);
+                    }
+                }
+                i++;
+            }
         }
 
 		private static bool isInsideShape(PerlinIslandShape shape, Coord coordinate) {
