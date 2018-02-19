@@ -30,23 +30,11 @@ namespace WorldGenerator {
             	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
 				debugIndicator.name = "center " + center.index;
 				debugIndicator.transform.position = new Vector3((float) center.coord.x, 5, (float) center.coord.y);
-				debugIndicator.transform.localScale = new Vector3(10, 10, 10);
-				// debugIndicator.GetComponent<MeshRenderer>().material.color = center.isBorder ? Color.black : Color.gray;
+				debugIndicator.transform.localScale = new Vector3(5, 5, 5);
 				debugIndicator.GetComponent<MeshRenderer>().material.color = Color.black;
-			}
-			int i = 0;
-			foreach (Corner corner in world.centers[18].corners) {
-            	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cube);
-				debugIndicator.name = "corner " + corner.index;
-				debugIndicator.transform.position = new Vector3((float) corner.coord.x, 5, (float) corner.coord.y);
-				debugIndicator.transform.localScale = new Vector3(10, 10, 10);
-				// debugIndicator.GetComponent<MeshRenderer>().material.color = corner.isBorder ? Color.black : Color.gray;
-				debugIndicator.GetComponent<MeshRenderer>().material.color = Color.Lerp(Color.black, Color.white, (i / (float)world.centers[18].corners.Count));
-				i++;
 			}
 
             Mesh mesh = meshFilter.mesh;
-			// assignMeshVertices(world, mesh);
 			triangulate(world, mesh);
 			// assignVertexColors(world, mesh);
 
@@ -77,74 +65,23 @@ namespace WorldGenerator {
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi, centers, corners);
 
-			// WorldGeneratorUtils.improveCorners(corners);
-
 			return new World(centers, corners, edges);
         }
 
 		private void triangulate(World world, Mesh mesh) {
 			List<int> indices = new List<int>();
 			List<Vector3> positions = new List<Vector3>();
+			List<Color> colors = new List<Color>();
 			foreach (Center center in world.centers) {
-				addTrianglesForCenter(center, indices, positions);
+				addTrianglesForCenter(center, indices, positions, colors);
 			}
-			//addTrianglesForCenter(world.centers[18], indices, positions);
+			
 			mesh.Clear();
 			mesh.vertices = positions.ToArray();
 			mesh.triangles = indices.ToArray();
+			mesh.colors = colors.ToArray();
 			mesh.RecalculateNormals();
 			flipMeshNormals (mesh);
-		}
-
-        private void addTrianglesForCenter(Center center, List<int> indices, List<Vector3> positions) {
-            int indicesOffset = positions.Count;
-            Vector3 centerPos = new Vector3((float)center.coord.x, 0, (float)center.coord.y);
-            positions.Add(centerPos);
-            List<Corner> corners = center.corners;
-            for (int i = 1; i < corners.Count; i++) {
-                positions.Add(new Vector3((float)corners[i].coord.x, 0, (float)corners[i].coord.y));
-                indices.Add(indicesOffset);
-                indices.Add(indicesOffset + i);
-                indices.Add(indicesOffset + i + 1);
-            }
-            positions.Add(new Vector3((float)corners[0].coord.x, 0, (float)corners[0].coord.y));
-            indices.Add(indicesOffset);
-            indices.Add(indicesOffset + corners.Count);
-            indices.Add(indicesOffset + 1);
-		}
-
-		private void assignMeshVertices(World world, Mesh mesh) {
-			List<int> indices = new List<int>();
-			List<Vector3> positions = new List<Vector3>();
-
-			Polygon poly = new Polygon();
-			Dictionary<int, TriangleNet.Geometry.Vertex> vertices = new Dictionary<int, TriangleNet.Geometry.Vertex>(world.corners.Count);
-			foreach (Corner corner in world.corners) {
-				var vertex = new TriangleNet.Geometry.Vertex(corner.coord.x, corner.coord.y);
-				vertices.Add(corner.index, vertex);
-				poly.Add(vertex);
-			}
-
-			IMesh triangulated = poly.Triangulate();
-			foreach (TriangleNet.Geometry.Vertex vert in triangulated.Vertices) {
-				Corner corner = findCorner(world.corners, vert.X, vert.Y);
-				if (corner != null) {
-					corner.addVertexIndex(positions.Count);
-				}
-				positions.Add(new Vector3((float) vert.X, 0, (float) vert.Y));
-			}
-			foreach (Triangle tri in triangulated.Triangles) {
-				indices.Add(tri.GetVertexID(0));
-				indices.Add(tri.GetVertexID(1));
-				indices.Add(tri.GetVertexID(2));
-			}
-
-			mesh.Clear();
-			mesh.vertices = positions.ToArray();
-			mesh.triangles = indices.ToArray();
-			mesh.RecalculateNormals();
-			flipMeshNormals (mesh);
-
 			Vector2[] myUVs = new Vector2[positions.Count];
 			for (var i = 0; i < positions.Count; i++) {
 				myUVs[i] = new Vector2(positions[i].x / worldSize, positions[i].y / worldSize);
@@ -152,28 +89,41 @@ namespace WorldGenerator {
 			mesh.uv = myUVs;
 		}
 
-        private Corner findCorner(List<Corner> corners, double x, double y) {
-            foreach (Corner corner in corners) {
-				Coord coord = corner.coord;
-				if (coord.matches(x, y)) {
-					return corner;
-				}
-			}
-			return null;
-        }
+        private void addTrianglesForCenter(Center center, List<int> indices, List<Vector3> positions, List<Color> colors) {
+            int indicesOffset = positions.Count;
+			
+            Vector3 centerPos = new Vector3((float)center.coord.x, 0, (float)center.coord.y);
+            positions.Add(centerPos);
+			colors.Add(getColor(center.terrainType));
+
+            List<Corner> corners = center.corners;
+            for (int i = 1; i < corners.Count; i++) {
+				Corner corner = corners[i];
+                positions.Add(new Vector3((float)corner.coord.x, 0, (float)corner.coord.y));
+				colors.Add(getColor(corner.terrainType));
+                indices.Add(indicesOffset);
+                indices.Add(indicesOffset + i);
+                indices.Add(indicesOffset + i + 1);
+            }
+            positions.Add(new Vector3((float)corners[0].coord.x, 0, (float)corners[0].coord.y));
+			colors.Add(getColor(corners[0].terrainType));
+            indices.Add(indicesOffset);
+            indices.Add(indicesOffset + corners.Count);
+            indices.Add(indicesOffset + 1);
+		}
 
         private void assignVertexColors(World world, Mesh mesh) {
 			Color[] colors = new Color[mesh.vertices.Length];
 			foreach (Corner corner in world.corners) {
 				foreach (int index in corner.vertexIndices) {
-					colors[index] = getColorFromCorner(corner);
+					colors[index] = getColor(corner.terrainType);
 				}
 			}
 			mesh.colors = colors;
 		}
 
-		private Color getColorFromCorner(Corner corner) {
-			switch (corner.terraintype) {
+		private Color getColor(TerrainType terrainType) {
+			switch (terrainType) {
 				case TerrainType.OCEAN:
 					return Color.blue;
 				case TerrainType.LAKE:
@@ -184,15 +134,6 @@ namespace WorldGenerator {
 					return Color.magenta;
 			}
 		}
-
-        //private Corner findCorner(List<Corner> corners, int i) {
-        //    foreach (Corner corner in corners) {
-		//		if (corner.vertexIndices.Contains(i)) {
-		//			return corner;
-		//		}
-		//	}
-		//	return null;
-        //}
 
         private void flipMeshNormals(Mesh mesh) {
 			var indices = mesh.triangles;

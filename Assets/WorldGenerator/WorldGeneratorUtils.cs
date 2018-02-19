@@ -16,11 +16,11 @@ namespace WorldGenerator {
             foreach (Corner corner in world.corners) {
 				bool isWater = !isInsideShape(perlinIslandShape, corner.coord);
 				if (corner.isBorder) {
-					corner.terraintype = TerrainType.OCEAN;
+					corner.terrainType = TerrainType.OCEAN;
 				} else if (isWater) {
-					corner.terraintype = TerrainType.LAKE;
+					corner.terrainType = TerrainType.LAKE;
 				} else {
-					corner.terraintype = TerrainType.LAND;
+					corner.terrainType = TerrainType.LAND;
 				}
 			}
 

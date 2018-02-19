@@ -20,7 +20,7 @@ namespace WorldGenerator {
             get;
             set;
         }
-        public TerrainType terraintype { get; internal set; }
+        public TerrainType terrainType { get; internal set; }
 
         private List<Edge> edges = new List<Edge>();
         private List<Center> centers = new List<Center>();
@@ -68,7 +68,7 @@ namespace WorldGenerator {
         }
 
         internal bool isWater() {
-            return terraintype.Equals(TerrainType.LAKE) || terraintype.Equals(TerrainType.OCEAN);
+            return terrainType.Equals(TerrainType.LAKE) || terrainType.Equals(TerrainType.OCEAN);
         }
 
         internal bool isLand() {
