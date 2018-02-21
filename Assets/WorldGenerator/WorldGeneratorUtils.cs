@@ -208,17 +208,12 @@ namespace WorldGenerator {
 
 			if (center0 != null) {
 				center0.AddEdge(edge);
-			}
+                center0.isBorder = isBorder;
+            }
 			if (center1 != null) {
 				center1.AddEdge(edge);
-			}
-
-			if (center0 != null && isBorder) {
-				center0.isBorder = isBorder;
-			}
-			if (center1 != null && isBorder) {
-				center1.isBorder = isBorder;
-			}
+                center1.isBorder = isBorder;
+            }
 			return edge;
 		}
     }
