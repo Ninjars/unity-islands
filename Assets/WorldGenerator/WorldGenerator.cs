@@ -26,7 +26,7 @@ namespace WorldGenerator {
             int seed = 12335;
             world = generateWorldGeometry(seed);
 
-			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
+			WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
 			foreach (Center center in world.centers) {
             	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
@@ -130,7 +130,7 @@ namespace WorldGenerator {
 				case TerrainType.LAND:
 					return Color.grey;
                 case TerrainType.COAST:
-                    return Color.grey;
+                    return Color.yellow;
                 default:
 					return Color.magenta;
 			}
