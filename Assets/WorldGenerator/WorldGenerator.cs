@@ -13,6 +13,8 @@ namespace WorldGenerator {
 		public Material material;
 		internal const float worldSize = 1000;
 		private const int pointCount = 100;
+		
+        private World world;
 
         private void Start() {
             GameObject gameObj = new GameObject();
@@ -22,7 +24,7 @@ namespace WorldGenerator {
 
             int seed = 12335;
 			List<Vector2> initialPoints = generateInitialPoints(seed);
-            World world = generateWorldGeometry(initialPoints);
+            world = generateWorldGeometry(initialPoints);
 
 			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
@@ -41,6 +43,17 @@ namespace WorldGenerator {
             gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
 			gameObj.GetComponent<Renderer>().material = material;
         }
+
+		void OnDrawGizmos() {
+			if (world == null) {
+				return;
+			}
+			foreach (Center center in world.centers) {
+				foreach (Center neigh in center.neighbours) {
+					Debug.DrawLine(new Vector3((float) center.coord.x, 5, (float) center.coord.y), new Vector3((float) neigh.coord.x, 3, (float) neigh.coord.y));
+				}
+			}
+		}
 
 		private List<Vector2> generateInitialPoints(int seed) {
 			List<Vector2> initialPoints = new List<Vector2>(pointCount);
