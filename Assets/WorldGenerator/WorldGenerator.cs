@@ -38,7 +38,6 @@ namespace WorldGenerator {
 
             Mesh mesh = meshFilter.mesh;
 			triangulate(world, mesh);
-			// assignVertexColors(world, mesh);
 
             gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
 			gameObj.GetComponent<Renderer>().material = material;
@@ -93,19 +92,20 @@ namespace WorldGenerator {
 			
             Vector3 centerPos = new Vector3((float)center.coord.x, 0, (float)center.coord.y);
             positions.Add(centerPos);
-			colors.Add(getColor(center.terrainType));
+            Color color = getColor(center.terrainType);
+            colors.Add(color);
 
             List<Corner> corners = center.corners;
             for (int i = 1; i < corners.Count; i++) {
 				Corner corner = corners[i];
                 positions.Add(new Vector3((float)corner.coord.x, 0, (float)corner.coord.y));
-				colors.Add(getColor(corner.terrainType));
+				colors.Add(color);
                 indices.Add(indicesOffset);
                 indices.Add(indicesOffset + i);
                 indices.Add(indicesOffset + i + 1);
             }
             positions.Add(new Vector3((float)corners[0].coord.x, 0, (float)corners[0].coord.y));
-			colors.Add(getColor(corners[0].terrainType));
+			colors.Add(color);
             indices.Add(indicesOffset);
             indices.Add(indicesOffset + corners.Count);
             indices.Add(indicesOffset + 1);
