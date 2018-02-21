@@ -85,13 +85,14 @@ namespace WorldGenerator {
         }
 
         internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, List<Corner> corners) {
-			List<IEdge> voronoiEdges = voronoi.Edges;
-            List<Edge> edges = new List<Edge>(voronoiEdges.Count);
+            List<Edge> edges = new List<Edge>();
 			List<HalfEdge> halfEdges = voronoi.HalfEdges;
-			
-			foreach (IEdge voronoiEdge in voronoiEdges) {
-				HalfEdge e0 = halfEdges[voronoiEdge.P0];
-				HalfEdge e1 = halfEdges[voronoiEdge.P1];
+
+			foreach (HalfEdge e0 in halfEdges) {
+				HalfEdge e1 = e0.Twin;
+				if (e1.ID < e0.ID) {
+					continue;
+				}
 
 				TriangleNet.Topology.DCEL.Vertex v0 = e0.Origin;
 				TriangleNet.Topology.DCEL.Vertex v1 = e1.Origin;
@@ -100,18 +101,14 @@ namespace WorldGenerator {
 				Corner corner1 = corners[v1.ID];
 
 				Face face0 = e0.Face;
-				Face face1 = e0.Twin == null ? null : e0.Twin.Face;
-				Center center0 = face0 == null ? null : centers[face0.ID];
-				Center center1 = face1 == null ? null : centers[face1.ID];
-				bool isBorder = checkIfBorder(corner0.coord) || checkIfBorder(corner1.coord);
+				Face face1 = e1.Face;
+				Center center0 = face0.ID < 0 ? null : centers[face0.ID];
+				Center center1 = face1.ID < 0 ? null : centers[face1.ID];
+				bool isBorder = center0 == null || center1 == null;
 				edges.Add(makeEdge(isBorder, corner0, corner1, center0, center1));
 			}
 			return edges;
         }
-
-		private static bool checkIfBorder(Coord coord) {
-			return coord.x == 0 || coord.y == 0 || coord.x == WorldGenerator.worldSize || coord.y == WorldGenerator.worldSize;
-		}
 
         internal static void improveCorners(List<Corner> corners) {
 			foreach (Corner corner in corners) {
