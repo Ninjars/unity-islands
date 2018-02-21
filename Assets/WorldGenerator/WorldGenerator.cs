@@ -27,14 +27,6 @@ namespace WorldGenerator {
             world = generateWorldGeometry(seed);
 
 			WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
-			
-			foreach (Center center in world.centers) {
-            	GameObject debugIndicator = GameObject.CreatePrimitive(PrimitiveType.Cylinder);
-				debugIndicator.name = "center " + center.index;
-				debugIndicator.transform.position = new Vector3((float) center.coord.x, 5, (float) center.coord.y);
-				debugIndicator.transform.localScale = new Vector3(5, 5, 5);
-				debugIndicator.GetComponent<MeshRenderer>().material.color = Color.black;
-			}
 
             Mesh mesh = meshFilter.mesh;
 			triangulate(world, mesh);
