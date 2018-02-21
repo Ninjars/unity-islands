@@ -64,6 +64,52 @@ namespace WorldGenerator {
 			return shape.isInside((float) coordinate.x, (float) coordinate.y);
 		}
 
+		public static VoronoiBase generateVoronoi(int seed, float worldSize, int pointCount, AnimationCurve curve) {
+			System.Random pointRandom = new System.Random(seed);
+			List<Vector2> cornerPoints = new List<Vector2>(4);
+			cornerPoints.Add(new Vector2(0, 0));
+			cornerPoints.Add(new Vector2(worldSize, 0));
+			cornerPoints.Add(new Vector2(0, worldSize));
+			cornerPoints.Add(new Vector2(worldSize, worldSize));
+
+			List<Vector2> points = new List<Vector2>(pointCount);
+			points.AddRange(cornerPoints);
+			for (int i = 0; i < pointCount; i++) {
+				float x = curveWeightedRandom(curve, (float) pointRandom.NextDouble()) * worldSize;
+				float y = curveWeightedRandom(curve, (float) pointRandom.NextDouble()) * worldSize;
+				Debug.Log(x + " " + y);
+                points.Add(new Vector2(x, y));
+            }
+			points = performLloydRelaxation(points, cornerPoints);
+			points = performLloydRelaxation(points, cornerPoints);
+			VoronoiBase voronoi = Triangulator.generateVoronoi(points);
+			voronoi.ResolveBoundaryEdges();
+			return voronoi;
+		}
+
+		private static float curveWeightedRandom(AnimationCurve curve, float value) {
+			return curve.Evaluate(value);
+		}
+
+        private static List<Vector2> performLloydRelaxation(List<Vector2> currentPoints, List<Vector2> cornerPoints) {
+			VoronoiBase voronoi = Triangulator.generateVoronoi(currentPoints);
+			List<TriangleNet.Topology.DCEL.Face> faces = voronoi.Faces;
+			List<Vector2> points = new List<Vector2>(currentPoints.Count + cornerPoints.Count);
+			points.AddRange(cornerPoints);
+			foreach (Face face in faces) {
+				float x = 0, y = 0;
+                IEnumerable<HalfEdge> halfEdges = face.EnumerateEdges();
+				float count = 0;
+                foreach (var halfEdge in halfEdges) {
+					count++;
+					x += (float) halfEdge.Origin.X;
+					y += (float) halfEdge.Origin.Y;
+				}
+				points.Add(new Vector2(x / count, y / count));
+			}
+            return points;
+        }
+
         internal static List<Center> createCenters(List<Face> faces, List<Corner> corners) {
 			List<Center> centers = new List<Center>(faces.Count);
 			foreach (Face face in faces) {
@@ -108,22 +154,6 @@ namespace WorldGenerator {
 				edges.Add(makeEdge(isBorder, corner0, corner1, center0, center1));
 			}
 			return edges;
-        }
-
-        internal static void improveCorners(List<Corner> corners) {
-			foreach (Corner corner in corners) {
-				double x = 0;
-				double y = 0;
-
-				foreach (Center center in corner.GetTouches()) {
-					x += center.coord.x;
-					y += center.coord.y;
-				}
-
-				x /= corner.GetTouches().Count;
-				y /= corner.GetTouches().Count;
-				corner.setPosition(x, y);
-			}
         }
 
         private static Edge makeEdge(bool isBorder, Corner corner0, Corner corner1, Center center0, Center center1) {

@@ -11,6 +11,7 @@ namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
 
 		public Material material;
+		public AnimationCurve initialDistributionCurve;
 		internal const float worldSize = 1000;
 		private const int pointCount = 100;
 		
@@ -23,8 +24,7 @@ namespace WorldGenerator {
             gameObj.AddComponent<MeshRenderer>();
 
             int seed = 12335;
-			List<Vector2> initialPoints = generateInitialPoints(seed);
-            world = generateWorldGeometry(initialPoints);
+            world = generateWorldGeometry(seed);
 
 			WorldGeneratorUtils.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
@@ -55,22 +55,8 @@ namespace WorldGenerator {
 			}
 		}
 
-		private List<Vector2> generateInitialPoints(int seed) {
-			List<Vector2> initialPoints = new List<Vector2>(pointCount);
-			initialPoints.Add(new Vector2(0, 0));
-			initialPoints.Add(new Vector2(worldSize, 0));
-			initialPoints.Add(new Vector2(0, worldSize));
-			initialPoints.Add(new Vector2(worldSize, worldSize));
-            System.Random pointRandom = new System.Random(seed);
-            for (int i = 0; i < pointCount; i++) {
-                initialPoints.Add(new Vector2((float)pointRandom.NextDouble() * worldSize, (float)pointRandom.NextDouble() * worldSize));
-            }
-			return initialPoints;
-		}
-
-        private World generateWorldGeometry(List<Vector2> initialPoints) {
-			VoronoiBase voronoi = Triangulator.generateVoronoi(initialPoints);
-			voronoi.ResolveBoundaryEdges();
+        private World generateWorldGeometry(int seed) {
+			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount, initialDistributionCurve);
 
 			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices);
 

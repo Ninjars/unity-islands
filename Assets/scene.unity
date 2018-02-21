@@ -225,6 +225,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 558401376f4da714184abf62e4b77bd9, type: 2}
+  initialDistributionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 2
+      time: 0
+      value: 0.1000061
+      inSlope: 1.985546
+      outSlope: 1.985546
+      tangentMode: 0
+    - serializedVersion: 2
+      time: 1
+      value: 0.8999939
+      inSlope: 1.7162734
+      outSlope: 1.7162734
+      tangentMode: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 0
 --- !u!4 &793683792
 Transform:
   m_ObjectHideFlags: 0
