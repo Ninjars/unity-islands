@@ -20,7 +20,7 @@ namespace WorldGenerator {
 			float polarX = (x/size - 0.5f) * 2;
 			float polarY = (y/size - 0.5f) * 2;
 			float lineLength = (polarX * polarX + polarY * polarY);
-			return perlinVal > 0.4 + 0.6 * lineLength;
+			return perlinVal > 0.2 + 0.8 * lineLength;
 		}
 
 		private float getPerlin(float x, float y) {
