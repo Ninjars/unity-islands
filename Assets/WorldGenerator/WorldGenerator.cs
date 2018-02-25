@@ -26,7 +26,8 @@ namespace WorldGenerator {
             int seed = 12335;
             world = generateWorldGeometry(seed);
 
-			WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
+			WorldGenElevation.createVolcanicIsland(world);
+			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 
             Mesh mesh = meshFilter.mesh;
 			triangulate(world, mesh);
@@ -75,7 +76,6 @@ namespace WorldGenerator {
 			mesh.triangles = indices.ToArray();
 			mesh.colors = colors.ToArray();
 			mesh.RecalculateNormals();
-			flipMeshNormals (mesh);
 			Vector2[] myUVs = new Vector2[positions.Count];
 			for (var i = 0; i < positions.Count; i++) {
 				myUVs[i] = new Vector2(positions[i].x / worldSize, positions[i].y / worldSize);
@@ -128,7 +128,7 @@ namespace WorldGenerator {
                 case TerrainType.COAST:
                     return Color.yellow;
                 default:
-					return Color.magenta;
+					return Color.white;
 			}
 		}
 
