@@ -83,28 +83,32 @@ namespace WorldGenerator {
 			mesh.uv = myUVs;
 		}
 
-        private void addTrianglesForCenter(Center center, List<int> indices, List<Vector3> positions, List<Color> colors) {
-            int indicesOffset = positions.Count;
+        private void addTrianglesForCenter(Center center, 
+											List<int> indices, 
+											List<Vector3> positions,
+											List<Color> colors) {
 			
-            Vector3 centerPos = new Vector3((float)center.coord.x, 0, (float)center.coord.y);
-            positions.Add(centerPos);
+            Vector3 centerPos = new Vector3((float)center.coord.x, (float) center.elevation, (float)center.coord.y);
             Color color = getColor(center.terrainType);
-            colors.Add(color);
+			int indicesOffset = positions.Count;
 
             List<Corner> corners = center.corners;
-            for (int i = 1; i < corners.Count; i++) {
-				Corner corner = corners[i];
-                positions.Add(new Vector3((float)corner.coord.x, 0, (float)corner.coord.y));
+            for (int i = 0; i < corners.Count; i++) {
+            	positions.Add(centerPos);
+				Corner corner1 = corners[i];
+                positions.Add(new Vector3((float)corner1.coord.x, (float) corner1.elevation, (float)corner1.coord.y));
+				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
+				Corner corner2 = corners[index2];
+                positions.Add(new Vector3((float)corner2.coord.x, (float) corner2.elevation, (float)corner2.coord.y));
+
 				colors.Add(color);
-                indices.Add(indicesOffset);
-                indices.Add(indicesOffset + i);
-                indices.Add(indicesOffset + i + 1);
+				colors.Add(color);
+				colors.Add(color);
+
+                indices.Add(indicesOffset + i*3);
+                indices.Add(indicesOffset + i*3 + 2);
+                indices.Add(indicesOffset + i*3 + 1);
             }
-            positions.Add(new Vector3((float)corners[0].coord.x, 0, (float)corners[0].coord.y));
-			colors.Add(color);
-            indices.Add(indicesOffset);
-            indices.Add(indicesOffset + corners.Count);
-            indices.Add(indicesOffset + 1);
 		}
 
         private void assignVertexColors(World world, Mesh mesh) {
@@ -130,23 +134,6 @@ namespace WorldGenerator {
                 default:
 					return Color.white;
 			}
-		}
-
-        private void flipMeshNormals(Mesh mesh) {
-			var indices = mesh.triangles;
-			var triangleCount = indices.Length / 3;
-			for (var i = 0; i < triangleCount; i++) {
-				var tmp = indices [i * 3];
-				indices [i * 3] = indices [i * 3 + 1];
-				indices [i * 3 + 1] = tmp;
-			}
-			mesh.triangles = indices;
-			// additionally flip the vertex normals to get the correct lighting
-			var normals = mesh.normals;
-			for (var n = 0; n < normals.Length; n++) {
-				normals [n] = -normals [n];
-			}
-			mesh.normals = normals;
 		}
     }
 }
