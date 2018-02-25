@@ -13,7 +13,7 @@ namespace WorldGenerator {
 		public Material material;
 		public AnimationCurve initialDistributionCurve;
 		internal const float worldSize = 1000;
-		private const int pointCount = 100;
+		private const int pointCount = 1000;
 		
         private World world;
 
