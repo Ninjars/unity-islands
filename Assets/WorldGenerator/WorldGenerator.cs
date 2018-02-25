@@ -55,7 +55,7 @@ namespace WorldGenerator {
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi, centers, corners);
 
-			return new World(centers, corners, edges);
+			return new World(seed, worldSize, centers, corners, edges);
         }
 
 		private void triangulate(World world, Mesh mesh) {

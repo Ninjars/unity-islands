@@ -30,5 +30,11 @@ namespace WorldGenerator {
 			double diffY = Math.Abs(this.y * .000001);
 			return (Math.Abs(this.x - x) <= diffX) && (Math.Abs(this.y - y) <= diffY);
         }
+
+		public static double distanceBetween(Coord a, Coord b) {
+			double dx = a.x - b.x;
+			double dy = a.y - b.y;
+			return Math.Sqrt((dx * dx + dy * dy));
+		}
     }
 }

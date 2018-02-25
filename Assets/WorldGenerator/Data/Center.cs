@@ -6,7 +6,9 @@ using UnityEngine;
 
 namespace WorldGenerator {
 	public class Center {
-		public int index {
+        public double elevation;
+
+        public int index {
             get;
             private set;
         }

@@ -4,6 +4,14 @@ using UnityEngine;
 
 namespace WorldGenerator {
 	public class World {
+        public int seed {
+			get;
+			private set;
+		}
+        public float size {
+			get;
+			private set;
+		}
 
         public List<Center> centers {
 			get;
@@ -17,8 +25,10 @@ namespace WorldGenerator {
 			get;
 			private set;
 		}
-        public World(List<Center> centers, List<Corner> corners, List<Edge> edges)
+        public World(int seed, float size, List<Center> centers, List<Corner> corners, List<Edge> edges)
         {
+            this.seed = seed;
+			this.size = size;
             this.centers = centers;
             this.corners = corners;
             this.edges = edges;

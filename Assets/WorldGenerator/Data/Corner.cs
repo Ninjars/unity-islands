@@ -25,6 +25,8 @@ namespace WorldGenerator {
         private List<Edge> edges = new List<Edge>();
         private List<Center> centers = new List<Center>();
         private List<Corner> adjacent = new List<Corner>();
+        internal double elevation;
+
         public List<int> vertexIndices {
             get;
             private set;
