@@ -7,10 +7,6 @@ using UnityEngine;
 
 namespace WorldGenerator {
     public class Corner {
-        public int index {
-            get;
-            private set;
-        }
         public Coord coord {
             get;
             private set;
@@ -32,15 +28,10 @@ namespace WorldGenerator {
             private set;
         }
 
-        public Corner(int index, Coord coord)
+        public Corner(Coord coord)
         {
-            this.index = index;
             this.coord = coord;
             vertexIndices = new List<int>();
-        }
-        internal bool matchesId(int id)
-        {
-            return index.Equals(id);
         }
 
         internal void AddEdge(Edge edge)

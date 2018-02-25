@@ -6,6 +6,7 @@ using TriangleNet.Topology.DCEL;
 using TriangleNet.Geometry;
 using TriangleNet.Meshing;
 using TriangleNet.Topology;
+using System.Linq;
 
 namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
@@ -49,18 +50,26 @@ namespace WorldGenerator {
 					}
 				}
 			}
+			foreach (Corner corner in world.corners) {
+				foreach (Center center in corner.GetTouches()) {
+					Debug.DrawLine(
+							new Vector3((float) center.coord.x, (float) center.elevation + 1, (float) center.coord.y), 
+							new Vector3((float) corner.coord.x, (float) corner.elevation + 1, (float) corner.coord.y),
+							Color.green);
+				}
+			}
 		}
 
         private World generateWorldGeometry(int seed) {
 			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount, initialDistributionCurve);
 
-			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices);
+			Dictionary<int, Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
 
 			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces, corners);
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi, centers, corners);
 
-			return new World(seed, worldSize, centers, corners, edges);
+			return new World(seed, worldSize, centers, corners.Values.ToList(), edges);
         }
 
 		private void triangulate(World world, Mesh mesh) {

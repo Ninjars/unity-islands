@@ -9,6 +9,8 @@ using UnityEngine;
 namespace WorldGenerator {
 	public static class WorldGeneratorUtils {
 
+		private const float vertexTolerance = 10f * 10f; 
+
 		public static VoronoiBase generateVoronoi(int seed, float worldSize, int pointCount, AnimationCurve curve) {
 			System.Random pointRandom = new System.Random(seed);
 			List<Vector2> cornerPoints = new List<Vector2>(4);
@@ -54,7 +56,7 @@ namespace WorldGenerator {
             return points;
         }
 
-        internal static List<Center> createCenters(List<Face> faces, List<Corner> corners) {
+        internal static List<Center> createCenters(List<Face> faces, Dictionary<int, Corner> corners) {
 			List<Center> centers = new List<Center>(faces.Count);
 			foreach (Face face in faces) {
 				Center c = new Center(face.ID, new Coord(face.GetPoint().X, face.GetPoint().Y));
@@ -66,15 +68,36 @@ namespace WorldGenerator {
 			return centers;
 		}
 
-        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices) {
-            List<Corner> corners = new List<Corner>(vertices.Count);
-			foreach (TriangleNet.Topology.DCEL.Vertex vertex in vertices) {
-				corners.Add(new Corner(vertex.ID, new Coord(vertex.X, vertex.Y)));
+        internal static Dictionary<int, Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices, float worldSize) {
+			Dictionary<int, Corner> idCorners = new Dictionary<int, Corner>(vertices.Count);
+			for (int i = 0; i < vertices.Count; i++) {
+				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];
+				Coord position = new Coord(vertex.X, vertex.Y);
+				if (vertex.X == 0 || vertex.X == worldSize || vertex.Y == 0 || vertex.Y == worldSize) {
+					idCorners.Add(i, new Corner(position));
+					continue;
+				}
+				Corner matchingCorner = findMatchingCorner(idCorners.Values, position, vertexTolerance);
+				if (matchingCorner != null) {
+					idCorners.Add(i, matchingCorner);
+				} else {
+					idCorners.Add(i, new Corner(position));
+				}
 			}
-			return corners;
+			return idCorners;
         }
 
-        internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, List<Corner> corners) {
+        private static Corner findMatchingCorner(Dictionary<int, Corner>.ValueCollection values, 
+												Coord position, float tolerance) {
+            foreach (Corner corner in values) {
+				if (Coord.squareDistance(corner.coord, position) < tolerance){
+					return corner;
+				}
+			}
+			return null;
+        }
+
+        internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, Dictionary<int, Corner> corners) {
             List<Edge> edges = new List<Edge>();
 			List<HalfEdge> halfEdges = voronoi.HalfEdges;
 

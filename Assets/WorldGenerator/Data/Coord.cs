@@ -32,9 +32,13 @@ namespace WorldGenerator {
         }
 
 		public static double distanceBetween(Coord a, Coord b) {
-			double dx = a.x - b.x;
-			double dy = a.y - b.y;
-			return Math.Sqrt((dx * dx + dy * dy));
+			return Math.Sqrt(squareDistance(a, b));
 		}
+
+        internal static double squareDistance(Coord a, Coord b) {
+            double dx = a.x - b.x;
+			double dy = a.y - b.y;
+			return (dx * dx + dy * dy);
+        }
     }
 }
