@@ -22,7 +22,6 @@ namespace WorldGenerator {
 			for (int i = 0; i < pointCount; i++) {
 				float x = curveWeightedRandom(curve, (float) pointRandom.NextDouble()) * worldSize;
 				float y = curveWeightedRandom(curve, (float) pointRandom.NextDouble()) * worldSize;
-				Debug.Log(x + " " + y);
                 points.Add(new Vector2(x, y));
             }
 			points = performLloydRelaxation(points, cornerPoints);

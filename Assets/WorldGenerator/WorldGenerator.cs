@@ -41,7 +41,11 @@ namespace WorldGenerator {
 			}
 			foreach (Center center in world.centers) {
 				foreach (Center neigh in center.neighbours) {
-					Debug.DrawLine(new Vector3((float) center.coord.x, 5, (float) center.coord.y), new Vector3((float) neigh.coord.x, 3, (float) neigh.coord.y));
+					if (neigh.index > center.index) {
+						Debug.DrawLine(
+							new Vector3((float) center.coord.x, (float) center.elevation + 1, (float) center.coord.y), 
+							new Vector3((float) neigh.coord.x, (float) neigh.elevation + 1, (float) neigh.coord.y));
+					}
 				}
 			}
 		}
