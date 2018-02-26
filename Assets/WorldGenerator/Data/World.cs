@@ -25,6 +25,11 @@ namespace WorldGenerator {
 			get;
 			private set;
 		}
+
+		public Coord center {
+			get;
+			private set;
+		}
         public World(int seed, float size, List<Center> centers, List<Corner> corners, List<Edge> edges)
         {
             this.seed = seed;
@@ -32,6 +37,7 @@ namespace WorldGenerator {
             this.centers = centers;
             this.corners = corners;
             this.edges = edges;
+			this.center = new Coord(size / 2d, size / 2d);
         }
 	}
 }

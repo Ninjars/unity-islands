@@ -28,7 +28,7 @@ namespace WorldGenerator {
             int seed = 12335;
             world = generateWorldGeometry(seed);
 
-			WorldGenElevation.createVolcanicIsland(world);
+			WorldGenElevation.createIsland(world);
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 
             Mesh mesh = meshFilter.mesh;
