@@ -71,5 +71,9 @@ namespace WorldGenerator {
         internal void addVertexIndex(int index) {
             vertexIndices.Add(index);
         }
+
+        public float scaledElevation(float factor) {
+            return (float) elevation * factor;
+        }
     }
 }

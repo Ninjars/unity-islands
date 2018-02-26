@@ -72,5 +72,9 @@ namespace WorldGenerator {
         internal bool isOcean() {
             return terrainType == TerrainType.OCEAN;
         }
+
+        public float scaledElevation(float factor) {
+            return (float) elevation * factor;
+        }
     }
 }

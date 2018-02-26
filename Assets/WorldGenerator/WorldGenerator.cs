@@ -13,8 +13,9 @@ namespace WorldGenerator {
 
 		public Material material;
 		public AnimationCurve initialDistributionCurve;
-		internal const float worldSize = 1000;
-		private const int pointCount = 1000;
+		public float worldSize = 1000;
+		public int pointCount = 1000;
+		public float verticalScale = 100f;
 		
         private World world;
 
@@ -45,16 +46,16 @@ namespace WorldGenerator {
 				foreach (Center neigh in center.neighbours) {
 					if (neigh.index > center.index) {
 						Debug.DrawLine(
-							new Vector3((float) center.coord.x, (float) center.elevation + 1, (float) center.coord.y), 
-							new Vector3((float) neigh.coord.x, (float) neigh.elevation + 1, (float) neigh.coord.y));
+							new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
+							new Vector3((float) neigh.coord.x, neigh.scaledElevation(verticalScale), (float) neigh.coord.y));
 					}
 				}
 			}
 			foreach (Corner corner in world.corners) {
 				foreach (Center center in corner.GetTouches()) {
 					Debug.DrawLine(
-							new Vector3((float) center.coord.x, (float) center.elevation + 1, (float) center.coord.y), 
-							new Vector3((float) corner.coord.x, (float) corner.elevation + 1, (float) corner.coord.y),
+							new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
+							new Vector3((float) corner.coord.x, corner.scaledElevation(verticalScale), (float) corner.coord.y),
 							Color.green);
 				}
 			}
@@ -97,7 +98,7 @@ namespace WorldGenerator {
 											List<Vector3> positions,
 											List<Color> colors) {
 			
-            Vector3 centerPos = new Vector3((float)center.coord.x, (float) center.elevation, (float)center.coord.y);
+            Vector3 centerPos = new Vector3((float)center.coord.x, center.scaledElevation(verticalScale), (float)center.coord.y);
             Color color = getColor(center.terrainType);
 			int indicesOffset = positions.Count;
 
@@ -105,10 +106,10 @@ namespace WorldGenerator {
             for (int i = 0; i < corners.Count; i++) {
             	positions.Add(centerPos);
 				Corner corner1 = corners[i];
-                positions.Add(new Vector3((float)corner1.coord.x, (float) corner1.elevation, (float)corner1.coord.y));
+                positions.Add(new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y));
 				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
 				Corner corner2 = corners[index2];
-                positions.Add(new Vector3((float)corner2.coord.x, (float) corner2.elevation, (float)corner2.coord.y));
+                positions.Add(new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y));
 
 				colors.Add(color);
 				colors.Add(color);
