@@ -38,6 +38,13 @@ namespace WorldGenerator {
         }
         public TerrainType terrainType { get; internal set; }
 
+        /**
+            downslope may be null if it's neighbours are same height or higher
+        */
+        public Center downslope {
+            get; set;
+        }
+
         public Center(int index, Coord coord) {
             this.index = index;
             this.coord = coord;

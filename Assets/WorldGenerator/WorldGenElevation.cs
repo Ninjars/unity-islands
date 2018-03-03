@@ -141,5 +141,23 @@ namespace WorldGenerator {
                 center.elevation = elevation / neighbours.Count;
             }
         }
+
+		internal static void calculateDownslopes(List<Center> centers) {
+			foreach (Center center  in centers) {
+				Center lowest = null;
+				foreach (Center neigh in center.neighbours) {
+					if (lowest == null) {
+						lowest = neigh;
+					} else {
+						if (neigh.elevation < lowest.elevation) {
+							lowest = neigh;
+						}
+					}
+				}
+				if (center.elevation > lowest.elevation) {
+					center.downslope = lowest;
+				}
+			}
+		}
     }
 }
