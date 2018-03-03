@@ -22,8 +22,8 @@ namespace WorldGenerator {
 			List<Vector2> points = new List<Vector2>(pointCount);
 			points.AddRange(cornerPoints);
 			for (int i = 0; i < pointCount; i++) {
-				float x = curveWeightedRandom(curve, (float) pointRandom.NextDouble()) * worldSize;
-				float y = curveWeightedRandom(curve, (float) pointRandom.NextDouble()) * worldSize;
+				float x = curve.Evaluate((float) pointRandom.NextDouble()) * worldSize;
+				float y = curve.Evaluate((float) pointRandom.NextDouble()) * worldSize;
                 points.Add(new Vector2(x, y));
             }
 			points = performLloydRelaxation(points, cornerPoints);
@@ -33,10 +33,11 @@ namespace WorldGenerator {
 			return voronoi;
 		}
 
-		private static float curveWeightedRandom(AnimationCurve curve, float value) {
-			return curve.Evaluate(value);
-		}
-
+		/**
+			Reposition the current center points to be at the average position of their corners.
+			Doing this makes the point distribution more even, setting it up to create a better mesh.
+			Can be performed recursively, each iteration yielding smaller and smaller improvements.
+		*/
         private static List<Vector2> performLloydRelaxation(List<Vector2> currentPoints, List<Vector2> cornerPoints) {
 			VoronoiBase voronoi = Triangulator.generateVoronoi(currentPoints);
 			List<TriangleNet.Topology.DCEL.Face> faces = voronoi.Faces;
@@ -87,6 +88,10 @@ namespace WorldGenerator {
 			return null;
         }
 
+		/**
+			Iterate over every edge in the voronoi graph building edge objects and connecting centers and corners.
+			This method is very important to complete the graph to be used for all later stages!
+		*/
         internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, List<Corner> corners) {
             List<Edge> edges = new List<Edge>();
 			List<HalfEdge> halfEdges = voronoi.HalfEdges;
