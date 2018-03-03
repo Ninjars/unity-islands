@@ -16,6 +16,10 @@ namespace WorldGenerator {
 		public float worldSize = 1000;
 		public int pointCount = 1000;
 		public float verticalScale = 100f;
+
+		public bool debugDrawDelauney = false;
+		public bool debugDrawCornerConnections = false;
+		public bool debugDrawDownlopes = true;
 		
         private World world;
 
@@ -44,21 +48,35 @@ namespace WorldGenerator {
 			if (world == null) {
 				return;
 			}
-			foreach (Center center in world.centers) {
-				foreach (Center neigh in center.neighbours) {
-					if (neigh.index > center.index) {
-						Debug.DrawLine(
-							new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
-							new Vector3((float) neigh.coord.x, neigh.scaledElevation(verticalScale), (float) neigh.coord.y));
+			if (debugDrawDelauney) {
+				foreach (Center center in world.centers) {
+					foreach (Center neigh in center.neighbours) {
+						if (neigh.index > center.index) {
+							Debug.DrawLine(
+								new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
+								new Vector3((float) neigh.coord.x, neigh.scaledElevation(verticalScale), (float) neigh.coord.y));
+						}
 					}
 				}
 			}
-			foreach (Corner corner in world.corners) {
-				foreach (Center center in corner.GetTouches()) {
-					Debug.DrawLine(
+			if (debugDrawDownlopes) {
+				foreach (Center center in world.centers) {
+					if (center.downslope != null) {
+						Debug.DrawLine(
 							new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
-							new Vector3((float) corner.coord.x, corner.scaledElevation(verticalScale), (float) corner.coord.y),
-							Color.green);
+							new Vector3((float) center.downslope.coord.x, center.downslope.scaledElevation(verticalScale)+1, (float) center.downslope.coord.y),
+							Color.red);
+					}				
+				}
+			}
+			if (debugDrawCornerConnections) {
+				foreach (Corner corner in world.corners) {
+					foreach (Center center in corner.GetTouches()) {
+						Debug.DrawLine(
+								new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
+								new Vector3((float) corner.coord.x, corner.scaledElevation(verticalScale), (float) corner.coord.y),
+								Color.green);
+					}
 				}
 			}
 		}
