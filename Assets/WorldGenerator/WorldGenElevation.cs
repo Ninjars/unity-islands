@@ -26,7 +26,14 @@ namespace WorldGenerator {
                 smooth(world.centers);
             }
             normalise(world.centers);
+
+			calculateDownslopes(world.centers);
+            calculateMoisture(world.centers);
+            performWaterErosion(world.centers);
+            normalise(world.centers);
+
             assignCornerElevations(world.corners);
+            
         }
 
         /**
@@ -159,5 +166,36 @@ namespace WorldGenerator {
 				}
 			}
 		}
+
+        /**
+            Assignes normalised moisture values to all centers
+        */
+        internal static void calculateMoisture(List<Center> centers) {
+            List<Center> descendingCenters = new List<Center>(centers);
+            descendingCenters.Sort((a, b) => b.elevation.CompareTo(a.elevation));
+            double highestMoisture = 1;
+            foreach (Center center in descendingCenters) {
+                center.moisture += 1;
+                if (center.downslope != null) {
+                    center.downslope.moisture += center.moisture;
+                } else {
+                    highestMoisture = Math.Max(highestMoisture, center.moisture);
+                }
+            }
+            // Normalise
+            foreach (Center center in descendingCenters) {
+                if (center.elevation <= 0) {
+                    center.moisture = 1;
+                } else {
+                    center.moisture /= highestMoisture;
+                }
+            }
+        }
+
+        internal static void performWaterErosion(List<Center> centers) {
+            foreach (Center center in centers) {
+                center.elevation *= 1 - (center.moisture * center.moisture);
+            }
+        }
     }
 }
