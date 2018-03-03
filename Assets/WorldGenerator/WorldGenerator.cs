@@ -64,13 +64,15 @@ namespace WorldGenerator {
         private World generateWorldGeometry(int seed) {
 			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount, initialDistributionCurve);
 
-			Dictionary<int, Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
+			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
 
 			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces, corners);
 
 			List<Edge> edges = WorldGeneratorUtils.createEdges(voronoi, centers, corners);
 
-			return new World(seed, worldSize, centers, corners.Values.ToList(), edges);
+			WorldGeneratorUtils.recenterCorners(corners);
+
+			return new World(seed, worldSize, centers, corners, edges);
         }
 
 		private void triangulate(World world, Mesh mesh) {

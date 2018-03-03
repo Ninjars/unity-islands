@@ -56,7 +56,7 @@ namespace WorldGenerator {
             return points;
         }
 
-        internal static List<Center> createCenters(List<Face> faces, Dictionary<int, Corner> corners) {
+        internal static List<Center> createCenters(List<Face> faces, List<Corner> corners) {
 			List<Center> centers = new List<Center>(faces.Count);
 			foreach (Face face in faces) {
 				Center c = new Center(face.ID, new Coord(face.GetPoint().X, face.GetPoint().Y));
@@ -68,21 +68,11 @@ namespace WorldGenerator {
 			return centers;
 		}
 
-        internal static Dictionary<int, Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices, float worldSize) {
-			Dictionary<int, Corner> idCorners = new Dictionary<int, Corner>(vertices.Count);
+        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices, float worldSize) {
+			List<Corner> idCorners = new List<Corner>(vertices.Count);
 			for (int i = 0; i < vertices.Count; i++) {
 				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];
-				Coord position = new Coord(vertex.X, vertex.Y);
-				if (vertex.X == 0 || vertex.X == worldSize || vertex.Y == 0 || vertex.Y == worldSize) {
-					idCorners.Add(i, new Corner(position));
-					continue;
-				}
-				Corner matchingCorner = findMatchingCorner(idCorners.Values, position, vertexTolerance);
-				if (matchingCorner != null) {
-					idCorners.Add(i, matchingCorner);
-				} else {
-					idCorners.Add(i, new Corner(position));
-				}
+				idCorners.Add(new Corner(new Coord(vertex.X, vertex.Y)));
 			}
 			return idCorners;
         }
@@ -97,7 +87,7 @@ namespace WorldGenerator {
 			return null;
         }
 
-        internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, Dictionary<int, Corner> corners) {
+        internal static List<Edge> createEdges(VoronoiBase voronoi, List<Center> centers, List<Corner> corners) {
             List<Edge> edges = new List<Edge>();
 			List<HalfEdge> halfEdges = voronoi.HalfEdges;
 
@@ -150,6 +140,22 @@ namespace WorldGenerator {
                 center1.isBorder = isBorder;
             }
 			return edge;
+		}
+
+		/**
+			Call after connecting corners with centers in order to convert the voronoi graph into barycentric dual mesh.
+			This positions the corner at the center point of the centers it touches, leading to a much more uniform mesh.
+		*/
+		internal static void recenterCorners(List<Corner> corners) {
+			foreach (Corner corner in corners) {
+				float x = 0, y = 0;
+				List<Center> centers = corner.GetTouches();
+				foreach (Center center in centers) {
+					x += (float) center.coord.x;
+					y += (float) center.coord.y;
+				}
+				corner.coord.set(x / centers.Count, y / centers.Count); 
+			}
 		}
     }
 }
