@@ -244,10 +244,11 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 0
   worldSize: 1000
+  pointCount: 10000
   verticalScale: 100
   debugDrawDelauney: 0
   debugDrawCornerConnections: 0
-  debugDrawDownlopes: 1
+  debugDrawDownlopes: 0
 --- !u!4 &793683792
 Transform:
   m_ObjectHideFlags: 0
