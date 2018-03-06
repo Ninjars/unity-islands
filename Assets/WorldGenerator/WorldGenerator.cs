@@ -10,6 +10,7 @@ using System.Linq;
 
 namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
+		private const int vertexLimit = 63000;
 
 		public Material material;
 		public AnimationCurve initialDistributionCurve;
@@ -26,8 +27,6 @@ namespace WorldGenerator {
         private void Start() {
             GameObject gameObj = new GameObject();
             gameObj.name = "Island";
-            MeshFilter meshFilter = gameObj.AddComponent<MeshFilter>();
-            gameObj.AddComponent<MeshRenderer>();
 
             int seed = 12335;
             world = generateWorldGeometry(seed);
@@ -35,11 +34,7 @@ namespace WorldGenerator {
 			WorldGenElevation.createIsland(world);
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 
-            Mesh mesh = meshFilter.mesh;
-			triangulate(world, mesh);
-
-            gameObj.AddComponent<MeshCollider>().sharedMesh = mesh;
-			gameObj.GetComponent<Renderer>().material = material;
+			triangulate(world, gameObj);
         }
 
 		void OnDrawGizmos() {
@@ -93,24 +88,51 @@ namespace WorldGenerator {
 			return new World(seed, worldSize, centers, corners, edges);
         }
 
-		private void triangulate(World world, Mesh mesh) {
+		private void triangulate(World world, GameObject islandGameObject) {
 			List<int> indices = new List<int>();
-			List<Vector3> positions = new List<Vector3>();
+			List<Vector3> vertices = new List<Vector3>();
 			List<Color> colors = new List<Color>();
-			foreach (Center center in world.centers) {
-				addTrianglesForCenter(center, indices, positions, colors);
+			List<Center> sortedCenters = new List<Center>(world.centers);
+			sortedCenters.Sort((a, b) => {
+				bool xLess = a.coord.x < b.coord.x;
+				return xLess || (xLess && a.coord.y < b.coord.y) ? -1 : 1;
+			});
+			foreach (Center center in sortedCenters) {
+				addTrianglesForCenter(center, indices, vertices, colors);
+				if (vertices.Count > vertexLimit) {
+					addMeshSubObject(islandGameObject, indices, vertices, colors);
+				}
 			}
-			
-			mesh.Clear();
-			mesh.vertices = positions.ToArray();
+			if (vertices.Count > 0) {
+				addMeshSubObject(islandGameObject, indices, vertices, colors);
+			}
+		}
+
+		private void addMeshSubObject(GameObject containingObject, List<int> indices, List<Vector3> vertices, List<Color> colors) {
+			GameObject gameObject = new GameObject();
+			gameObject.name = "mesh section";
+			gameObject.transform.SetParent(containingObject.transform);
+			gameObject.transform.position = Vector3.zero;
+
+            MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
+            Mesh mesh = meshFilter.mesh;
+            gameObject.AddComponent<MeshRenderer>();
+            gameObject.AddComponent<MeshCollider>().sharedMesh = mesh;
+			gameObject.GetComponent<Renderer>().material = material;
+
+			mesh.vertices = vertices.ToArray();
 			mesh.triangles = indices.ToArray();
 			mesh.colors = colors.ToArray();
 			mesh.RecalculateNormals();
-			Vector2[] myUVs = new Vector2[positions.Count];
-			for (var i = 0; i < positions.Count; i++) {
-				myUVs[i] = new Vector2(positions[i].x / worldSize, positions[i].y / worldSize);
+			Vector2[] myUVs = new Vector2[vertices.Count];
+			for (var i = 0; i < vertices.Count; i++) {
+				myUVs[i] = new Vector2(vertices[i].x / worldSize, vertices[i].y / worldSize);
 			}
 			mesh.uv = myUVs;
+			
+			indices.Clear();
+			vertices.Clear();
+			colors.Clear();
 		}
 
         private void addTrianglesForCenter(Center center, 
