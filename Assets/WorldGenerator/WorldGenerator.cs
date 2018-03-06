@@ -137,30 +137,34 @@ namespace WorldGenerator {
 
         private void addTrianglesForCenter(Center center, 
 											List<int> indices, 
-											List<Vector3> positions,
+											List<Vector3> vertices,
 											List<Color> colors) {
-			
             Vector3 centerPos = new Vector3((float)center.coord.x, center.scaledElevation(verticalScale), (float)center.coord.y);
             Color color = getColor(center.terrainType);
-			int indicesOffset = positions.Count;
 
             List<Corner> corners = center.corners;
             for (int i = 0; i < corners.Count; i++) {
-            	positions.Add(centerPos);
 				Corner corner1 = corners[i];
-                positions.Add(new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y));
+                Vector3 b = new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y);
 				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
 				Corner corner2 = corners[index2];
-                positions.Add(new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y));
-
-				colors.Add(color);
-				colors.Add(color);
-				colors.Add(color);
-
-                indices.Add(indicesOffset + i*3);
-                indices.Add(indicesOffset + i*3 + 2);
-                indices.Add(indicesOffset + i*3 + 1);
+                Vector3 c = new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y);
+				addTriangle(centerPos, b, c, color, indices, vertices, colors);
             }
+		}
+
+		private void addTriangle(Vector3 a, Vector3 b, Vector3 c, Color color, 
+									List<int> indices, List<Vector3> vertices, List<Color> colors) {
+				int indicesOffset = vertices.Count;
+            	vertices.Add(a);
+            	vertices.Add(b);
+            	vertices.Add(c);
+				colors.Add(color);
+				colors.Add(color);
+				colors.Add(color);
+                indices.Add(indicesOffset);
+                indices.Add(indicesOffset + 2);
+                indices.Add(indicesOffset + 1);
 		}
 
         private void assignVertexColors(World world, Mesh mesh) {
