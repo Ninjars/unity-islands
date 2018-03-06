@@ -9,8 +9,6 @@ using UnityEngine;
 namespace WorldGenerator {
 	public static class WorldGeneratorUtils {
 
-		private const float vertexTolerance = 10f * 10f; 
-
 		public static VoronoiBase generateVoronoi(int seed, float worldSize, int pointCount, AnimationCurve curve) {
 			System.Random pointRandom = new System.Random(seed);
 			List<Vector2> cornerPoints = new List<Vector2>(4);
