@@ -27,6 +27,8 @@ namespace WorldGenerator {
             get;
             private set;
         }
+        public bool isClipped { get; internal set; }
+        public bool isIslandRim { get; internal set; }
 
         public Corner(Coord coord)
         {
@@ -48,6 +50,10 @@ namespace WorldGenerator {
 
         internal void AddAdjacent(Corner corner) {
             adjacent.Add(corner);
+        }
+
+        internal List<Corner> GetAdjacents() {
+            return adjacent;
         }
 
         internal List<Center> GetTouches()

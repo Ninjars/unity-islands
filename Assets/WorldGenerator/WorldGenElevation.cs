@@ -6,7 +6,7 @@ using UnityEngine;
 namespace WorldGenerator {
     public static class WorldGenElevation {
         
-        public static void createIsland(World world) {
+        public static void createIsland(World world, float clippingPlaneHeight) {
             System.Random random = new System.Random(world.seed);
             addCone(world, world.size / 2f, world.size / 2f, 10f, 0.4f);
             applyNoise(world, random, 15f, 25f);
@@ -34,6 +34,36 @@ namespace WorldGenerator {
 
             assignCornerElevations(world.corners);
             
+            calculateClipping(world, clippingPlaneHeight);
+        }
+
+        private static void calculateClipping(World world, float clippingPlaneHeight) {
+            foreach (Center center in world.centers) {
+			    center.isClipped = center.elevation < clippingPlaneHeight;
+            }
+            foreach (Corner corner in world.corners) {
+                corner.isClipped = corner.elevation < clippingPlaneHeight;
+            }
+            foreach (Center center in world.centers) {
+                if (!center.isClipped) {
+                    foreach (Center neigh in center.neighbours) {
+                        if (neigh.isClipped) {
+                            center.isOnRim = true;
+                            break;
+                        }
+                    }
+                }
+            }
+            foreach (Corner corner in world.corners) {
+                if (!corner.isClipped) {
+                    foreach (Corner adj in corner.GetAdjacents()) {
+                        if (adj.isClipped) {
+                            corner.isIslandRim = true;
+                            break;
+                        }
+                    }
+                }
+            }
         }
 
         /**

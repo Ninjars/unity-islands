@@ -47,6 +47,8 @@ namespace WorldGenerator {
         public Center downslope {
             get; set;
         }
+        public bool isClipped { get; internal set; }
+        public bool isOnRim { get; internal set; }
 
         public Center(int index, Coord coord) {
             this.index = index;
