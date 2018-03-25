@@ -1,12 +1,14 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WorldGenerator {
     public static class WorldGenElevation {
         
         public static void createIsland(World world, float clippingPlaneHeight) {
+            Debug.Log("createIsland");
             System.Random random = new System.Random(world.seed);
             addCone(world, world.size / 2f, world.size / 2f, 10f, 0.4f);
             applyNoise(world, random, 15f, 25f);
@@ -38,32 +40,32 @@ namespace WorldGenerator {
         }
 
         private static void calculateClipping(World world, float clippingPlaneHeight) {
-            foreach (Center center in world.centers) {
-			    center.isClipped = center.elevation < clippingPlaneHeight;
-            }
-            foreach (Corner corner in world.corners) {
-                corner.isClipped = corner.elevation < clippingPlaneHeight;
-            }
-            foreach (Center center in world.centers) {
-                if (!center.isClipped) {
-                    foreach (Center neigh in center.neighbours) {
-                        if (neigh.isClipped) {
-                            center.isOnRim = true;
-                            break;
-                        }
+            List<Center> clippedCenters = world.centers.Where(center => center.elevation < clippingPlaneHeight).ToList();
+            List<Center> borderCenters = world.centers.Where(center => center.isBorder).ToList();
+            List<Center> queue = new List<Center>(borderCenters);
+            Debug.Log("begin loop");
+            while(queue.Count > 0) {
+                Center next = queue[queue.Count-1];
+                queue.Remove(next);
+                List<Center> neighbours = next.neighbours;
+                foreach (var neigh in neighbours) {
+                    if (clippedCenters.Contains(neigh) && !borderCenters.Contains(neigh)) {
+                        borderCenters.Add(neigh);
+                        queue.Add(neigh);
                     }
                 }
             }
-            foreach (Corner corner in world.corners) {
-                if (!corner.isClipped) {
-                    foreach (Corner adj in corner.GetAdjacents()) {
-                        if (adj.isClipped) {
-                            corner.isIslandRim = true;
-                            break;
-                        }
-                    }
-                }
+            Debug.Log("completed loop");
+
+            foreach (Center c in borderCenters) {
+                c.isClipped = true;
             }
+
+            foreach (Corner corner in world.corners) {
+                int clippedCenterCount = corner.GetTouches().Where(center => center.isClipped).ToList().Count;
+                corner.isClipped = clippedCenterCount == corner.GetTouches().Count;
+                corner.isIslandRim = !corner.isClipped && clippedCenterCount > 0;
+             }
         }
 
         /**

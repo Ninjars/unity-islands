@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,6 +37,8 @@ namespace WorldGenerator {
 			if (vertices.Count > 0) {
 				addMeshSubObject(gameObject, indices, vertices, colors);
 			}
+
+			// buildPedestal();
 		}
 
         private void addMeshSubObject(GameObject containingObject, List<int> indices, List<Vector3> vertices, List<Color> colors) {
@@ -65,50 +68,35 @@ namespace WorldGenerator {
 			colors.Clear();
 		}
 
-		private void buildPedestal(World world, GameObject islandGameObject) {
+		private void buildPedestal() {
 			List<int> indices = new List<int>();
 			List<Vector3> vertices = new List<Vector3>();
 			List<Color> colors = new List<Color>();
-			foreach (Center center in world.centers) {
-				if (center.isOnRim) {
-					// addPedestalForCenter(center, indices, vertices, colors);
-					if (vertices.Count > vertexLimit) {
-						addMeshSubObject(islandGameObject, indices, vertices, colors);
-					}
+			foreach (List<Corner> rim in world.islandRims) {
+				for (int i = 0; i < rim.Count; i++) {
+					Corner a = rim[i];
+					int next = i == rim.Count-1? 0 : i + 1;
+					Corner b = rim[next];
+					addPedestal(a, b, indices, vertices, colors);
+				}
+				if (vertices.Count > vertexLimit) {
+					addMeshSubObject(gameObject, indices, vertices, colors);
 				}
 			}
 			if (vertices.Count > 0) {
-				addMeshSubObject(islandGameObject, indices, vertices, colors);
+				addMeshSubObject(gameObject, indices, vertices, colors);
 			}
 		}
 
-        // private void addPedestalForCenter(Center center, List<int> indices, List<Vector3> vertices, List<Color> colors) {
-        //     List<Corner> corners = center.corners;
-        //     int startIndex = findNextRim(corners, -1);
-		// 	if (startIndex < 0) {
-		// 		return;
-		// 	}
+        private void addPedestal(Corner cornerA, Corner cornerB, List<int> indices, List<Vector3> vertices, List<Color> colors) {
+            Vector3 a = new Vector3((float) cornerA.coord.x, cornerA.scaledElevation(verticalScale), (float) cornerA.coord.y);
+            Vector3 b = new Vector3((float) cornerB.coord.x, cornerB.scaledElevation(verticalScale), (float) cornerB.coord.y);
+			Vector3 c = new Vector3(a.x, -verticalScale, a.z);
+			Vector3 d = new Vector3(b.x, -verticalScale, b.z);
 
-		// 	int endIndex = findNextRim(corners, startIndex);
-		// 	if (endIndex < 0) {
-		// 		return;
-		// 	} else {
-		// 		Corner corner1 = corners[startIndex];
-		// 		Vector3 v1 = new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y);
-        //     	Vector3 v2 = new Vector3((float)center.coord.x, center.scaledElevation(verticalScale), (float)center.coord.y);
-		// 		Corner corner2 = corners[endIndex];
-		// 		Vector3 v3 = new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y);
-		// 	}
-        // }
-
-        // private int findNextRim(List<Corner> corners, int startIndex) {
-        //     for (int i = 1; i < corners.Count; i++) {
-		// 		if (corners[(startIndex + i) % corners.Count].isIslandRim) {
-		// 			return i;
-		// 		}
-		// 	}
-		// 	return -1;
-        // }
+			addTriangle(a, b, c, Color.blue, indices, vertices, colors);
+			addTriangle(b, d, c, Color.blue, indices, vertices, colors);
+        }
 
         private void addTrianglesForCenter(Center center, 
 											List<int> indices, 
@@ -126,13 +114,9 @@ namespace WorldGenerator {
 				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
 				Corner corner2 = corners[index2];
 
-				if (corner1.isClipped || corner2.isClipped) {
-					continue;
-				} else {
-					Vector3 vertex1 = new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y);
-					Vector3 vertex2 = new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y);
-					addTriangle(vertexCenter, vertex1, vertex2, color, indices, vertices, colors);
-				}
+				Vector3 vertex1 = new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y);
+				Vector3 vertex2 = new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y);
+				addTriangle(vertexCenter, vertex1, vertex2, color, indices, vertices, colors);
             }
 		}
 

@@ -34,13 +34,91 @@ namespace WorldGenerator {
             world = generateWorld(seed);
 
 			WorldGenElevation.createIsland(world, waterClip);
+			// world.islandRims = calculateIslandRims(world.corners);
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 
 			WorldGenMesh meshGenerator = new WorldGenMesh(world, gameObj, verticalScale, material);
 			meshGenerator.triangulate();
         }
 
-		void OnDrawGizmos() {
+        private List<List<Corner>> calculateIslandRims(List<Corner> corners) {
+            List<Corner> rimCorners = corners.Where(corner => corner.isIslandRim).ToList();
+			List<List<Corner>> rims = new List<List<Corner>>();
+
+			while (rimCorners.Count > 0) {
+				Corner initial = rimCorners[0];
+				List<Corner> rim = buildIslandRim(initial);
+				rimCorners.RemoveAll(c => rim.Contains(c));
+			}
+			return rims;
+		}
+
+		private List<Corner> buildIslandRim(Corner initialCorner) {
+			Corner prev = initialCorner;
+			Corner current = getClockwiseRim(initialCorner);
+
+			List<Corner> islandRim = new List<Corner>();
+			islandRim.Add(initialCorner);
+			islandRim.Add(current);
+			while (true) {
+				// assumption that each corner has two adjactent rim corners; breaks if we have an awkward geometry meeting
+				// TODO: handle island point contacts
+				Corner next = getNextRimCorner(current, prev);
+				if (next == initialCorner) {
+					// completed island circumference
+					return islandRim;
+
+				} else {
+					islandRim.Add(next);
+					prev = current;
+					current = next;
+				}
+			}
+		}
+
+        private Corner getClockwiseRim(Corner initialCorner) {
+            List<Corner> rimCorners = initialCorner.GetAdjacents().Where(corner => corner.isIslandRim).ToList();
+            List<Corner> rimLand = initialCorner.GetAdjacents().Where(corner => !corner.isClipped).ToList();
+
+			Debug.Log("getClockwiseRim " + rimCorners.Count);
+			foreach (Corner corner in rimCorners) {
+				Debug.Log(corner.coord.x + " " + corner.coord.y);
+			}
+			Debug.Assert(rimCorners.Count == 2);
+
+			Corner rimA = rimCorners[0];
+			Corner rimB = rimCorners[1];
+			Vector2 o = new Vector2((float) initialCorner.coord.x, (float) initialCorner.coord.y);
+			Vector2 a = new Vector2((float) rimA.coord.x, (float) rimA.coord.y);
+			Vector2 b = new Vector2((float) rimB.coord.x, (float) rimB.coord.y);
+			Vector2 c = new Vector2((float) rimLand[0].coord.x, (float) rimLand[0].coord.y);
+
+			Vector2 oa = o - a;
+			Vector2 ob = o - b;
+			Vector2 oc = o - c;
+
+			double angleOA = Math.Atan2(oa.y, oa.x);
+			double angleOB = Math.Atan2(ob.y, ob.x);
+			double angleOC = Math.Atan2(oc.y, oc.x);
+
+			if (angleOA > angleOC && angleOC > angleOB) {
+				return rimA;
+			} else {
+				return rimB;
+			}
+        }
+
+        private Corner getNextRimCorner(Corner current, Corner previous) {
+				List<Corner> adjacentRims = current.GetAdjacents().Where(corner => corner.isIslandRim).ToList();
+				Debug.Assert(adjacentRims.Count == 2);
+				if (adjacentRims[0] == previous) {
+					return adjacentRims[1];
+				} else {
+					return adjacentRims[0];
+				}
+		}
+
+        void OnDrawGizmos() {
 			if (world == null) {
 				return;
 			}

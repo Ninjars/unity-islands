@@ -30,6 +30,8 @@ namespace WorldGenerator {
 			get;
 			private set;
 		}
+        public List<List<Corner>> islandRims { get; internal set; }
+
         public World(int seed, float size, List<Center> centers, List<Corner> corners, List<Edge> edges)
         {
             this.seed = seed;
