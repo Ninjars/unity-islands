@@ -18,7 +18,7 @@ namespace WorldGenerator {
 		public float verticalScale = 100f;
 
 		[Range(0, 1f)]
-		public float waterClip = 0.25f;
+		public float clippingHeight = 0.25f;
 
 		public bool debugDrawDelauney = false;
 		public bool debugDrawCornerConnections = false;
@@ -31,92 +31,41 @@ namespace WorldGenerator {
             gameObj.name = "Island";
 
             int seed = 12335;
-            world = generateWorld(seed);
+            Graph graph = generateGraph(seed);
 
-			WorldGenElevation.createIsland(world, waterClip);
-			// world.islandRims = calculateIslandRims(world.corners);
+			WorldGenElevation.generateElevations(graph, clippingHeight);
+			WorldGenElevation.applyClipping(graph, clippingHeight);
+			List<Island> islands = findIslands(graph);
+
+			world = new World(seed, worldSize, graph, islands);
+
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
-
-			WorldGenMesh meshGenerator = new WorldGenMesh(world, gameObj, verticalScale, material);
-			meshGenerator.triangulate();
+			WorldGenMesh.triangulate(gameObj, material, world, worldSize);
         }
 
-        private List<List<Corner>> calculateIslandRims(List<Corner> corners) {
-            List<Corner> rimCorners = corners.Where(corner => corner.isIslandRim).ToList();
-			List<List<Corner>> rims = new List<List<Corner>>();
-
-			while (rimCorners.Count > 0) {
-				Corner initial = rimCorners[0];
-				List<Corner> rim = buildIslandRim(initial);
-				rimCorners.RemoveAll(c => rim.Contains(c));
-			}
-			return rims;
-		}
-
-		private List<Corner> buildIslandRim(Corner initialCorner) {
-			Corner prev = initialCorner;
-			Corner current = getClockwiseRim(initialCorner);
-
-			List<Corner> islandRim = new List<Corner>();
-			islandRim.Add(initialCorner);
-			islandRim.Add(current);
-			while (true) {
-				// assumption that each corner has two adjactent rim corners; breaks if we have an awkward geometry meeting
-				// TODO: handle island point contacts
-				Corner next = getNextRimCorner(current, prev);
-				if (next == initialCorner) {
-					// completed island circumference
-					return islandRim;
-
-				} else {
-					islandRim.Add(next);
-					prev = current;
-					current = next;
+        private List<Island> findIslands(Graph graph) {
+            List<Center> landCenters = graph.centers.Where(center => !center.isClipped).ToList();
+			List<Island> islands = new List<Island>();
+			while (landCenters.Count > 0) {
+				List<Center> islandCenters = new List<Center>();
+				Center startCenter = landCenters[0];
+				islandCenters.Add(startCenter);
+				List<Center> queue = startCenter.neighbours.Where(center => !center.isClipped).ToList();
+				while (queue.Count > 0) {
+					Center next = queue[0];
+					queue.Remove(next);
+					foreach (Center neigh in next.neighbours) {
+						if (!neigh.isClipped && !islandCenters.Contains(neigh)) {
+							islandCenters.Add(neigh);
+							queue.Add(neigh);
+						}
+					}
 				}
+				landCenters.RemoveAll(c => islandCenters.Contains(c));
+				islands.Add(new Island(islandCenters));
 			}
-		}
-
-        private Corner getClockwiseRim(Corner initialCorner) {
-            List<Corner> rimCorners = initialCorner.GetAdjacents().Where(corner => corner.isIslandRim).ToList();
-            List<Corner> rimLand = initialCorner.GetAdjacents().Where(corner => !corner.isClipped).ToList();
-
-			Debug.Log("getClockwiseRim " + rimCorners.Count);
-			foreach (Corner corner in rimCorners) {
-				Debug.Log(corner.coord.x + " " + corner.coord.y);
-			}
-			Debug.Assert(rimCorners.Count == 2);
-
-			Corner rimA = rimCorners[0];
-			Corner rimB = rimCorners[1];
-			Vector2 o = new Vector2((float) initialCorner.coord.x, (float) initialCorner.coord.y);
-			Vector2 a = new Vector2((float) rimA.coord.x, (float) rimA.coord.y);
-			Vector2 b = new Vector2((float) rimB.coord.x, (float) rimB.coord.y);
-			Vector2 c = new Vector2((float) rimLand[0].coord.x, (float) rimLand[0].coord.y);
-
-			Vector2 oa = o - a;
-			Vector2 ob = o - b;
-			Vector2 oc = o - c;
-
-			double angleOA = Math.Atan2(oa.y, oa.x);
-			double angleOB = Math.Atan2(ob.y, ob.x);
-			double angleOC = Math.Atan2(oc.y, oc.x);
-
-			if (angleOA > angleOC && angleOC > angleOB) {
-				return rimA;
-			} else {
-				return rimB;
-			}
+			return islands;
         }
-
-        private Corner getNextRimCorner(Corner current, Corner previous) {
-				List<Corner> adjacentRims = current.GetAdjacents().Where(corner => corner.isIslandRim).ToList();
-				Debug.Assert(adjacentRims.Count == 2);
-				if (adjacentRims[0] == previous) {
-					return adjacentRims[1];
-				} else {
-					return adjacentRims[0];
-				}
-		}
 
         void OnDrawGizmos() {
 			if (world == null) {
@@ -155,7 +104,7 @@ namespace WorldGenerator {
 			}
 		}
 
-        private World generateWorld(int seed) {
+        private Graph generateGraph(int seed) {
 			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount, initialDistributionCurve);
 
 			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
@@ -166,7 +115,7 @@ namespace WorldGenerator {
 
 			WorldGeneratorUtils.recenterCorners(corners);
 
-			return new World(seed, worldSize, centers, corners, edges);
+			return new Graph(seed, worldSize, centers, corners, edges);
         }
     }
 }

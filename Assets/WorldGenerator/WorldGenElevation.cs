@@ -7,41 +7,39 @@ using UnityEngine;
 namespace WorldGenerator {
     public static class WorldGenElevation {
         
-        public static void createIsland(World world, float clippingPlaneHeight) {
+        public static void generateElevations(Graph graph, float clippingPlaneHeight) {
             Debug.Log("createIsland");
-            System.Random random = new System.Random(world.seed);
-            addCone(world, world.size / 2f, world.size / 2f, 10f, 0.4f);
-            applyNoise(world, random, 15f, 25f);
-            applyNoise(world, random, 8f, 10f);
-            applyNoise(world, random, 1f, 5f);
+            System.Random random = new System.Random(graph.seed);
+            addCone(graph, graph.size / 2f, graph.size / 2f, 10f, 0.4f);
+            applyNoise(graph, random, 15f, 25f);
+            applyNoise(graph, random, 8f, 10f);
+            applyNoise(graph, random, 1f, 5f);
             for (int i = 0; i < 5; i++) {
-                var x = random.NextDouble() * world.size;
-                var y = random.NextDouble() * world.size;
-                addBump(world, 20f, x, y);
+                var x = random.NextDouble() * graph.size;
+                var y = random.NextDouble() * graph.size;
+                addBump(graph, 20f, x, y);
             }
             for (int i = 0; i < 3; i++) {
-                var x = random.NextDouble() * world.size;
-                var y = random.NextDouble() * world.size;
-                addBump(world, -10f, x, y);
+                var x = random.NextDouble() * graph.size;
+                var y = random.NextDouble() * graph.size;
+                addBump(graph, -10f, x, y);
             }
             for (int i = 0; i < 3; i++) {
-                smooth(world.centers);
+                smooth(graph.centers);
             }
-            normalise(world.centers);
+            normalise(graph.centers);
 
-			calculateDownslopes(world.centers);
-            calculateMoisture(world.centers);
-            performWaterErosion(world.centers);
-            normalise(world.centers);
+			calculateDownslopes(graph.centers);
+            calculateMoisture(graph.centers);
+            performWaterErosion(graph.centers);
+            normalise(graph.centers);
 
-            assignCornerElevations(world.corners);
-            
-            calculateClipping(world, clippingPlaneHeight);
+            assignCornerElevations(graph.corners);
         }
 
-        private static void calculateClipping(World world, float clippingPlaneHeight) {
-            List<Center> clippedCenters = world.centers.Where(center => center.elevation < clippingPlaneHeight).ToList();
-            List<Center> borderCenters = world.centers.Where(center => center.isBorder).ToList();
+        public static void applyClipping(Graph graph, float clippingPlaneHeight) {
+            List<Center> clippedCenters = graph.centers.Where(center => center.elevation < clippingPlaneHeight).ToList();
+            List<Center> borderCenters = graph.centers.Where(center => center.isBorder).ToList();
             List<Center> queue = new List<Center>(borderCenters);
             Debug.Log("begin loop");
             while(queue.Count > 0) {
@@ -61,7 +59,7 @@ namespace WorldGenerator {
                 c.isClipped = true;
             }
 
-            foreach (Corner corner in world.corners) {
+            foreach (Corner corner in graph.corners) {
                 int clippedCenterCount = corner.GetTouches().Where(center => center.isClipped).ToList().Count;
                 corner.isClipped = clippedCenterCount == corner.GetTouches().Count;
                 corner.isIslandRim = !corner.isClipped && clippedCenterCount > 0;
@@ -73,14 +71,14 @@ namespace WorldGenerator {
             Changing the horizonal scale should change the frequency of the effect.  Smaller numbers = less detailed.
             Change the vertical scale to change the strength of the effect.
          */
-        private static void applyNoise(World world, System.Random random, float horizontalScale, float verticalScale) {
+        private static void applyNoise(Graph graph, System.Random random, float horizontalScale, float verticalScale) {
 			float offset = (float) random.NextDouble();
-            foreach (Center center in world.centers) {
+            foreach (Center center in graph.centers) {
                 var perlin = getPerlin(offset, 
                                         horizontalScale, 
-                                        (float) center.coord.x / world.size, 
-                                        (float) center.coord.y / world.size);
-                var radialFactor = 1.0 - (Coord.distanceBetween(world.center, center.coord) * 2 / world.size);
+                                        (float) center.coord.x / graph.size, 
+                                        (float) center.coord.y / graph.size);
+                var radialFactor = 1.0 - (Coord.distanceBetween(graph.center, center.coord) * 2 / graph.size);
                 center.elevation += perlin * verticalScale * radialFactor;
             }
         }
@@ -89,10 +87,10 @@ namespace WorldGenerator {
 			return Mathf.Clamp01(Mathf.PerlinNoise(scale * (offset + x), scale * (offset + y)));
 		}
 
-        private static void addBump(World world, float verticalScale, double x, double y) {
-            Center initial = findClosestCenter(x, y, world.centers);
-            float width = world.size / 10f;
-            float radialFactor = 1.0f - (float) (Coord.distanceBetween(world.center, initial.coord) * 2 / world.size);
+        private static void addBump(Graph graph, float verticalScale, double x, double y) {
+            Center initial = findClosestCenter(x, y, graph.centers);
+            float width = graph.size / 10f;
+            float radialFactor = 1.0f - (float) (Coord.distanceBetween(graph.center, initial.coord) * 2 / graph.size);
             elevate(initial, width, verticalScale * radialFactor, initial, new List<Center>(), 2);
         }
 
@@ -113,9 +111,9 @@ namespace WorldGenerator {
             return processed;
         }
 
-        private static void addCone(World world, double x, double y, float verticalScale, float horizonalScale) {
-            Center initial = findClosestCenter(x, y, world.centers);
-            float width = world.size * horizonalScale;
+        private static void addCone(Graph graph, double x, double y, float verticalScale, float horizonalScale) {
+            Center initial = findClosestCenter(x, y, graph.centers);
+            float width = graph.size * horizonalScale;
             elevate(initial, width, verticalScale, initial, new List<Center>(), 1);
         }
 

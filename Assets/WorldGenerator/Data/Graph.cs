@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace WorldGenerator {
-	public class World {
+	public class Graph {
         public int seed {
 			get;
 			private set;
@@ -31,19 +31,13 @@ namespace WorldGenerator {
 			private set;
 		}
 
-		public List<Island> islands {
-			get;
-			private set;
-		}
-
-        public World(int seed, float size, Graph graph, List<Island> islands) {
+        public Graph(int seed, float size, List<Center> centers, List<Corner> corners, List<Edge> edges) {
             this.seed = seed;
 			this.size = size;
-            this.centers = graph.centers;
-            this.corners = graph.corners;
-            this.edges = graph.edges;
+            this.centers = centers;
+            this.corners = corners;
+            this.edges = edges;
 			this.center = new Coord(size / 2d, size / 2d);
-			this.islands = islands;
         }
 	}
 }
