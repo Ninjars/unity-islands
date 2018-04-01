@@ -62,10 +62,35 @@ namespace WorldGenerator {
 					}
 				}
 				landCenters.RemoveAll(c => islandCenters.Contains(c));
-				islands.Add(new Island(islandCenters));
+				islands.Add(createIsland(islandCenters));
 			}
 			return islands;
         }
+
+		private Island createIsland(List<Center> islandCenters) {
+			double minX = Double.MaxValue;
+			double minY = Double.MaxValue;
+			double maxX = Double.MinValue;
+			double maxY = Double.MinValue;
+			foreach (Center center in islandCenters) {
+				Coord coord = center.coord;
+				if (coord.x < minX) {
+					minX = coord.x;
+				}
+				if (coord.x > maxX) {
+					maxX = coord.x;
+				}
+				if (coord.y < minY) {
+					minY = coord.y;
+				}
+				if (coord.y > maxY) {
+					maxY = coord.y;
+				}
+			}
+			Coord islandCenter = new Coord(minX + (maxX - minX)/2d, minY + (maxY - minY)/2d);
+			Rect rect = new Rect((float) minX, (float) minY, (float) (maxX - minX), (float) ( maxY - minY));
+			return new Island(islandCenters, islandCenter, rect);
+		}
 
         void OnDrawGizmos() {
 			if (world == null) {
