@@ -1,31 +1,30 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WorldGenerator {
 	public class WorldGenMesh {
 		private const int vertexLimit = 63000;
 		
-		public static void triangulate(GameObject gameObject, Material material, World world, float verticalScale) {
-			foreach (Island island in world.islands) {
-				List<int> indices = new List<int>();
-				List<Vector3> vertices = new List<Vector3>();
-				List<Color> colors = new List<Color>();
-				List<Center> sortedCenters = new List<Center>(island.centers);
-				sortedCenters.Sort((a, b) => {
-					bool xLess = a.coord.x < b.coord.x;
-					return xLess || (xLess && a.coord.y < b.coord.y) ? -1 : 1;
-				});
-				foreach (Center center in sortedCenters) {
-					addTrianglesForCenter(center, indices, vertices, colors, verticalScale);
-					if (vertices.Count > vertexLimit) {
-						addMeshSubObject(gameObject, material, world.size, indices, vertices, colors);
-					}
+		public static void triangulate(GameObject gameObject, Material material, List<Center> centers, float size, float verticalScale) {
+			List<int> indices = new List<int>();
+			List<Vector3> vertices = new List<Vector3>();
+			List<Color> colors = new List<Color>();
+			List<Center> sortedCenters = new List<Center>(centers);
+			sortedCenters.Sort((a, b) => {
+				bool xLess = a.coord.x < b.coord.x;
+				return xLess || (xLess && a.coord.y < b.coord.y) ? -1 : 1;
+			});
+			foreach (Center center in sortedCenters) {
+				addTrianglesForCenter(center, indices, vertices, colors, verticalScale);
+				if (vertices.Count > vertexLimit) {
+					addMeshSubObject(gameObject, material, size, indices, vertices, colors);
 				}
-				if (vertices.Count > 0) {
-					addMeshSubObject(gameObject, material, world.size,  indices, vertices, colors);
-				}
+			}
+			if (vertices.Count > 0) {
+				addMeshSubObject(gameObject, material, size,  indices, vertices, colors);
 			}
 		}
 

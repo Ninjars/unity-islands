@@ -8,9 +8,10 @@ namespace WorldGenerator {
     public static class WorldGenElevation {
         
         public static void generateElevations(Graph graph, float clippingPlaneHeight) {
-            Debug.Log("createIsland");
             System.Random random = new System.Random(graph.seed);
-            addCone(graph, graph.size / 2f, graph.size / 2f, 10f, 0.4f);
+            
+            float radius = graph.size * 0.2f;
+            addCone(graph.centers, radius, graph.size / 2f, 10f, 0.4f);
             applyNoise(graph, random, 15f, 25f);
             applyNoise(graph, random, 8f, 10f);
             applyNoise(graph, random, 1f, 5f);
@@ -37,11 +38,15 @@ namespace WorldGenerator {
             assignCornerElevations(graph.corners);
         }
 
+        public static void generateIslandUndersideElevations(int seed, List<Vector3> points, Rect bounds, Coord center) {
+            // System.Random random = new System.Random(seed);
+            // addCone(graph.centers, bounds.width / 2f, center.x, center.y, -200);
+        }
+
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
             List<Center> clippedCenters = graph.centers.Where(center => center.elevation < clippingPlaneHeight).ToList();
             List<Center> borderCenters = graph.centers.Where(center => center.isBorder).ToList();
             List<Center> queue = new List<Center>(borderCenters);
-            Debug.Log("begin loop");
             while(queue.Count > 0) {
                 Center next = queue[queue.Count-1];
                 queue.Remove(next);
@@ -53,7 +58,6 @@ namespace WorldGenerator {
                     }
                 }
             }
-            Debug.Log("completed loop");
 
             foreach (Center c in borderCenters) {
                 c.isClipped = true;
@@ -111,10 +115,9 @@ namespace WorldGenerator {
             return processed;
         }
 
-        private static void addCone(Graph graph, double x, double y, float verticalScale, float horizonalScale) {
-            Center initial = findClosestCenter(x, y, graph.centers);
-            float width = graph.size * horizonalScale;
-            elevate(initial, width, verticalScale, initial, new List<Center>(), 1);
+        private static void addCone(List<Center> centers, float radius, double x, double y, float verticalScale) {
+            Center initial = findClosestCenter(x, y, centers);
+            elevate(initial, radius, verticalScale, initial, new List<Center>(), 1);
         }
 
         private static Center findClosestCenter(double x, double y, List<Center> centers) {

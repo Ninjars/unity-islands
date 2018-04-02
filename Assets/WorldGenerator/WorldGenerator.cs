@@ -40,7 +40,19 @@ namespace WorldGenerator {
 			world = new World(seed, worldSize, graph, islands);
 
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
-			WorldGenMesh.triangulate(gameObj, material, world, verticalScale);
+			
+			foreach (Island island in world.islands) {
+				List<Vector3> points = getPointsForIslandUndersideGraph(island);
+				WorldGenElevation.generateIslandUndersideElevations(world.seed, points, island.bounds, island.center);
+				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size, verticalScale);
+				WorldGenMesh.triangulate(gameObj, material, island.undersideCenters, world.size, verticalScale);
+			}
+        }
+
+        private List<Vector3> getPointsForIslandUndersideGraph(Island island) {
+            List<Vector3> points = island.centers.Select(center => new Vector3((float) center.coord.x, 0, (float) center.coord.y)).ToList();
+			points.AddRange(island.corners.Where(corner => corner.isIslandRim).Select(corner => new Vector3((float) corner.coord.x, (float) corner.elevation, (float) corner.coord.y)));
+			return points;
         }
 
         private List<Island> findIslands(Graph graph) {
@@ -131,7 +143,7 @@ namespace WorldGenerator {
 
         private Graph generateGraph(int seed) {
 			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount, initialDistributionCurve);
-
+			
 			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
 
 			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces, corners);
@@ -141,6 +153,6 @@ namespace WorldGenerator {
 			WorldGeneratorUtils.recenterCorners(corners);
 
 			return new Graph(seed, worldSize, centers, corners, edges);
-        }
+		}
     }
 }
