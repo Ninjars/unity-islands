@@ -40,7 +40,7 @@ namespace WorldGenerator {
 			world = new World(seed, worldSize, graph, islands);
 
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
-			WorldGenMesh.triangulate(gameObj, material, world, worldSize);
+			WorldGenMesh.triangulate(gameObj, material, world, verticalScale);
         }
 
         private List<Island> findIslands(Graph graph) {
