@@ -27,6 +27,24 @@ namespace WorldGenerator {
 				addMeshSubObject(gameObject, material, size,  indices, vertices, colors);
 			}
 		}
+		public static void triangulate(GameObject gameObject, Material material, List<Center> centers, List<Coord> coords, float size, float verticalScale) {
+			List<int> indices = new List<int>();
+			List<Vector3> vertices = new List<Vector3>();
+			List<Color> colors = new List<Color>();
+			foreach (Center center in centers) {
+				// TODO: map between center and coord; should have the same ordering
+				// TODO: Check for border corners to triangulate with coord
+				// TODO: triangulate coord with neighbouring coords mapped from center.neighbours
+				// TODO: work out how to consistently order triangulation D:
+				
+				if (vertices.Count > vertexLimit) {
+					addMeshSubObject(gameObject, material, size, indices, vertices, colors);
+				}
+			}
+			if (vertices.Count > 0) {
+				addMeshSubObject(gameObject, material, size,  indices, vertices, colors);
+			}
+		}
 
         private static void addMeshSubObject(GameObject containingObject, Material material, float worldSize, List<int> indices, List<Vector3> vertices, List<Color> colors) {
 			GameObject gameObject = new GameObject();

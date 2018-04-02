@@ -1,17 +1,17 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace WorldGenerator {
 public class Island {
+        public List<Coord> undersideCoords {
+			get; private set;
+		}
 
-		public List<Center> centers {
+        public List<Center> centers {
 			get;
 			private set;
-		}
-		public List<Center> undersideCenters {
-			get;
-			set;
 		}
 		public List<Corner> corners {
 			get;
@@ -32,6 +32,7 @@ public class Island {
 						}
 					}
 				}
+				this.undersideCoords = centers.Select(c => new Coord(c.coord.x, c.coord.elevation, c.coord.y)).ToList();
 			}
 	}
 }

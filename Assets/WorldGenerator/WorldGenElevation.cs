@@ -18,12 +18,12 @@ namespace WorldGenerator {
             for (int i = 0; i < 5; i++) {
                 var x = random.NextDouble() * graph.size;
                 var y = random.NextDouble() * graph.size;
-                addBump(graph, 20f, x, y);
+                addBump(graph, 20f, (float) x, (float) y);
             }
             for (int i = 0; i < 3; i++) {
                 var x = random.NextDouble() * graph.size;
                 var y = random.NextDouble() * graph.size;
-                addBump(graph, -10f, x, y);
+                addBump(graph, -10f, (float) x, (float) y);
             }
             for (int i = 0; i < 3; i++) {
                 smooth(graph.centers);
@@ -38,9 +38,9 @@ namespace WorldGenerator {
             assignCornerElevations(graph.corners);
         }
 
-        public static void generateIslandUndersideElevations(int seed, List<Vector3> points, Rect bounds, Vector3 center) {
+        public static void generateIslandUndersideElevations(int seed, Island island) {
             // System.Random random = new System.Random(seed);
-            // addCone(graph.centers, bounds.width / 2f, center.x, center.y, -200);
+            addConeUnderside(island.centers, island.undersideCoords, island.bounds.width / 2f, island.center.x, island.center.y, -200);
         }
 
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
@@ -80,8 +80,8 @@ namespace WorldGenerator {
             foreach (Center center in graph.centers) {
                 var perlin = getPerlin(offset, 
                                         horizontalScale, 
-                                        (float) center.coord.x / graph.size, 
-                                        (float) center.coord.y / graph.size);
+                                        center.coord.x / graph.size, 
+                                        center.coord.y / graph.size);
                 float radialFactor = 1f - Vector3.Distance(graph.center, center.coord.toVector3()) * 2 / graph.size;
                 center.coord.elevation += perlin * verticalScale * radialFactor;
             }
@@ -91,11 +91,37 @@ namespace WorldGenerator {
 			return Mathf.Clamp01(Mathf.PerlinNoise(scale * (offset + x), scale * (offset + y)));
 		}
 
-        private static void addBump(Graph graph, float verticalScale, double x, double y) {
+        private static void addBump(Graph graph, float verticalScale, float x, float y) {
             Center initial = findClosestCenter(x, y, graph.centers);
             float width = graph.size / 10f;
             float radialFactor = 1f - Vector3.Distance(graph.center, initial.coord.toVector3()) * 2 / graph.size;
             elevate(initial, width, verticalScale * radialFactor, initial, new List<Center>(), 2);
+        }
+
+        private static void addConeUnderside(List<Center> centers, List<Coord> mutableCoords, float radius, float x, float y, int verticalScale) {
+            Center initial = findClosestCenter(x, y, centers);
+            int initialIndex = centers.IndexOf(initial);
+            elevateUnderside(initialIndex, mutableCoords, centers, radius, verticalScale, initialIndex, new List<Center>(), 1);
+        }
+
+        private static List<Center> elevateUnderside(int initialIndex, List<Coord> coords, List<Center> centers, float width, float verticalScale, int currentIndex, List<Center> processed, float falloffPower) {
+            Coord initial = coords[initialIndex];
+            Coord current = coords[currentIndex];
+            processed.Add(centers[currentIndex]);
+            float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.toVector3(), current.toVector3());
+            if (distanceFromCenter > width) {
+                return processed;
+            }
+            float distanceFactor = Mathf.Pow(distanceFromCenter / width, falloffPower);
+            float elevation = verticalScale * (1f - distanceFactor);
+            current.elevation += elevation;
+            foreach (Center center in centers[currentIndex].neighbours) {
+                if (!processed.Contains(center)) {
+                    int index = centers.IndexOf(center);
+                    processed = elevateUnderside(initialIndex,coords, centers, width, verticalScale, index, processed, falloffPower);
+                }
+            }
+            return processed;
         }
 
         private static List<Center> elevate(Center initial, float width, float verticalScale, Center current, List<Center> processed, float falloffPower) {
@@ -115,18 +141,18 @@ namespace WorldGenerator {
             return processed;
         }
 
-        private static void addCone(List<Center> centers, float radius, double x, double y, float verticalScale) {
+        private static void addCone(List<Center> centers, float radius, float x, float y, float verticalScale) {
             Center initial = findClosestCenter(x, y, centers);
             elevate(initial, radius, verticalScale, initial, new List<Center>(), 1);
         }
 
-        private static Center findClosestCenter(double x, double y, List<Center> centers) {
+        private static Center findClosestCenter(float x, float y, List<Center> centers) {
             Center closestCenter = null;
-            double dx = 0;
-            double dy = 0;
+            float dx = 0;
+            float dy = 0;
             foreach (Center center in centers) {
-                double cx = Math.Abs(x - center.coord.x);
-                double cy = Math.Abs(y - center.coord.y);
+                float cx = Math.Abs(x - center.coord.x);
+                float cy = Math.Abs(y - center.coord.y);
                 if (closestCenter == null || cx * cx + cy * cy < dx * dx + dy * dy) {
                     closestCenter = center;
                     dx = cx;
