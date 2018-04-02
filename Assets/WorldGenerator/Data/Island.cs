@@ -17,10 +17,10 @@ public class Island {
 			get;
 			private set;
 		}
-        public Coord center { get; private set; }
+        public Vector3 center { get; private set; }
         public Rect bounds { get; private set; }
 
-        public Island(List<Center> centers, Coord islandCenter, Rect bounds) {
+        public Island(List<Center> centers, Vector3 islandCenter, Rect bounds) {
 				this.centers = centers;
 				this.center = islandCenter;
 				this.bounds = bounds;

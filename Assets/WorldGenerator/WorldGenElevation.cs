@@ -38,13 +38,13 @@ namespace WorldGenerator {
             assignCornerElevations(graph.corners);
         }
 
-        public static void generateIslandUndersideElevations(int seed, List<Vector3> points, Rect bounds, Coord center) {
+        public static void generateIslandUndersideElevations(int seed, List<Vector3> points, Rect bounds, Vector3 center) {
             // System.Random random = new System.Random(seed);
             // addCone(graph.centers, bounds.width / 2f, center.x, center.y, -200);
         }
 
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
-            List<Center> clippedCenters = graph.centers.Where(center => center.elevation < clippingPlaneHeight).ToList();
+            List<Center> clippedCenters = graph.centers.Where(center => center.coord.elevation < clippingPlaneHeight).ToList();
             List<Center> borderCenters = graph.centers.Where(center => center.isBorder).ToList();
             List<Center> queue = new List<Center>(borderCenters);
             while(queue.Count > 0) {
@@ -82,8 +82,8 @@ namespace WorldGenerator {
                                         horizontalScale, 
                                         (float) center.coord.x / graph.size, 
                                         (float) center.coord.y / graph.size);
-                var radialFactor = 1.0 - (Coord.distanceBetween(graph.center, center.coord) * 2 / graph.size);
-                center.elevation += perlin * verticalScale * radialFactor;
+                float radialFactor = 1f - Vector3.Distance(graph.center, center.coord.toVector3()) * 2 / graph.size;
+                center.coord.elevation += perlin * verticalScale * radialFactor;
             }
         }
 
@@ -94,19 +94,19 @@ namespace WorldGenerator {
         private static void addBump(Graph graph, float verticalScale, double x, double y) {
             Center initial = findClosestCenter(x, y, graph.centers);
             float width = graph.size / 10f;
-            float radialFactor = 1.0f - (float) (Coord.distanceBetween(graph.center, initial.coord) * 2 / graph.size);
+            float radialFactor = 1f - Vector3.Distance(graph.center, initial.coord.toVector3()) * 2 / graph.size;
             elevate(initial, width, verticalScale * radialFactor, initial, new List<Center>(), 2);
         }
 
-        private static List<Center> elevate(Center initial, float width, float verticalScale, Center current, List<Center> processed, double falloffPower) {
+        private static List<Center> elevate(Center initial, float width, float verticalScale, Center current, List<Center> processed, float falloffPower) {
             processed.Add(current);
-            double distanceFromCenter = initial == current ? 0 : Coord.distanceBetween(initial.coord, current.coord);
+            float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.coord.toVector3(), current.coord.toVector3());
             if (distanceFromCenter > width) {
                 return processed;
             }
-            var distanceFactor = Math.Pow(distanceFromCenter / width, falloffPower);
-            double elevation = verticalScale * (1.0 - distanceFactor);
-            current.elevation += elevation;
+            float distanceFactor = Mathf.Pow(distanceFromCenter / width, falloffPower);
+            float elevation = verticalScale * (1f - distanceFactor);
+            current.coord.elevation += elevation;
             foreach (Center center in current.neighbours) {
                 if (!processed.Contains(center)) {
                     processed = elevate(initial, width, verticalScale, center, processed, falloffPower);
@@ -138,12 +138,12 @@ namespace WorldGenerator {
 
         private static void assignCornerElevations(List<Corner> corners) {
             foreach (Corner corner in corners) {
-                double elevation = 0;
+                float elevation = 0;
                 List<Center> touchesCenters = corner.GetTouches();
                 foreach (Center center in touchesCenters) {
-                    elevation += center.elevation;
+                    elevation += center.coord.elevation;
                 }
-                corner.elevation = elevation / touchesCenters.Count;
+                corner.coord.elevation += elevation / (float) touchesCenters.Count;
             }
         }
 
@@ -151,14 +151,14 @@ namespace WorldGenerator {
             Scale positive elevations to lie between 0 and 1, and flatten all negative elevations to 0
          */
         private static void normalise(List<Center> centers) {
-            double maxElevation = 0;
+            float maxElevation = 0;
             foreach (Center center in centers) {
-                maxElevation = Math.Max(center.elevation, maxElevation);
+                maxElevation = Math.Max(center.coord.elevation, maxElevation);
             }
             foreach (Center center in centers) {
-                center.elevation /= maxElevation;
-                if (center.elevation < 0) {
-                    center.elevation = 0;
+                center.coord.elevation /= maxElevation;
+                if (center.coord.elevation < 0) {
+                    center.coord.elevation = 0;
                 }
             }
         }
@@ -168,17 +168,17 @@ namespace WorldGenerator {
         */
         private static void smooth(List<Center> centers) {
             List<Center> sorted = new List<Center>(centers);
-            sorted.Sort((a, b) => b.elevation.CompareTo(a.elevation));
+            sorted.Sort((a, b) => b.coord.elevation.CompareTo(a.coord.elevation));
             foreach (Center center in sorted) {
-                if (center.elevation == 0) {
+                if (center.coord.elevation == 0) {
                     continue;
                 }
-                double elevation = 0;
+                float elevation = 0;
                 List<Center> neighbours = center.neighbours;
                 foreach (Center neighbour in neighbours) {
-                    elevation += neighbour.elevation;
+                    elevation += neighbour.coord.elevation;
                 }
-                center.elevation = elevation / neighbours.Count;
+                center.coord.elevation = elevation / (float) neighbours.Count;
             }
         }
 
@@ -189,12 +189,12 @@ namespace WorldGenerator {
 					if (lowest == null) {
 						lowest = neigh;
 					} else {
-						if (neigh.elevation < lowest.elevation) {
+						if (neigh.coord.elevation < lowest.coord.elevation) {
 							lowest = neigh;
 						}
 					}
 				}
-				if (center.elevation > lowest.elevation) {
+				if (center.coord.elevation > lowest.coord.elevation) {
 					center.downslope = lowest;
 				}
 			}
@@ -205,7 +205,7 @@ namespace WorldGenerator {
         */
         internal static void calculateMoisture(List<Center> centers) {
             List<Center> descendingCenters = new List<Center>(centers);
-            descendingCenters.Sort((a, b) => b.elevation.CompareTo(a.elevation));
+            descendingCenters.Sort((a, b) => b.coord.elevation.CompareTo(a.coord.elevation));
             double highestMoisture = 1;
             foreach (Center center in descendingCenters) {
                 center.moisture += 1;
@@ -217,7 +217,7 @@ namespace WorldGenerator {
             }
             // Normalise
             foreach (Center center in descendingCenters) {
-                if (center.elevation <= 0) {
+                if (center.coord.elevation <= 0) {
                     center.moisture = 1;
                 } else {
                     center.moisture /= highestMoisture;
@@ -227,7 +227,7 @@ namespace WorldGenerator {
 
         internal static void performWaterErosion(List<Center> centers) {
             foreach (Center center in centers) {
-                center.elevation *= 1 - (center.moisture * center.moisture);
+                center.coord.elevation *= 1f - (float) (center.moisture * center.moisture);
             }
         }
     }

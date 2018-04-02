@@ -26,7 +26,7 @@ namespace WorldGenerator {
 			private set;
 		}
 
-		public Coord center {
+		public Vector3 center {
 			get;
 			private set;
 		}
@@ -42,7 +42,7 @@ namespace WorldGenerator {
             this.centers = graph.centers;
             this.corners = graph.corners;
             this.edges = graph.edges;
-			this.center = new Coord(size / 2d, size / 2d);
+			this.center = new Vector3(size / 2f, 0, size / 2f);
 			this.islands = islands;
         }
 	}

@@ -21,8 +21,6 @@ namespace WorldGenerator {
         private List<Edge> edges = new List<Edge>();
         private List<Center> centers = new List<Center>();
         private List<Corner> adjacent = new List<Corner>();
-        internal double elevation;
-
         public List<int> vertexIndices {
             get;
             private set;
@@ -30,8 +28,7 @@ namespace WorldGenerator {
         public bool isClipped { get; internal set; }
         public bool isIslandRim { get; internal set; }
 
-        public Corner(Coord coord)
-        {
+        public Corner(Coord coord) {
             this.coord = coord;
             vertexIndices = new List<int>();
         }
@@ -61,9 +58,9 @@ namespace WorldGenerator {
             return centers;
         }
 
-        internal void setPosition(double x, double y)
+        internal void setPosition(float x, float y)
         {
-            coord.set(x, y);
+            coord.setXY(x, y);
         }
 
         internal bool isWater() {
@@ -79,7 +76,7 @@ namespace WorldGenerator {
         }
 
         public float scaledElevation(float factor) {
-            return (float) elevation * factor;
+            return coord.y * factor;
         }
     }
 }

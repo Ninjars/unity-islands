@@ -10,7 +10,7 @@ namespace WorldGenerator {
         internal static void separateTheLandFromTheWater(World world, PerlinIslandShape perlinIslandShape) {
             // assign coarse water/land separation to corners
             foreach (Corner corner in world.corners) {
-                bool isWater = !isInsideShape(perlinIslandShape, corner.coord);
+                bool isWater = !isInsideShape(perlinIslandShape, corner.coord.toVector3());
                 if (corner.isBorder) {
                     corner.terrainType = TerrainType.OCEAN;
                 } else if (isWater) {
@@ -50,8 +50,8 @@ namespace WorldGenerator {
             // TODO: coast and shallows
         }
 
-        private static bool isInsideShape(PerlinIslandShape shape, Coord coordinate) {
-            return shape.isInside((float)coordinate.x, (float)coordinate.y);
+        private static bool isInsideShape(PerlinIslandShape shape, Vector3 coordinate) {
+            return shape.isInside(coordinate.x, coordinate.z);
         }
 
         private static void markOceanCenters(List<Center> centers) {

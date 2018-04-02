@@ -36,22 +36,23 @@ namespace WorldGenerator {
 			WorldGenElevation.generateElevations(graph, clippingHeight);
 			WorldGenElevation.applyClipping(graph, clippingHeight);
 			List<Island> islands = findIslands(graph);
+			Debug.Log("island count " + islands.Count);
 
 			world = new World(seed, worldSize, graph, islands);
 
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
 			foreach (Island island in world.islands) {
-				List<Vector3> points = getPointsForIslandUndersideGraph(island);
-				WorldGenElevation.generateIslandUndersideElevations(world.seed, points, island.bounds, island.center);
+				// List<Vector3> points = getPointsForIslandUndersideGraph(island);
+				// WorldGenElevation.generateIslandUndersideElevations(world.seed, points, island.bounds, island.center);
 				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size, verticalScale);
-				WorldGenMesh.triangulate(gameObj, material, island.undersideCenters, world.size, verticalScale);
+				// WorldGenMesh.triangulate(gameObj, material, island.undersideCenters, world.size, verticalScale);
 			}
         }
 
         private List<Vector3> getPointsForIslandUndersideGraph(Island island) {
             List<Vector3> points = island.centers.Select(center => new Vector3((float) center.coord.x, 0, (float) center.coord.y)).ToList();
-			points.AddRange(island.corners.Where(corner => corner.isIslandRim).Select(corner => new Vector3((float) corner.coord.x, (float) corner.elevation, (float) corner.coord.y)));
+			points.AddRange(island.corners.Where(corner => corner.isIslandRim).Select(corner => new Vector3((float) corner.coord.x, (float) corner.coord.y, (float) corner.coord.y)));
 			return points;
         }
 
@@ -80,10 +81,10 @@ namespace WorldGenerator {
         }
 
 		private Island createIsland(List<Center> islandCenters) {
-			double minX = Double.MaxValue;
-			double minY = Double.MaxValue;
-			double maxX = Double.MinValue;
-			double maxY = Double.MinValue;
+			float minX = float.MaxValue;
+			float minY = float.MaxValue;
+			float maxX = float.MinValue;
+			float maxY = float.MinValue;
 			foreach (Center center in islandCenters) {
 				Coord coord = center.coord;
 				if (coord.x < minX) {
@@ -99,7 +100,7 @@ namespace WorldGenerator {
 					maxY = coord.y;
 				}
 			}
-			Coord islandCenter = new Coord(minX + (maxX - minX)/2d, minY + (maxY - minY)/2d);
+			Vector3 islandCenter = new Vector3(minX + (maxX - minX)/2f, 0, minY + (maxY - minY)/2f);
 			Rect rect = new Rect((float) minX, (float) minY, (float) (maxX - minX), (float) ( maxY - minY));
 			return new Island(islandCenters, islandCenter, rect);
 		}

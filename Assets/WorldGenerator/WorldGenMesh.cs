@@ -60,7 +60,7 @@ namespace WorldGenerator {
 											List<Vector3> vertices,
 											List<Color> colors,
 											float verticalScale) {
-            Vector3 vertexCenter = new Vector3((float)center.coord.x, center.scaledElevation(verticalScale), (float)center.coord.y);
+            Vector3 vertexCenter = center.coord.toVector3(verticalScale);
             Color color = getColor(center.terrainType);
 			if (center.isClipped) {
 				return;
@@ -72,8 +72,8 @@ namespace WorldGenerator {
 				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
 				Corner corner2 = corners[index2];
 
-				Vector3 vertex1 = new Vector3((float)corner1.coord.x, corner1.scaledElevation(verticalScale), (float)corner1.coord.y);
-				Vector3 vertex2 = new Vector3((float)corner2.coord.x, corner2.scaledElevation(verticalScale), (float)corner2.coord.y);
+				Vector3 vertex1 = corner1.coord.toVector3(verticalScale);
+				Vector3 vertex2 = corner2.coord.toVector3(verticalScale);
 				addTriangle(vertexCenter, vertex1, vertex2, color, indices, vertices, colors);
             }
 		}

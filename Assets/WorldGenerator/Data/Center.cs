@@ -6,7 +6,6 @@ using UnityEngine;
 
 namespace WorldGenerator {
 	public class Center {
-        public double elevation;
         internal double moisture {
             get; set;
         }
@@ -86,7 +85,7 @@ namespace WorldGenerator {
         }
 
         public float scaledElevation(float factor) {
-            return (float) elevation * factor;
+            return coord.y * factor;
         }
     }
 }

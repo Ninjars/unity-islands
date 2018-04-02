@@ -244,8 +244,9 @@ MonoBehaviour:
     m_PostInfinity: 2
     m_RotationOrder: 0
   worldSize: 1000
-  pointCount: 10000
+  pointCount: 1000
   verticalScale: 100
+  clippingHeight: 0.25
   debugDrawDelauney: 0
   debugDrawCornerConnections: 0
   debugDrawDownlopes: 0

@@ -58,7 +58,7 @@ namespace WorldGenerator {
         internal static List<Center> createCenters(List<Face> faces, List<Corner> corners) {
 			List<Center> centers = new List<Center>(faces.Count);
 			foreach (Face face in faces) {
-				Center c = new Center(face.ID, new Coord(face.GetPoint().X, face.GetPoint().Y));
+				Center c = new Center(face.ID, new Coord((float) face.GetPoint().X, 0, (float) face.GetPoint().Y));
 				centers.Add(c);
 				foreach (HalfEdge halfEdge in face.EnumerateEdges()) {
 					c.AddCorner(corners[halfEdge.Origin.ID]);
@@ -71,19 +71,9 @@ namespace WorldGenerator {
 			List<Corner> idCorners = new List<Corner>(vertices.Count);
 			for (int i = 0; i < vertices.Count; i++) {
 				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];
-				idCorners.Add(new Corner(new Coord(vertex.X, vertex.Y)));
+				idCorners.Add(new Corner(new Coord((float) vertex.X, 0, (float) vertex.Y)));
 			}
 			return idCorners;
-        }
-
-        private static Corner findMatchingCorner(Dictionary<int, Corner>.ValueCollection values, 
-												Coord position, float tolerance) {
-            foreach (Corner corner in values) {
-				if (Coord.squareDistance(corner.coord, position) < tolerance){
-					return corner;
-				}
-			}
-			return null;
         }
 
 		/**
@@ -157,7 +147,7 @@ namespace WorldGenerator {
 					x += (float) center.coord.x;
 					y += (float) center.coord.y;
 				}
-				corner.coord.set(x / centers.Count, y / centers.Count); 
+				corner.coord.setXY(x / centers.Count, y / centers.Count); 
 			}
 		}
     }
