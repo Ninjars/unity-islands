@@ -31,19 +31,93 @@ namespace WorldGenerator {
 			List<int> indices = new List<int>();
 			List<Vector3> vertices = new List<Vector3>();
 			List<Color> colors = new List<Color>();
-			foreach (Center center in centers) {
+			List<Center> processedCenters = new List<Center>();
+
+
+for (int i = 0; i < centers.Count; i++) {
+Debug.Log("coord " + coords[i]);
+Debug.Log("center " + centers[i].coord);
+}
+
+			for (int i = 0; i < centers.Count; i++) {
+				Center center = centers[i];
+				Coord centerCoord = coords[i];
+				List<Coord> neighbouringCoords = center.neighbours
+														.Where(c => !processedCenters.Contains(c) && centers.Contains(c))
+														.Select(c => coords[centers.IndexOf(c)])
+														.ToList();
+				if (neighbouringCoords.Count > 1) {
+Debug.Log("neighbours");
+foreach (Coord c in neighbouringCoords) {
+	Debug.Log(" " + c);
+}
+					neighbouringCoords.Sort((a, b) => sortCoords(centerCoord, a, b) ? 1 : -1);
+Debug.Log("sorted neighbours");
+foreach (Coord c in neighbouringCoords) {
+	Debug.Log(" " + c);
+}
+					addTrianglesForCoord(centerCoord, neighbouringCoords, indices, vertices, colors, verticalScale);
+				}
+				processedCenters.Add(center);
 				// TODO: map between center and coord; should have the same ordering
 				// TODO: Check for border corners to triangulate with coord
 				// TODO: triangulate coord with neighbouring coords mapped from center.neighbours
 				// TODO: work out how to consistently order triangulation D:
-				
+
 				if (vertices.Count > vertexLimit) {
 					addMeshSubObject(gameObject, material, size, indices, vertices, colors);
 				}
 			}
 			if (vertices.Count > 0) {
-				addMeshSubObject(gameObject, material, size,  indices, vertices, colors);
+				addMeshSubObject(gameObject, material, size, indices, vertices, colors);
 			}
+		}
+
+        private static void addTrianglesForCoord(Coord center,
+											List<Coord> corners, 
+											List<int> indices, 
+											List<Vector3> vertices,
+											List<Color> colors,
+											float verticalScale) {
+            Vector3 vertexCenter = center.toVector3(verticalScale);
+
+            for (int i = 0; i < corners.Count; i++) {
+				Coord corner1 = corners[i];
+				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
+				Coord corner2 = corners[index2];
+
+				Vector3 vertex1 = corner1.toVector3(verticalScale);
+				Vector3 vertex2 = corner2.toVector3(verticalScale);
+Debug.Log("vertex center " + vertexCenter);
+Debug.Log("vertex 1 " + vertex1);
+Debug.Log("vertex 2" + vertex2);
+				addTriangle(vertexCenter, vertex1, vertex2, Color.grey, indices, vertices, colors);
+            }
+		}
+
+		private static bool sortCoords(Coord center, Coord a, Coord b) {
+			if (a.x - center.x >= 0 && b.x - center.x < 0)
+				return true;
+			if (a.x - center.x < 0 && b.x - center.x >= 0)
+				return false;
+			if (a.x - center.x == 0 && b.x - center.x == 0) {
+				if (a.y - center.y >= 0 || b.y - center.y >= 0)
+					return a.y > b.y;
+				return b.y > a.y;
+			}
+
+			// compute the cross product of vectors (center -> a) x (center -> b)
+			float det = (a.x - center.x) * (b.y - center.y) - (b.x - center.x) * (a.y - center.y);
+			if (det < 0)
+				return true;
+			if (det > 0)
+				return false;
+
+			// points a and b are on the same line from the center
+			// check which point is closer to the center
+			float d1 = (a.x - center.x) * (a.x - center.x) + (a.y - center.y) * (a.y - center.y);
+			float d2 = (b.x - center.x) * (b.x - center.x) + (b.y - center.y) * (b.y - center.y);
+			return d1 > d2;
 		}
 
         private static void addMeshSubObject(GameObject containingObject, Material material, float worldSize, List<int> indices, List<Vector3> vertices, List<Color> colors) {

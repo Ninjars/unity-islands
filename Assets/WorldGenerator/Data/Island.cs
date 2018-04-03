@@ -32,7 +32,7 @@ public class Island {
 						}
 					}
 				}
-				this.undersideCoords = centers.Select(c => new Coord(c.coord.x, c.coord.elevation, c.coord.y)).ToList();
+				this.undersideCoords = centers.Select(c => new Coord(c.coord.x, 0, c.coord.y)).ToList();
 			}
 	}
 }

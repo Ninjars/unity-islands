@@ -40,7 +40,7 @@ namespace WorldGenerator {
 
         public static void generateIslandUndersideElevations(int seed, Island island) {
             // System.Random random = new System.Random(seed);
-            addConeUnderside(island.centers, island.undersideCoords, island.bounds.width / 2f, island.center.x, island.center.y, -200);
+            //addConeUnderside(island.centers, island.undersideCoords, island.bounds.width / 2f, island.center.x, island.center.y, -200);
         }
 
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
