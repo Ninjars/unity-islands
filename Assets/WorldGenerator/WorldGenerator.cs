@@ -113,8 +113,8 @@ namespace WorldGenerator {
 					foreach (Center neigh in center.neighbours) {
 						if (neigh.index > center.index) {
 							Debug.DrawLine(
-								new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
-								new Vector3((float) neigh.coord.x, neigh.scaledElevation(verticalScale), (float) neigh.coord.y));
+								center.coord.toVector3(), 
+								neigh.coord.toVector3());
 						}
 					}
 				}
@@ -123,8 +123,8 @@ namespace WorldGenerator {
 				foreach (Center center in world.centers) {
 					if (center.downslope != null) {
 						Debug.DrawLine(
-							new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
-							new Vector3((float) center.downslope.coord.x, center.downslope.scaledElevation(verticalScale)+1, (float) center.downslope.coord.y),
+								center.coord.toVector3(), 
+								center.downslope.coord.toVector3(),
 							Color.red);
 					}				
 				}
@@ -133,8 +133,8 @@ namespace WorldGenerator {
 				foreach (Corner corner in world.corners) {
 					foreach (Center center in corner.GetTouches()) {
 						Debug.DrawLine(
-								new Vector3((float) center.coord.x, center.scaledElevation(verticalScale), (float) center.coord.y), 
-								new Vector3((float) corner.coord.x, corner.scaledElevation(verticalScale), (float) corner.coord.y),
+								center.coord.toVector3(), 
+								corner.coord.toVector3(),
 								Color.green);
 					}
 				}
