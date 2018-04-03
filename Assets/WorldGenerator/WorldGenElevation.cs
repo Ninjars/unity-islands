@@ -118,7 +118,11 @@ namespace WorldGenerator {
             foreach (Center center in centers[currentIndex].neighbours) {
                 if (!processed.Contains(center)) {
                     int index = centers.IndexOf(center);
-                    processed = elevateUnderside(initialIndex,coords, centers, width, verticalScale, index, processed, falloffPower);
+                    if (index >= 0) {
+                        processed = elevateUnderside(initialIndex,coords, centers, width, verticalScale, index, processed, falloffPower);
+                    } else {
+                        processed.Add(center);
+                    }
                 }
             }
             return processed;
