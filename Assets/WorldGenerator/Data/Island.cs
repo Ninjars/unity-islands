@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace WorldGenerator {
 public class Island {
-        public List<Coord> undersideCoords {
+        public List<ConnectedCoord> undersideCoords {
 			get; private set;
 		}
 
@@ -32,7 +32,19 @@ public class Island {
 						}
 					}
 				}
-				this.undersideCoords = centers.Select(c => new Coord(c.coord.x, 0, c.coord.y)).ToList();
+				List<Coord> coords = centers.Select(c => {
+					return new Coord(c.coord.x, 0, c.coord.y);
+				}).ToList();
+				undersideCoords = new List<ConnectedCoord>(centers.Count);
+				for (int i = 0; i < centers.Count; i++) {
+					Center center = centers[i];
+					Coord centerCoord = coords[i];
+					List<Coord> neighbouringCoords = center.neighbours
+															.Where(c => centers.Contains(c))
+															.Select(c => coords[centers.IndexOf(c)])
+															.ToList();
+					undersideCoords.Add(new ConnectedCoord(centerCoord, neighbouringCoords));
+				}
 			}
 	}
 }

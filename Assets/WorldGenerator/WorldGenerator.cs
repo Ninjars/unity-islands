@@ -43,9 +43,10 @@ namespace WorldGenerator {
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
 			foreach (Island island in world.islands) {
-				WorldGenElevation.generateIslandUndersideElevations(world.seed, island);
 				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size, verticalScale);
-				WorldGenMesh.triangulate(gameObj, material, island.centers, island.undersideCoords, world.size, verticalScale);
+				
+				WorldGenElevation.generateIslandUndersideElevations(world.seed, island);
+				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size, verticalScale);
 			}
         }
 
@@ -99,8 +100,8 @@ namespace WorldGenerator {
 					maxY = coord.y;
 				}
 			}
-			Vector3 islandCenter = new Vector3(minX + (maxX - minX)/2f, 0, minY + (maxY - minY)/2f);
 			Rect rect = new Rect((float) minX, (float) minY, (float) (maxX - minX), (float) ( maxY - minY));
+			Vector3 islandCenter = new Vector3(rect.center.x, 0, rect.center.y);
 			return new Island(islandCenters, islandCenter, rect);
 		}
 

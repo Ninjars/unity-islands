@@ -27,38 +27,20 @@ namespace WorldGenerator {
 				addMeshSubObject(gameObject, material, size,  indices, vertices, colors);
 			}
 		}
-		public static void triangulate(GameObject gameObject, Material material, List<Center> centers, List<Coord> coords, float size, float verticalScale) {
+		public static void triangulate(GameObject gameObject, Material material, List<ConnectedCoord> coords, float size, float verticalScale) {
 			List<int> indices = new List<int>();
 			List<Vector3> vertices = new List<Vector3>();
 			List<Color> colors = new List<Color>();
-			List<Center> processedCenters = new List<Center>();
+			List<Coord> processedCenters = new List<Coord>();
 
-
-for (int i = 0; i < centers.Count; i++) {
-Debug.Log("coord " + coords[i]);
-Debug.Log("center " + centers[i].coord);
-}
-
-			for (int i = 0; i < centers.Count; i++) {
-				Center center = centers[i];
-				Coord centerCoord = coords[i];
-				List<Coord> neighbouringCoords = center.neighbours
-														.Where(c => !processedCenters.Contains(c) && centers.Contains(c))
-														.Select(c => coords[centers.IndexOf(c)])
-														.ToList();
+			foreach (ConnectedCoord coord in coords) {
+				Coord centerCoord = coord.coord;
+				List<Coord> neighbouringCoords = coord.neighbours.OrderBy(c => Math.Atan2(centerCoord.x - c.x, centerCoord.y - c.y)).ToList();
 				if (neighbouringCoords.Count > 1) {
-Debug.Log("neighbours");
-foreach (Coord c in neighbouringCoords) {
-	Debug.Log(" " + c);
-}
-					neighbouringCoords.Sort((a, b) => sortCoords(centerCoord, a, b) ? 1 : -1);
-Debug.Log("sorted neighbours");
-foreach (Coord c in neighbouringCoords) {
-	Debug.Log(" " + c);
-}
 					addTrianglesForCoord(centerCoord, neighbouringCoords, indices, vertices, colors, verticalScale);
 				}
-				processedCenters.Add(center);
+
+				processedCenters.Add(centerCoord);
 				// TODO: map between center and coord; should have the same ordering
 				// TODO: Check for border corners to triangulate with coord
 				// TODO: triangulate coord with neighbouring coords mapped from center.neighbours
@@ -88,9 +70,9 @@ foreach (Coord c in neighbouringCoords) {
 
 				Vector3 vertex1 = corner1.toVector3(verticalScale);
 				Vector3 vertex2 = corner2.toVector3(verticalScale);
-Debug.Log("vertex center " + vertexCenter);
-Debug.Log("vertex 1 " + vertex1);
-Debug.Log("vertex 2" + vertex2);
+// Debug.Log("vertex center " + vertexCenter);
+// Debug.Log("vertex 1 " + vertex1);
+// Debug.Log("vertex 2" + vertex2);
 				addTriangle(vertexCenter, vertex1, vertex2, Color.grey, indices, vertices, colors);
             }
 		}

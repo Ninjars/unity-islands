@@ -28,19 +28,23 @@ namespace WorldGenerator {
             for (int i = 0; i < 3; i++) {
                 smooth(graph.centers);
             }
-            normalise(graph.centers);
+            List<Coord> graphCenterCoords = graph.centers.Select(c => c.coord).ToList();
+            normalise(graphCenterCoords);
 
 			calculateDownslopes(graph.centers);
             calculateMoisture(graph.centers);
             performWaterErosion(graph.centers);
-            normalise(graph.centers);
+            normalise(graphCenterCoords);
 
             assignCornerElevations(graph.corners);
         }
 
         public static void generateIslandUndersideElevations(int seed, Island island) {
             // System.Random random = new System.Random(seed);
-            //addConeUnderside(island.centers, island.undersideCoords, island.bounds.width / 2f, island.center.x, island.center.y, -200);
+            List<Coord> islandCoords = island.undersideCoords.Select(c => c.coord).ToList();
+            addCone(islandCoords, 600, island.center.x, island.center.y, 200);
+            normalise(islandCoords);
+            invert(islandCoords);
         }
 
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
@@ -98,34 +102,35 @@ namespace WorldGenerator {
             elevate(initial, width, verticalScale * radialFactor, initial, new List<Center>(), 2);
         }
 
-        private static void addConeUnderside(List<Center> centers, List<Coord> mutableCoords, float radius, float x, float y, int verticalScale) {
-            Center initial = findClosestCenter(x, y, centers);
-            int initialIndex = centers.IndexOf(initial);
-            elevateUnderside(initialIndex, mutableCoords, centers, radius, verticalScale, initialIndex, new List<Center>(), 1);
+        private static void addCone(List<Coord> mutableCoords, float radius, float x, float y, int verticalScale) {
+            Coord initial = findClosestCoord(x, y, mutableCoords);
+            foreach (Coord current in mutableCoords) {
+                float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.toVector3(), current.toVector3());
+                Debug.Log("distance " + distanceFromCenter);
+                if (distanceFromCenter > radius) {
+                    continue;
+                }
+                float distanceFactor = Mathf.Pow(distanceFromCenter / radius, 1);
+                Debug.Log("distance factor " + distanceFactor);
+                Debug.Log("elevation " + (verticalScale * (1f - distanceFactor)));
+                current.elevation += verticalScale * (1f - distanceFactor);
+            }
         }
 
-        private static List<Center> elevateUnderside(int initialIndex, List<Coord> coords, List<Center> centers, float width, float verticalScale, int currentIndex, List<Center> processed, float falloffPower) {
-            Coord initial = coords[initialIndex];
-            Coord current = coords[currentIndex];
-            processed.Add(centers[currentIndex]);
-            float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.toVector3(), current.toVector3());
-            if (distanceFromCenter > width) {
-                return processed;
-            }
-            float distanceFactor = Mathf.Pow(distanceFromCenter / width, falloffPower);
-            float elevation = verticalScale * (1f - distanceFactor);
-            current.elevation += elevation;
-            foreach (Center center in centers[currentIndex].neighbours) {
-                if (!processed.Contains(center)) {
-                    int index = centers.IndexOf(center);
-                    if (index >= 0) {
-                        processed = elevateUnderside(initialIndex,coords, centers, width, verticalScale, index, processed, falloffPower);
-                    } else {
-                        processed.Add(center);
-                    }
+        private static Coord findClosestCoord(float x, float y, List<Coord> coords) {
+            Coord closestCoord = null;
+            float dx = 0;
+            float dy = 0;
+            foreach (Coord coord in coords) {
+                float cx = Math.Abs(x - coord.x);
+                float cy = Math.Abs(y - coord.y);
+                if (closestCoord == null || cx * cx + cy * cy < dx * dx + dy * dy) {
+                    closestCoord = coord;
+                    dx = cx;
+                    dy = cy;
                 }
             }
-            return processed;
+            return closestCoord;
         }
 
         private static List<Center> elevate(Center initial, float width, float verticalScale, Center current, List<Center> processed, float falloffPower) {
@@ -180,16 +185,25 @@ namespace WorldGenerator {
         /**
             Scale positive elevations to lie between 0 and 1, and flatten all negative elevations to 0
          */
-        private static void normalise(List<Center> centers) {
+        private static void normalise(List<Coord> coords) {
             float maxElevation = 0;
-            foreach (Center center in centers) {
-                maxElevation = Math.Max(center.coord.elevation, maxElevation);
+            foreach (Coord coord in coords) {
+                maxElevation = Math.Max(coord.elevation, maxElevation);
             }
-            foreach (Center center in centers) {
-                center.coord.elevation /= maxElevation;
-                if (center.coord.elevation < 0) {
-                    center.coord.elevation = 0;
+            if (maxElevation <= 0) {
+                return;
+            }
+            foreach (Coord coord in coords) {
+                coord.elevation /= maxElevation;
+                if (coord.elevation < 0) {
+                    coord.elevation = 0;
                 }
+            }
+        }
+
+        private static void invert(List<Coord> coords) {
+            foreach (Coord coord in coords) {
+                coord.elevation = -coord.elevation;
             }
         }
 
