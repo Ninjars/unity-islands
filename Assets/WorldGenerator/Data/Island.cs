@@ -27,7 +27,7 @@ public class Island {
 			this.center = islandCenter;
 			this.bounds = bounds;
 			this.corners = new List<Corner>();
-			minElevation = centers[0].coord.elevation;
+			minElevation = 1000;
 			foreach(Center c in centers) {
 				if (c.coord.elevation > maxElevation) {
 					maxElevation = c.coord.elevation;

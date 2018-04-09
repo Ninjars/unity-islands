@@ -12,19 +12,19 @@ namespace WorldGenerator {
             List<Coord> graphCenterCoords = graph.centers.Select(c => c.coord).ToList();
             
             float radius = graph.size * 0.2f;
-            addCone(graph.centers, radius, graph.size / 2f, 10f, 0.4f);
+            // addCone(graphCenterCoords, radius, graph.size / 2f, graph.size / 2f, 0.2f);
             applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 15f, 25f);
             applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 8f, 10f);
             applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 1f, 5f);
             for (int i = 0; i < 5; i++) {
                 var x = random.NextDouble() * graph.size;
                 var y = random.NextDouble() * graph.size;
-                addBump(graph, 20f, (float) x, (float) y);
+                addBump(graph.center, graph.size, graphCenterCoords, 20f, graph.size / 10f, (float) x, (float) y);
             }
             for (int i = 0; i < 3; i++) {
                 var x = random.NextDouble() * graph.size;
                 var y = random.NextDouble() * graph.size;
-                addBump(graph, -10f, (float) x, (float) y);
+                addBump(graph.center, graph.size, graphCenterCoords, -10f, graph.size / 10f, (float) x, (float) y);
             }
             for (int i = 0; i < 3; i++) {
                 smooth(graph.centers);
@@ -35,17 +35,31 @@ namespace WorldGenerator {
             calculateMoisture(graph.centers);
             performWaterErosion(graph.centers);
             normalise(graphCenterCoords);
+            offsetElevation(graphCenterCoords, -clippingPlaneHeight);
 
             assignCornerElevations(graph.corners);
         }
 
         public static void generateIslandUndersideElevations(int seed, Island island) {
-            // System.Random random = new System.Random(seed);
+            System.Random random = new System.Random(seed);
             List<CoordUnderside> undersideCoords = island.undersideCoords.Where(c => !c.coord.isFixed).Select(c => c.coord).ToList();
-            addCone(undersideCoords, 600, island.center.x, island.center.y, 1);
             List<Coord> islandCoords = undersideCoords.Select(c => c.coord).ToList();
+            float islandMinDim = Mathf.Min(island.bounds.width, island.bounds.height);
+            float islandMaxDim = Mathf.Max(island.bounds.width, island.bounds.height);
+            
+            for (int i = 0; i < 5; i++) {
+                var x = random.NextDouble() * islandMinDim;
+                var y = random.NextDouble() * islandMinDim;
+                addBump(island.center, islandMaxDim, islandCoords, (float) random.NextDouble() * islandMinDim, 20f, (float) x, (float) y);
+            }
+            
+            addCone(islandCoords, islandMaxDim / 2f, island.center.x, island.center.z, 0.5f);
+            applyRadialWeightedNoise(island.center, islandMinDim / 2f, islandCoords, random, 3f, 0.5f);
+            applyNoise(islandCoords, random, 10f, 0.5f);
+
             normalise(islandCoords);
             invert(islandCoords);
+            offsetElevation(islandCoords, -0.1f);
         }
 
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
@@ -92,34 +106,53 @@ namespace WorldGenerator {
             }
         }
 
+        private static void applyNoise(List<Coord> coords, System.Random random, float horizontalScale, float verticalScale) {
+            float offset = (float) random.NextDouble();
+            foreach (Coord coord in coords) {
+                var perlin = getPerlin(offset, 
+                                        horizontalScale, 
+                                        coord.x, 
+                                        coord.y);
+                coord.elevation += perlin * verticalScale;
+            }
+        }
+
 		private static float getPerlin(float offset, float scale, float x, float y) {
 			return Mathf.Clamp01(Mathf.PerlinNoise(scale * (offset + x), scale * (offset + y)));
 		}
 
-        private static void addBump(Graph graph, float verticalScale, float x, float y) {
-            Center initial = findClosestCenter(x, y, graph.centers);
-            float width = graph.size / 10f;
-            float radialFactor = 1f - Vector3.Distance(graph.center, initial.coord.toVector3()) * 2 / graph.size;
-            elevate(initial, width, verticalScale * radialFactor, initial, new List<Center>(), 2);
+        private static void addBump(Vector3 center, float graphSize, List<Coord> coords, float radius, float verticalScale, float x, float y) {
+            Coord initial = findClosestCoord(x, y, coords);
+            float radialFactor = 1f - Vector3.Distance(center, initial.toVector3()) * 2 / graphSize;
+            elevate(initial, coords, radius, x, y, verticalScale * radialFactor, 2);
         }
 
-        private static void addCone(List<CoordUnderside> mutableCoords, float radius, float x, float y, float verticalScale) {
-            CoordUnderside initial = findClosestCoord(x, y, mutableCoords);
-            foreach (CoordUnderside current in mutableCoords) {
+        private static void addCone(List<Coord> coords, float radius, float x, float y, float verticalScale) {
+            elevate(coords, radius, x, y, verticalScale, 1);
+        }
+
+        private static void elevate(List<Coord> coords, float radius, float x, float y, float verticalScale, float power) {
+            Coord initial = findClosestCoord(x, y, coords);
+            elevate(initial, coords, radius, x, y, verticalScale, power);
+        }
+
+        private static void elevate(Coord initial, List<Coord> coords, float radius, float x, float y, float verticalScale, float power) {
+            radius = Mathf.Max(radius, 1);
+            foreach (Coord current in coords) {
                 float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.toVector3(), current.toVector3());
                 if (distanceFromCenter > radius) {
                     continue;
                 }
                 float distanceFactor = Mathf.Pow(distanceFromCenter / radius, 1);
-                current.coord.elevation += verticalScale * (1f - distanceFactor);
+                current.elevation += verticalScale * (1f - distanceFactor);
             }
         }
 
-        private static CoordUnderside findClosestCoord(float x, float y, List<CoordUnderside> coords) {
-            CoordUnderside closestCoord = null;
+        private static Coord findClosestCoord(float x, float y, List<Coord> coords) {
+            Coord closestCoord = null;
             float dx = 0;
             float dy = 0;
-            foreach (CoordUnderside coord in coords) {
+            foreach (Coord coord in coords) {
                 float cx = Math.Abs(x - coord.x);
                 float cy = Math.Abs(y - coord.y);
                 if (closestCoord == null || cx * cx + cy * cy < dx * dx + dy * dy) {
@@ -146,11 +179,6 @@ namespace WorldGenerator {
                 }
             }
             return processed;
-        }
-
-        private static void addCone(List<Center> centers, float radius, float x, float y, float verticalScale) {
-            Center initial = findClosestCenter(x, y, centers);
-            elevate(initial, radius, verticalScale, initial, new List<Center>(), 1);
         }
 
         private static Center findClosestCenter(float x, float y, List<Center> centers) {
@@ -205,6 +233,12 @@ namespace WorldGenerator {
             }
         }
 
+        private static void offsetElevation(List<Coord> coords, float elevation) {
+            foreach (Coord coord in coords) {
+                coord.elevation += elevation;
+            }
+        }
+
         /**
             averages heights between neighbouring centers to smooth the terrain
         */
@@ -215,12 +249,12 @@ namespace WorldGenerator {
                 if (center.coord.elevation == 0) {
                     continue;
                 }
-                float elevation = 0;
+                float totalElevation = 0;
                 List<Center> neighbours = center.neighbours;
                 foreach (Center neighbour in neighbours) {
-                    elevation += neighbour.coord.elevation;
+                    totalElevation += neighbour.coord.elevation;
                 }
-                center.coord.elevation = elevation / (float) neighbours.Count;
+                center.coord.elevation = totalElevation / (float) neighbours.Count;
             }
         }
 
