@@ -9,12 +9,13 @@ namespace WorldGenerator {
         
         public static void generateElevations(Graph graph, float clippingPlaneHeight) {
             System.Random random = new System.Random(graph.seed);
+            List<Coord> graphCenterCoords = graph.centers.Select(c => c.coord).ToList();
             
             float radius = graph.size * 0.2f;
             addCone(graph.centers, radius, graph.size / 2f, 10f, 0.4f);
-            applyNoise(graph, random, 15f, 25f);
-            applyNoise(graph, random, 8f, 10f);
-            applyNoise(graph, random, 1f, 5f);
+            applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 15f, 25f);
+            applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 8f, 10f);
+            applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 1f, 5f);
             for (int i = 0; i < 5; i++) {
                 var x = random.NextDouble() * graph.size;
                 var y = random.NextDouble() * graph.size;
@@ -28,7 +29,6 @@ namespace WorldGenerator {
             for (int i = 0; i < 3; i++) {
                 smooth(graph.centers);
             }
-            List<Coord> graphCenterCoords = graph.centers.Select(c => c.coord).ToList();
             normalise(graphCenterCoords);
 
 			calculateDownslopes(graph.centers);
@@ -41,8 +41,9 @@ namespace WorldGenerator {
 
         public static void generateIslandUndersideElevations(int seed, Island island) {
             // System.Random random = new System.Random(seed);
-            List<Coord> islandCoords = island.undersideCoords.Select(c => c.coord).ToList();
-            addCone(islandCoords, 600, island.center.x, island.center.y, 200);
+            List<CoordUnderside> undersideCoords = island.undersideCoords.Where(c => !c.coord.isFixed).Select(c => c.coord).ToList();
+            addCone(undersideCoords, 600, island.center.x, island.center.y, 1);
+            List<Coord> islandCoords = undersideCoords.Select(c => c.coord).ToList();
             normalise(islandCoords);
             invert(islandCoords);
         }
@@ -79,15 +80,15 @@ namespace WorldGenerator {
             Changing the horizonal scale should change the frequency of the effect.  Smaller numbers = less detailed.
             Change the vertical scale to change the strength of the effect.
          */
-        private static void applyNoise(Graph graph, System.Random random, float horizontalScale, float verticalScale) {
+        private static void applyRadialWeightedNoise(Vector3 center, float radius, List<Coord> coords, System.Random random, float horizontalScale, float verticalScale) {
 			float offset = (float) random.NextDouble();
-            foreach (Center center in graph.centers) {
+            foreach (Coord coord in coords) {
                 var perlin = getPerlin(offset, 
                                         horizontalScale, 
-                                        center.coord.x / graph.size, 
-                                        center.coord.y / graph.size);
-                float radialFactor = 1f - Vector3.Distance(graph.center, center.coord.toVector3()) * 2 / graph.size;
-                center.coord.elevation += perlin * verticalScale * radialFactor;
+                                        coord.x / radius, 
+                                        coord.y / radius);
+                float radialFactor = 1f - Vector3.Distance(center, coord.toVector3()) * 2 / radius;
+                coord.elevation += perlin * verticalScale * radialFactor;
             }
         }
 
@@ -102,26 +103,23 @@ namespace WorldGenerator {
             elevate(initial, width, verticalScale * radialFactor, initial, new List<Center>(), 2);
         }
 
-        private static void addCone(List<Coord> mutableCoords, float radius, float x, float y, int verticalScale) {
-            Coord initial = findClosestCoord(x, y, mutableCoords);
-            foreach (Coord current in mutableCoords) {
+        private static void addCone(List<CoordUnderside> mutableCoords, float radius, float x, float y, float verticalScale) {
+            CoordUnderside initial = findClosestCoord(x, y, mutableCoords);
+            foreach (CoordUnderside current in mutableCoords) {
                 float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.toVector3(), current.toVector3());
-                Debug.Log("distance " + distanceFromCenter);
                 if (distanceFromCenter > radius) {
                     continue;
                 }
                 float distanceFactor = Mathf.Pow(distanceFromCenter / radius, 1);
-                Debug.Log("distance factor " + distanceFactor);
-                Debug.Log("elevation " + (verticalScale * (1f - distanceFactor)));
-                current.elevation += verticalScale * (1f - distanceFactor);
+                current.coord.elevation += verticalScale * (1f - distanceFactor);
             }
         }
 
-        private static Coord findClosestCoord(float x, float y, List<Coord> coords) {
-            Coord closestCoord = null;
+        private static CoordUnderside findClosestCoord(float x, float y, List<CoordUnderside> coords) {
+            CoordUnderside closestCoord = null;
             float dx = 0;
             float dy = 0;
-            foreach (Coord coord in coords) {
+            foreach (CoordUnderside coord in coords) {
                 float cx = Math.Abs(x - coord.x);
                 float cy = Math.Abs(y - coord.y);
                 if (closestCoord == null || cx * cx + cy * cy < dx * dx + dy * dy) {

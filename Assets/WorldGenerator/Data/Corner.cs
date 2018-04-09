@@ -78,5 +78,9 @@ namespace WorldGenerator {
         public float scaledElevation(float factor) {
             return coord.y * factor;
         }
+
+		public override string ToString() {
+			return "Corner @ " + coord.ToString() + " isClipped? " + isClipped + " isRim? " + isIslandRim; 
+		} 
     }
 }

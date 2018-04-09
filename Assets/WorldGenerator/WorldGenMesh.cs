@@ -31,20 +31,16 @@ namespace WorldGenerator {
 			List<int> indices = new List<int>();
 			List<Vector3> vertices = new List<Vector3>();
 			List<Color> colors = new List<Color>();
-			List<Coord> processedCenters = new List<Coord>();
+			List<CoordUnderside> processedCenters = new List<CoordUnderside>();
 
 			foreach (ConnectedCoord coord in coords) {
-				Coord centerCoord = coord.coord;
-				List<Coord> neighbouringCoords = coord.neighbours.OrderBy(c => Math.Atan2(centerCoord.x - c.x, centerCoord.y - c.y)).ToList();
+				CoordUnderside centerCoord = coord.coord;
+				List<CoordUnderside> neighbouringCoords = coord.neighbours.OrderBy(c => Math.Atan2(centerCoord.x - c.x, centerCoord.y - c.y)).ToList();
 				if (neighbouringCoords.Count > 1) {
 					addTrianglesForCoord(centerCoord, neighbouringCoords, indices, vertices, colors, verticalScale);
 				}
 
 				processedCenters.Add(centerCoord);
-				// TODO: map between center and coord; should have the same ordering
-				// TODO: Check for border corners to triangulate with coord
-				// TODO: triangulate coord with neighbouring coords mapped from center.neighbours
-				// TODO: work out how to consistently order triangulation D:
 
 				if (vertices.Count > vertexLimit) {
 					addMeshSubObject(gameObject, material, size, indices, vertices, colors);
@@ -55,8 +51,8 @@ namespace WorldGenerator {
 			}
 		}
 
-        private static void addTrianglesForCoord(Coord center,
-											List<Coord> corners, 
+        private static void addTrianglesForCoord(CoordUnderside center,
+											List<CoordUnderside> corners, 
 											List<int> indices, 
 											List<Vector3> vertices,
 											List<Color> colors,
@@ -64,15 +60,12 @@ namespace WorldGenerator {
             Vector3 vertexCenter = center.toVector3(verticalScale);
 
             for (int i = 0; i < corners.Count; i++) {
-				Coord corner1 = corners[i];
+				CoordUnderside corner1 = corners[i];
 				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
-				Coord corner2 = corners[index2];
+				CoordUnderside corner2 = corners[index2];
 
 				Vector3 vertex1 = corner1.toVector3(verticalScale);
 				Vector3 vertex2 = corner2.toVector3(verticalScale);
-// Debug.Log("vertex center " + vertexCenter);
-// Debug.Log("vertex 1 " + vertex1);
-// Debug.Log("vertex 2" + vertex2);
 				addTriangle(vertexCenter, vertex1, vertex2, Color.grey, indices, vertices, colors);
             }
 		}
