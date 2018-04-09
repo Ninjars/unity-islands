@@ -46,7 +46,7 @@ namespace WorldGenerator {
 				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size, verticalScale);
 				
 				WorldGenElevation.generateIslandUndersideElevations(world.seed, island);
-				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size, verticalScale);
+				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size, verticalScale, island.maxElevation - island.minElevation);
 			}
         }
 

@@ -27,7 +27,7 @@ namespace WorldGenerator {
 				addMeshSubObject(gameObject, material, size,  indices, vertices, colors);
 			}
 		}
-		public static void triangulate(GameObject gameObject, Material material, List<ConnectedCoord> coords, float size, float verticalScale) {
+		public static void triangulate(GameObject gameObject, Material material, List<ConnectedCoord> coords, float size, float verticalScale, float verticalModifier) {
 			List<int> indices = new List<int>();
 			List<Vector3> vertices = new List<Vector3>();
 			List<Color> colors = new List<Color>();
@@ -37,7 +37,7 @@ namespace WorldGenerator {
 				CoordUnderside centerCoord = coord.coord;
 				List<CoordUnderside> neighbouringCoords = coord.neighbours.OrderBy(c => Math.Atan2(centerCoord.x - c.x, centerCoord.y - c.y)).ToList();
 				if (neighbouringCoords.Count > 1) {
-					addTrianglesForCoord(centerCoord, neighbouringCoords, indices, vertices, colors, verticalScale);
+					addTrianglesForCoord(centerCoord, neighbouringCoords, indices, vertices, colors, verticalScale, verticalScale * verticalModifier);
 				}
 
 				processedCenters.Add(centerCoord);
@@ -56,16 +56,17 @@ namespace WorldGenerator {
 											List<int> indices, 
 											List<Vector3> vertices,
 											List<Color> colors,
-											float verticalScale) {
-            Vector3 vertexCenter = center.toVector3(verticalScale);
+											float fixedVerticalScale,
+											float undersideScale) {
+            Vector3 vertexCenter = center.toVector3(undersideScale);
 
             for (int i = 0; i < corners.Count; i++) {
 				CoordUnderside corner1 = corners[i];
 				int index2 = i + 1 >= corners.Count ? 0 : i + 1;
 				CoordUnderside corner2 = corners[index2];
 
-				Vector3 vertex1 = corner1.toVector3(verticalScale);
-				Vector3 vertex2 = corner2.toVector3(verticalScale);
+				Vector3 vertex1 = corner1.toVector3(corner1.isFixed ? fixedVerticalScale : undersideScale);
+				Vector3 vertex2 = corner2.toVector3(corner2.isFixed ? fixedVerticalScale : undersideScale);
 				addTriangle(vertexCenter, vertex1, vertex2, Color.grey, indices, vertices, colors);
             }
 		}
