@@ -39,13 +39,6 @@ namespace WorldGenerator {
             private set;   
         }
         public TerrainType terrainType { get; internal set; }
-
-        /**
-            downslope may be null if it's neighbours are same height or higher
-        */
-        public Center downslope {
-            get; set;
-        }
         public bool isClipped { get; internal set; }
         public bool isOnRim { get; internal set; }
 

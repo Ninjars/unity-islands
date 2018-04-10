@@ -31,12 +31,11 @@ namespace WorldGenerator {
             }
             normalise(graphCenterCoords);
 
-			calculateDownslopes(graph.centers);
-            calculateMoisture(graph.centers);
-            performWaterErosion(graph.centers);
             normalise(graphCenterCoords);
-
             assignCornerElevations(graph.corners);
+            calculateDownslopes(graph.corners);
+            calculateMoisture(graph.corners);
+            performWaterErosion(graph.corners);
         }
 
         public static void generateIslandUndersideElevations(int seed, Island island) {
@@ -257,10 +256,10 @@ namespace WorldGenerator {
             }
         }
 
-		internal static void calculateDownslopes(List<Center> centers) {
-			foreach (Center center  in centers) {
-				Center lowest = null;
-				foreach (Center neigh in center.neighbours) {
+		internal static void calculateDownslopes(List<Corner> corners) {
+			foreach (Corner corner  in corners) {
+				Corner lowest = null;
+				foreach (Corner neigh in corner.GetAdjacents()) {
 					if (lowest == null) {
 						lowest = neigh;
 					} else {
@@ -269,8 +268,8 @@ namespace WorldGenerator {
 						}
 					}
 				}
-				if (center.coord.elevation > lowest.coord.elevation) {
-					center.downslope = lowest;
+				if (corner.coord.elevation > lowest.coord.elevation) {
+					corner.downslope = lowest;
 				}
 			}
 		}
@@ -278,31 +277,28 @@ namespace WorldGenerator {
         /**
             Assignes normalised moisture values to all centers
         */
-        internal static void calculateMoisture(List<Center> centers) {
-            List<Center> descendingCenters = new List<Center>(centers);
-            descendingCenters.Sort((a, b) => b.coord.elevation.CompareTo(a.coord.elevation));
-            double highestMoisture = 1;
-            foreach (Center center in descendingCenters) {
-                center.moisture += 1;
-                if (center.downslope != null) {
-                    center.downslope.moisture += center.moisture;
-                } else {
-                    highestMoisture = Math.Max(highestMoisture, center.moisture);
-                }
+        internal static void calculateMoisture(List<Corner> corners) {
+            float maxValue = 0;
+            foreach (Corner corner in corners) {
+                maxValue = Mathf.Max(maxValue, recursivelyApplyMoisture(corner));
             }
-            // Normalise
-            foreach (Center center in descendingCenters) {
-                if (center.coord.elevation <= 0) {
-                    center.moisture = 1;
-                } else {
-                    center.moisture /= highestMoisture;
-                }
+            foreach (Corner corner in corners) {
+                corner.moisture /= maxValue;
             }
         }
 
-        internal static void performWaterErosion(List<Center> centers) {
-            foreach (Center center in centers) {
-                center.coord.elevation *= 1f - (float) (center.moisture * center.moisture);
+        private static float recursivelyApplyMoisture(Corner corner) {
+            corner.moisture += 1;
+            if (corner.downslope != null) {
+                return recursivelyApplyMoisture(corner.downslope);
+            } else {
+                return corner.moisture;
+            }
+        }
+
+        internal static void performWaterErosion(List<Corner> corners) {
+            foreach (Corner corner in corners) {
+                corner.coord.elevation -= 0.1f * corner.moisture;
             }
         }
     }

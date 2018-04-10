@@ -27,6 +27,8 @@ namespace WorldGenerator {
         }
         public bool isClipped { get; internal set; }
         public bool isIslandRim { get; internal set; }
+        public Corner downslope { get; internal set; }
+        public float moisture { get; internal set; }
 
         public Corner(Coord coord) {
             this.coord = coord;
