@@ -34,7 +34,7 @@ namespace WorldGenerator {
             Graph graph = generateGraph(seed);
 
 			WorldGenElevation.generateElevations(graph, clippingHeight);
-			WorldGenElevation.applyClipping(graph, 0);
+			WorldGenElevation.applyClipping(graph, clippingHeight);
 			List<Island> islands = findIslands(graph);
 			Debug.Log("island count " + islands.Count);
 

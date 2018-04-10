@@ -12,7 +12,7 @@ namespace WorldGenerator {
             List<Coord> graphCenterCoords = graph.centers.Select(c => c.coord).ToList();
             
             float radius = graph.size * 0.2f;
-            // addCone(graphCenterCoords, radius, graph.size / 2f, graph.size / 2f, 0.2f);
+            addCone(graphCenterCoords, radius, graph.size / 2f, graph.size / 2f, 0.2f);
             applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 15f, 25f);
             applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 8f, 10f);
             applyRadialWeightedNoise(graph.center, graph.size, graphCenterCoords, random, 1f, 5f);
@@ -35,7 +35,6 @@ namespace WorldGenerator {
             calculateMoisture(graph.centers);
             performWaterErosion(graph.centers);
             normalise(graphCenterCoords);
-            offsetElevation(graphCenterCoords, -clippingPlaneHeight);
 
             assignCornerElevations(graph.corners);
         }
@@ -50,16 +49,16 @@ namespace WorldGenerator {
             for (int i = 0; i < 5; i++) {
                 var x = random.NextDouble() * islandMinDim;
                 var y = random.NextDouble() * islandMinDim;
-                addBump(island.center, islandMaxDim, islandCoords, (float) random.NextDouble() * islandMinDim, 20f, (float) x, (float) y);
+                addBump(island.center, islandMaxDim, islandCoords, (float) random.NextDouble() * islandMinDim, 0.5f, (float) x, (float) y);
             }
             
-            addCone(islandCoords, islandMaxDim / 2f, island.center.x, island.center.z, 0.5f);
-            applyRadialWeightedNoise(island.center, islandMinDim / 2f, islandCoords, random, 3f, 0.5f);
-            applyNoise(islandCoords, random, 10f, 0.5f);
+            addCone(islandCoords, islandMaxDim / 2f, island.center.x, island.center.z, 0.1f);
+            applyRadialWeightedNoise(island.center, islandMinDim / 2f, islandCoords, random, 3f, 0.2f);
+            applyNoise(islandCoords, random, 10f, 0.2f);
 
             normalise(islandCoords);
             invert(islandCoords);
-            offsetElevation(islandCoords, -0.1f);
+            offsetElevation(islandCoords, island.minElevation);
         }
 
         public static void applyClipping(Graph graph, float clippingPlaneHeight) {
