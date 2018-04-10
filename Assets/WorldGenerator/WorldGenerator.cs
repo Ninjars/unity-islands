@@ -114,18 +114,18 @@ namespace WorldGenerator {
 					foreach (Center neigh in center.neighbours) {
 						if (neigh.index > center.index) {
 							Debug.DrawLine(
-								center.coord.toVector3(), 
-								neigh.coord.toVector3());
+								center.coord.toVector3(verticalScale * 1.01f), 
+								neigh.coord.toVector3(verticalScale * 1.01f));
 						}
 					}
 				}
 			}
 			if (debugDrawDownlopes) {
-				foreach (Center center in world.centers) {
-					if (center.downslope != null) {
+				foreach (Corner corner in world.corners) {
+					if (corner.downslope != null) {
 						Debug.DrawLine(
-								center.coord.toVector3(), 
-								center.downslope.coord.toVector3(),
+								corner.coord.toVector3(verticalScale * 1.01f), 
+								corner.downslope.coord.toVector3(verticalScale * 1.01f),
 							Color.red);
 					}				
 				}
@@ -134,8 +134,8 @@ namespace WorldGenerator {
 				foreach (Corner corner in world.corners) {
 					foreach (Center center in corner.GetTouches()) {
 						Debug.DrawLine(
-								center.coord.toVector3(), 
-								corner.coord.toVector3(),
+								center.coord.toVector3(verticalScale * 1.01f), 
+								corner.coord.toVector3(verticalScale * 1.01f),
 								Color.green);
 					}
 				}
