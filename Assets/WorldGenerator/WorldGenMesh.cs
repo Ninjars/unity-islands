@@ -117,6 +117,9 @@ namespace WorldGenerator {
 				myUVs[i] = new Vector2(vertices[i].x / worldSize, vertices[i].y /  worldSize);
 			}
 			mesh.uv = myUVs;
+
+			MeshCollider collider = gameObject.AddComponent<MeshCollider>();
+			collider.sharedMesh = mesh;
 			
 			indices.Clear();
 			vertices.Clear();

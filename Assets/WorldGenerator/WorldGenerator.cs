@@ -30,6 +30,8 @@ namespace WorldGenerator {
         private void Start() {
             GameObject gameObj = new GameObject();
             gameObj.name = "Island";
+			Rigidbody rigidbody = gameObj.AddComponent<Rigidbody>();
+			rigidbody.isKinematic = true;
 
             int seed = 12335;
             Graph graph = generateGraph(seed);
