@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 using TriangleNet.Voronoi;
 using System;
 using TriangleNet.Topology.DCEL;
@@ -48,6 +49,11 @@ namespace WorldGenerator {
 				WorldGenElevation.generateIslandUndersideElevations(world.seed, island);
 				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size, verticalScale, island.maxElevation - island.minElevation);
 			}
+
+			// first pass at adding a nav mesh
+			NavMeshSurface navMeshSurface = gameObj.AddComponent<NavMeshSurface>();
+			navMeshSurface.BuildNavMesh();
+
         }
 
         private List<Vector3> getPointsForIslandUndersideGraph(Island island) {
