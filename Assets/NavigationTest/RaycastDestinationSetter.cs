@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 namespace Agents {
 	public class RaycastDestinationSetter : MonoBehaviour {
@@ -8,6 +9,7 @@ namespace Agents {
 		public float weaponRange = 500f;                                     // Distance in Unity units over which the player can fire
 		public Transform gunEnd;                                            // Holds a reference to the gun end object, marking the muzzle location of the gun
 		public DirectedAgent directedAgent;
+		public GameObject agentPrefab;
 
 		public Camera fpsCam;                                              // Holds a reference to the first person camera
 		private WaitForSeconds shotDuration = new WaitForSeconds(0.07f);    // WaitForSeconds object used by our ShotEffect coroutine, determines time laser line will remain visible
@@ -41,24 +43,31 @@ namespace Agents {
 				laserLine.SetPosition (0, gunEnd.position);
 
 				// Check if our raycast has hit anything
-				if (Physics.Raycast (rayOrigin, fpsCam.transform.forward, out hit, weaponRange))
-				{
-					Debug.Log("hit something");
+				if (Physics.Raycast (rayOrigin, fpsCam.transform.forward, out hit, weaponRange)) {
 					// Set the end position for our laser line 
 					laserLine.SetPosition (1, hit.point);
-					directedAgent.MoveToLocation (hit.point);
-				}
-				else
-				{
+
+					if (directedAgent == null) {
+						instantiateAgent(hit.point);
+					} else {
+						Debug.Log("MoveToLocation @ " + hit.point);
+						directedAgent.MoveToLocation (hit.point);
+					}
+				} else {
 					// If we did not hit anything, set the end of the line to a position directly in front of the camera at the distance of weaponRange
 					laserLine.SetPosition (1, rayOrigin + (fpsCam.transform.forward * weaponRange));
 				}
 			}
 		}
 
+        private void instantiateAgent(Vector3 point) {
+			Debug.Log("instantiateAgent @ " + point);
+            GameObject agent = Instantiate(agentPrefab);
+			agent.transform.position = point;
+			directedAgent = agent.GetComponent<DirectedAgent>();
+        }
 
-		private IEnumerator ShotEffect()
-		{
+        private IEnumerator ShotEffect() {
 			// Turn on our line renderer
 			laserLine.enabled = true;
 
