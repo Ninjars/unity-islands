@@ -158,6 +158,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerCam: {fileID: 1282923795}
+  enableEdgeScrolling: 0
   cameraXmax: 1000
   cameraXmin: 0
   cameraZmax: 1000

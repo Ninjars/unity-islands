@@ -4,6 +4,7 @@ using System.Collections;
 public class CameraController : MonoBehaviour 
 {
     public Camera playerCam;
+    public bool enableEdgeScrolling;
     public float cameraXmax;
     public float cameraXmin;
     public float cameraZmax;
@@ -47,14 +48,14 @@ public class CameraController : MonoBehaviour
         mousePosX = Input.mousePosition.x;
 		mousePosY = Input.mousePosition.y;
 
-		if (mousePosX < edgeScrollBounds || Input.GetAxis ("Scroll Horizontal")<0)
+		if ((enableEdgeScrolling && mousePosX < edgeScrollBounds) || Input.GetAxis ("Scroll Horizontal")<0)
 			newPos += (Vector3.right * ProportionalScrollSpeed(-moveSpeed) * Time.unscaledDeltaTime * SettingsManager.instance.scrollSpeed);        
-		else if (mousePosX > Screen.width - edgeScrollBounds || Input.GetAxis ("Scroll Horizontal")>0)
+		else if ((enableEdgeScrolling && mousePosX > Screen.width - edgeScrollBounds) || Input.GetAxis ("Scroll Horizontal")>0)
 			newPos += (Vector3.right * ProportionalScrollSpeed(moveSpeed) * Time.unscaledDeltaTime * SettingsManager.instance.scrollSpeed);
 
-		if (mousePosY < edgeScrollBounds || Input.GetAxis ("Scroll Vertical")<0)
+		if ((enableEdgeScrolling && mousePosY < edgeScrollBounds) || Input.GetAxis ("Scroll Vertical")<0)
 			newPos += (Vector3.forward * ProportionalScrollSpeed(-moveSpeed) * Time.unscaledDeltaTime * SettingsManager.instance.scrollSpeed);
-		else if (mousePosY > Screen.height - edgeScrollBounds || Input.GetAxis ("Scroll Vertical")>0)
+		else if ((enableEdgeScrolling && mousePosY > Screen.height - edgeScrollBounds) || Input.GetAxis ("Scroll Vertical")>0)
 			newPos += (Vector3.forward * ProportionalScrollSpeed(moveSpeed) * Time.unscaledDeltaTime * SettingsManager.instance.scrollSpeed);
 
 
