@@ -18,6 +18,8 @@ namespace WorldGenerator {
 		public int pointCount = 1000;
 		public float verticalScale = 100f;
 
+		public List<GameObject> agentsToGenerateNavMeshFor;
+
 		[Range(0, 1f)]
 		public float clippingHeight = 0.25f;
 
@@ -53,9 +55,11 @@ namespace WorldGenerator {
 			}
 
 			// first pass at adding a nav mesh
-			NavMeshSurface navMeshSurface = gameObj.AddComponent<NavMeshSurface>();
-			navMeshSurface.BuildNavMesh();
-
+			foreach (GameObject agentType in agentsToGenerateNavMeshFor) {
+				NavMeshSurface navMeshSurface = gameObj.AddComponent<NavMeshSurface>();
+				navMeshSurface.agentTypeID = agentType.GetComponent<NavMeshAgent>().agentTypeID;
+				navMeshSurface.BuildNavMesh();
+			}
         }
 
         private List<Vector3> getPointsForIslandUndersideGraph(Island island) {
