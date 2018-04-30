@@ -12,7 +12,7 @@ namespace WorldGenerator {
 			get;
 			private set;
 		}
-
+        public float verticalScale { get; private set; }
         public List<Center> centers {
 			get;
 			private set;
@@ -36,9 +36,10 @@ namespace WorldGenerator {
 			private set;
 		}
 
-        public World(int seed, float size, Graph graph, List<Island> islands) {
+        public World(int seed, float size, float verticalScale, Graph graph, List<Island> islands) {
             this.seed = seed;
 			this.size = size;
+			this.verticalScale = verticalScale;
             this.centers = graph.centers;
             this.corners = graph.corners;
             this.edges = graph.edges;

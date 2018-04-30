@@ -270,8 +270,9 @@ GameObject:
   m_Component:
   - component: {fileID: 793683792}
   - component: {fileID: 793683791}
+  - component: {fileID: 793683793}
   m_Layer: 0
-  m_Name: WorldGenerator
+  m_Name: WorldManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -314,9 +315,6 @@ MonoBehaviour:
   - {fileID: 1536018599219746, guid: 5ad536fbff1954b0bbf9f1ac08d90987, type: 2}
   - {fileID: 1862771268344296, guid: 0d2be07852bbf4662ab2f42d0f28c937, type: 2}
   clippingHeight: 0.25
-  debugDrawDelauney: 0
-  debugDrawCornerConnections: 0
-  debugDrawDownlopes: 0
 --- !u!4 &793683792
 Transform:
   m_ObjectHideFlags: 0
@@ -330,6 +328,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &793683793
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 793683790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 784f90dbf78584490a032e9649a2bfd7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  debugDrawDelauney: 0
+  debugDrawCornerConnections: 0
+  debugDrawDownlopes: 0
 --- !u!1 &970615424
 GameObject:
   m_ObjectHideFlags: 0

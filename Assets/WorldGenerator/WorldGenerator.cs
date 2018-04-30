@@ -22,14 +22,10 @@ namespace WorldGenerator {
 
 		[Range(0, 1f)]
 		public float clippingHeight = 0.25f;
-
-		public bool debugDrawDelauney = false;
-		public bool debugDrawCornerConnections = false;
-		public bool debugDrawDownlopes = true;
 		
         private World world;
 
-        private void Start() {
+		public World generateWorld() {
             GameObject gameObj = new GameObject();
             gameObj.name = "Island";
 			Rigidbody rigidbody = gameObj.AddComponent<Rigidbody>();
@@ -43,7 +39,7 @@ namespace WorldGenerator {
 			List<Island> islands = findIslands(graph);
 			Debug.Log("island count " + islands.Count);
 
-			world = new World(seed, worldSize, graph, islands);
+			world = new World(seed, worldSize, verticalScale, graph, islands);
 
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
@@ -60,7 +56,8 @@ namespace WorldGenerator {
 				navMeshSurface.agentTypeID = agentType.GetComponent<NavMeshAgent>().agentTypeID;
 				navMeshSurface.BuildNavMesh();
 			}
-        }
+			return world;
+		}
 
         private List<Vector3> getPointsForIslandUndersideGraph(Island island) {
             List<Vector3> points = island.centers.Select(center => new Vector3((float) center.coord.x, 0, (float) center.coord.y)).ToList();
@@ -115,43 +112,6 @@ namespace WorldGenerator {
 			Rect rect = new Rect((float) minX, (float) minY, (float) (maxX - minX), (float) ( maxY - minY));
 			Vector3 islandCenter = new Vector3(rect.center.x, 0, rect.center.y);
 			return new Island(islandCenters, islandCenter, rect);
-		}
-
-        void OnDrawGizmos() {
-			if (world == null) {
-				return;
-			}
-			if (debugDrawDelauney) {
-				foreach (Center center in world.centers) {
-					foreach (Center neigh in center.neighbours) {
-						if (neigh.index > center.index) {
-							Debug.DrawLine(
-								center.coord.toVector3(verticalScale * 1.01f), 
-								neigh.coord.toVector3(verticalScale * 1.01f));
-						}
-					}
-				}
-			}
-			if (debugDrawDownlopes) {
-				foreach (Corner corner in world.corners) {
-					if (corner.downslope != null) {
-						Debug.DrawLine(
-								corner.coord.toVector3(verticalScale * 1.01f), 
-								corner.downslope.coord.toVector3(verticalScale * 1.01f),
-							Color.red);
-					}				
-				}
-			}
-			if (debugDrawCornerConnections) {
-				foreach (Corner corner in world.corners) {
-					foreach (Center center in corner.GetTouches()) {
-						Debug.DrawLine(
-								center.coord.toVector3(verticalScale * 1.01f), 
-								corner.coord.toVector3(verticalScale * 1.01f),
-								Color.green);
-					}
-				}
-			}
 		}
 
         private Graph generateGraph(int seed) {
