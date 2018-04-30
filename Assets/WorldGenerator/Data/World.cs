@@ -1,4 +1,4 @@
-﻿using System.Collections;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -21,7 +21,7 @@ namespace WorldGenerator {
 			get;
 			private set;
 		}
-		public List<Edge> edges {
+        public List<Edge> edges {
 			get;
 			private set;
 		}
@@ -46,5 +46,19 @@ namespace WorldGenerator {
 			this.center = new Vector3(size / 2f, 0, size / 2f);
 			this.islands = islands;
         }
+
+		public int indexOfClosestCenter(int startIndex, float x, float y) {
+			Center c = centers[startIndex];
+			return indexOfClosestCenter(c, x, y);
+		}
+
+		private int indexOfClosestCenter(Center startCenter, float x, float y) {
+			Center closest = startCenter.findClosestNeighbour(x, y);
+			if (closest == startCenter) {
+				return startCenter.index;
+			} else {
+				return indexOfClosestCenter(closest.index, x, y);
+			}
+		}
 	}
 }

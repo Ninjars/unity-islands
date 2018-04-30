@@ -28,6 +28,10 @@ namespace WorldGenerator {
 			this.y = y;
 		}
 
+		public float sqrDistance(float w, float z) {
+			return (w-x) * (w-x) + (z-y) * (z-w);
+		}
+
 		public override string ToString() {
 			return toVector3().ToString();
 		} 

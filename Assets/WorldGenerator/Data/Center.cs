@@ -80,5 +80,18 @@ namespace WorldGenerator {
         public float scaledElevation(float factor) {
             return coord.y * factor;
         }
+
+        public Center findClosestNeighbour(float x, float y) {
+            Center closest = this;
+            float sqrDistance = coord.sqrDistance(x, y);
+            foreach(Center neighbour in neighbours) {
+                var distance = neighbour.coord.sqrDistance(x, y);
+                if (distance < sqrDistance) {
+                    closest = neighbour;
+                    sqrDistance = distance;
+                }
+            }
+            return closest;
+        }
     }
 }
