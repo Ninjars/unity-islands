@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Game {
 public class WorldManager : MonoBehaviour {
 
+	public static WorldManager instance;
 	public bool debugDrawDelauney = false;
 	public bool debugDrawCornerConnections = false;
 	public bool debugDrawDownlopes = true;
@@ -13,6 +14,13 @@ public class WorldManager : MonoBehaviour {
 
 
 	void Awake () {
+		if (instance == null) {
+			instance = this;
+		} else {
+			Destroy(gameObject);
+			Debug.LogWarning("attempted to instantiate second WorldManager");
+			return;
+		}
 		var worldGenerator = GetComponent<WorldGenerator.WorldGenerator>();
 		world = worldGenerator.generateWorld();
 	}
