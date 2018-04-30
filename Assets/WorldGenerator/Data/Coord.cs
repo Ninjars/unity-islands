@@ -32,6 +32,10 @@ namespace WorldGenerator {
 			return (w-x) * (w-x) + (z-y) * (z-w);
 		}
 
+		public float sqrDistance(Coord other) {
+			return sqrDistance(other.x, other.y);
+		}
+
 		public override string ToString() {
 			return toVector3().ToString();
 		} 

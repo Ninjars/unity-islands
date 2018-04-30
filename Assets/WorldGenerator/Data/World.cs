@@ -47,17 +47,17 @@ namespace WorldGenerator {
 			this.islands = islands;
         }
 
-		public int indexOfClosestCenter(int startIndex, float x, float y) {
+		public int indexOfClosestCenter(int startIndex, float x, float y, bool allowUnclipped) {
 			Center c = centers[startIndex];
-			return indexOfClosestCenter(c, x, y);
+			return indexOfClosestCenter(c, x, y, allowUnclipped);
 		}
 
-		private int indexOfClosestCenter(Center startCenter, float x, float y) {
-			Center closest = startCenter.findClosestNeighbour(x, y);
+		private int indexOfClosestCenter(Center startCenter, float x, float y, bool allowUnclipped) {
+			Center closest = startCenter.findClosestNeighbour(x, y, allowUnclipped);
 			if (closest == startCenter) {
 				return startCenter.index;
 			} else {
-				return indexOfClosestCenter(closest.index, x, y);
+				return indexOfClosestCenter(closest, x, y, allowUnclipped);
 			}
 		}
 	}

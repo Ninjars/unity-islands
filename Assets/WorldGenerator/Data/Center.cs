@@ -78,17 +78,23 @@ namespace WorldGenerator {
         }
 
         public float scaledElevation(float factor) {
-            return coord.y * factor;
+            return coord.elevation * factor;
         }
 
-        public Center findClosestNeighbour(float x, float y) {
+        public Center findClosestNeighbour(float x, float y, bool allowUnclipped) {
             Center closest = this;
-            float sqrDistance = coord.sqrDistance(x, y);
+            float dx = Math.Abs(x - closest.coord.x);
+            float dy = Math.Abs(y - closest.coord.y);
             foreach(Center neighbour in neighbours) {
-                var distance = neighbour.coord.sqrDistance(x, y);
-                if (distance < sqrDistance) {
+                if (!allowUnclipped && neighbour.isClipped) {
+                    continue;
+                }
+                var otherDx = Math.Abs(x - neighbour.coord.x);
+                var otherDy = Math.Abs(y - neighbour.coord.y);
+                if (otherDx < dx && otherDy < dy) {
                     closest = neighbour;
-                    sqrDistance = distance;
+                    dx = otherDx;
+                    dy = otherDy;
                 }
             }
             return closest;

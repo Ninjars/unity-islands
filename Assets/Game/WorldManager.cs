@@ -8,13 +8,20 @@ namespace Game {
 	public class WorldManager : MonoBehaviour {
 
 		public static WorldManager instance;
+		public GameObject agent; // todo: allow creation of configurable spawns
+		public int agentSpawnCount = 20;
 		public bool debugDrawDelauney = false;
         public bool debugDrawCornerConnections = false;
 		public bool debugDrawDownlopes = true;
 
-		private WorldGenerator.World world;
+
+        private WorldGenerator.World world;
 		private List<TerrainNode> terrainNodes;
-		private int centralNode;
+
+        public List<TerrainNode> solidTerrainNodes;
+
+        private System.Random gameRandom;
+        private int centralNode;
 
 		void Awake () {
 			if (instance == null) {
@@ -26,21 +33,53 @@ namespace Game {
 			}
 			var worldGenerator = GetComponent<WorldGenerator.WorldGenerator>();
 			world = worldGenerator.generateWorld();
+			gameRandom = new System.Random(world.seed);
 
-			terrainNodes = world.centers.Select(center => new TerrainNode(this, center.index)).ToList();
-			centralNode = findIndexOfClosestNodeTo(world.size/2, world.size/2);
+			terrainNodes = world.centers.Select(center => new TerrainNode(this, center.index, new Vector3(center.coord.x, center.scaledElevation(world.verticalScale), center.coord.y), !center.isClipped)).ToList();
+			solidTerrainNodes = terrainNodes.Where(node => node.isSolid).ToList();
+			centralNode = world.indexOfClosestCenter(0, world.size/2, world.size/2, true);
 		}
 
-		internal List<TerrainNode> getNeighbouringNodes(int index) {
-			return world.centers[index].neighbours.Select(center => terrainNodes[center.index]).ToList();
+		void Start() {
+			for (int i = 0; i < agentSpawnCount; i++) {
+				Vector3 position = solidTerrainNodes[gameRandom.Next(terrainNodes.Count)].position + Vector3.up * 2;
+				Instantiate(agent, position, UnityEngine.Random.rotation);
+			}
 		}
 
-		private int findIndexOfClosestNodeTo(float x, float y) {
-			return world.indexOfClosestCenter(centralNode, x, y);
+        internal Vector3 findSurfacePosition(Vector2 targetXY) {
+			RaycastHit hit;
+			Vector3 origin = new Vector3(targetXY.x, world.verticalScale, targetXY.y);
+			if (Physics.Raycast(origin, Vector3.down, out hit, (int) world.verticalScale)) {
+				return hit.point;
+			} else {
+				Debug.Log("cast from " + origin + " failed to hit geometry");
+				return origin;
+			}
+        }
+
+        internal List<TerrainNode> getNeighbouringSolidNodes(int index) {
+			return world.centers[index].neighbours.Where(center => !center.isClipped).Select(center => terrainNodes[center.index]).ToList();
 		}
 
         internal TerrainNode getClosestTerrainNode(float x, float y) {
-            return terrainNodes[findIndexOfClosestNodeTo(x, y)];
+            return terrainNodes[world.indexOfClosestCenter(centralNode, x, y, false)];
+        }
+
+		internal System.Random GetRandom() {
+			return gameRandom;
+		}
+
+        internal float getRadiusOfNode(int index) {
+            WorldGenerator.Center center = world.centers[index];
+			float smallestRadiusSquared = 100 * 100;
+			foreach (WorldGenerator.Center c in world.centers) {
+				var distance = center.coord.sqrDistance(c.coord);
+				if (distance < smallestRadiusSquared) {
+					smallestRadiusSquared = distance;
+				}
+			}
+			return smallestRadiusSquared;
         }
 
 		void OnDrawGizmos() {

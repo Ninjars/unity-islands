@@ -339,6 +339,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 784f90dbf78584490a032e9649a2bfd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  agent: {fileID: 1288152474189938, guid: b3a8a80960bd2495f9f2e1f645de748f, type: 2}
+  agentSpawnCount: 1
   debugDrawDelauney: 0
   debugDrawCornerConnections: 0
   debugDrawDownlopes: 0
