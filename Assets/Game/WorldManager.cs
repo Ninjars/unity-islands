@@ -42,7 +42,7 @@ namespace Game {
 
 		void Start() {
 			for (int i = 0; i < agentSpawnCount; i++) {
-				Vector3 position = solidTerrainNodes[gameRandom.Next(terrainNodes.Count)].position + Vector3.up * 2;
+				Vector3 position = solidTerrainNodes[gameRandom.Next(solidTerrainNodes.Count)].position + Vector3.up;
 				Instantiate(agent, position, UnityEngine.Random.rotation);
 			}
 		}
