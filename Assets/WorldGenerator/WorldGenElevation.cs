@@ -100,7 +100,7 @@ namespace WorldGenerator {
                                         coord.x / radius, 
                                         coord.y / radius);
                 float radialFactor = 1f - Vector3.Distance(center, coord.toVector3()) * 2 / radius;
-                coord.elevation += perlin * verticalScale * radialFactor;
+                coord.setElevation(coord.elevation + perlin * verticalScale * radialFactor);
             }
         }
 
@@ -111,7 +111,7 @@ namespace WorldGenerator {
                                         horizontalScale, 
                                         coord.x, 
                                         coord.y);
-                coord.elevation += perlin * verticalScale;
+                coord.setElevation(coord.elevation + perlin * verticalScale);
             }
         }
 
@@ -142,7 +142,7 @@ namespace WorldGenerator {
                     continue;
                 }
                 float distanceFactor = Mathf.Pow(distanceFromCenter / radius, 1);
-                current.elevation += verticalScale * (1f - distanceFactor);
+                current.setElevation(current.elevation + verticalScale * (1f - distanceFactor));
             }
         }
 
@@ -170,7 +170,7 @@ namespace WorldGenerator {
             }
             float distanceFactor = Mathf.Pow(distanceFromCenter / width, falloffPower);
             float elevation = verticalScale * (1f - distanceFactor);
-            current.coord.elevation += elevation;
+            current.coord.setElevation(current.coord.elevation + elevation);
             foreach (Center center in current.neighbours) {
                 if (!processed.Contains(center)) {
                     processed = elevate(initial, width, verticalScale, center, processed, falloffPower);
@@ -202,7 +202,7 @@ namespace WorldGenerator {
                 foreach (Center center in touchesCenters) {
                     elevation += center.coord.elevation;
                 }
-                corner.coord.elevation += elevation / (float) touchesCenters.Count;
+                corner.coord.setElevation(corner.coord.elevation + elevation / (float) touchesCenters.Count);
             }
         }
 
@@ -218,22 +218,22 @@ namespace WorldGenerator {
                 return;
             }
             foreach (Coord coord in coords) {
-                coord.elevation /= maxElevation;
+                coord.setElevation(coord.elevation / maxElevation);
                 if (coord.elevation < 0) {
-                    coord.elevation = 0;
+                    coord.setElevation(0);
                 }
             }
         }
 
         private static void invert(List<Coord> coords) {
             foreach (Coord coord in coords) {
-                coord.elevation = -coord.elevation;
+                coord.setElevation(coord.elevation - coord.elevation);
             }
         }
 
         private static void offsetElevation(List<Coord> coords, float elevation) {
             foreach (Coord coord in coords) {
-                coord.elevation += elevation;
+                coord.setElevation(coord.elevation + elevation);
             }
         }
 
@@ -252,7 +252,7 @@ namespace WorldGenerator {
                 foreach (Center neighbour in neighbours) {
                     totalElevation += neighbour.coord.elevation;
                 }
-                center.coord.elevation = totalElevation / (float) neighbours.Count;
+                center.coord.setElevation(totalElevation / (float) neighbours.Count);
             }
         }
 
@@ -298,7 +298,7 @@ namespace WorldGenerator {
 
         internal static void performWaterErosion(List<Corner> corners) {
             foreach (Corner corner in corners) {
-                corner.coord.elevation -= 0.1f * corner.moisture;
+                corner.coord.setElevation(corner.coord.elevation - 0.1f * corner.moisture);
             }
         }
     }

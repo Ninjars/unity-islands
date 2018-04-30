@@ -81,20 +81,17 @@ namespace WorldGenerator {
             return coord.elevation * factor;
         }
 
-        public Center findClosestNeighbour(float x, float y, bool allowUnclipped) {
+        public Center findClosestNeighbour(Vector3 point, bool allowUnclipped) {
             Center closest = this;
-            float dx = Math.Abs(x - closest.coord.x);
-            float dy = Math.Abs(y - closest.coord.y);
+            var distance = (point - closest.coord.toVector3()).magnitude;
             foreach(Center neighbour in neighbours) {
                 if (!allowUnclipped && neighbour.isClipped) {
                     continue;
                 }
-                var otherDx = Math.Abs(x - neighbour.coord.x);
-                var otherDy = Math.Abs(y - neighbour.coord.y);
-                if (otherDx < dx && otherDy < dy) {
+                var otherD = (point - neighbour.coord.toVector3()).magnitude;
+                if (otherD < distance) {
                     closest = neighbour;
-                    dx = otherDx;
-                    dy = otherDy;
+                    distance = otherD;
                 }
             }
             return closest;

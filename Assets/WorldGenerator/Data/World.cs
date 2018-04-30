@@ -49,15 +49,16 @@ namespace WorldGenerator {
 
 		public int indexOfClosestCenter(int startIndex, float x, float y, bool allowUnclipped) {
 			Center c = centers[startIndex];
-			return indexOfClosestCenter(c, x, y, allowUnclipped);
+			Vector3 point = new Vector3(x, 0, y);
+			return indexOfClosestCenter(c, point, allowUnclipped);
 		}
 
-		private int indexOfClosestCenter(Center startCenter, float x, float y, bool allowUnclipped) {
-			Center closest = startCenter.findClosestNeighbour(x, y, allowUnclipped);
+		private int indexOfClosestCenter(Center startCenter, Vector3 point, bool allowUnclipped) {
+			Center closest = startCenter.findClosestNeighbour(point, allowUnclipped);
 			if (closest == startCenter) {
 				return startCenter.index;
 			} else {
-				return indexOfClosestCenter(closest, x, y, allowUnclipped);
+				return indexOfClosestCenter(closest, point, allowUnclipped);
 			}
 		}
 	}
