@@ -14,7 +14,7 @@ public class TerrainNode {
 		public float radius {
 			get {
 				if (_radius < 0) {
-					worldManager.getRadiusOfNode(index);
+					_radius = worldManager.getRadiusOfNode(index);
 				}
 				return _radius;
 			 }

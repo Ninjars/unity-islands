@@ -83,12 +83,12 @@ namespace WorldGenerator {
 
         public Center findClosestNeighbour(Vector3 point, bool allowUnclipped) {
             Center closest = this;
-            var distance = (point - closest.coord.toVector3()).magnitude;
+            var distance = Vector3.Distance(point, closest.coord.toVector3());
             foreach(Center neighbour in neighbours) {
                 if (!allowUnclipped && neighbour.isClipped) {
                     continue;
                 }
-                var otherD = (point - neighbour.coord.toVector3()).magnitude;
+                var otherD = Vector3.Distance(point, neighbour.coord.toVector3());
                 if (otherD < distance) {
                     closest = neighbour;
                     distance = otherD;

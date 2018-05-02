@@ -17,7 +17,7 @@ namespace Game {
 		void Awake() {
 			base.init();
 			random = WorldManager.instance.GetRandom();
-			currentNode = WorldManager.instance.getClosestTerrainNode(gameObject.transform.position.x, gameObject.transform.position.y);
+			currentNode = WorldManager.instance.getClosestTerrainNode(gameObject.transform.position);
 		}
 
 		// Use this for initialization
@@ -29,7 +29,6 @@ namespace Game {
 		void Update () {
 			currentDelayTime += Time.deltaTime;
 			if (currentDelayTime > nextActionDelay) {
-				Debug.Log("updating : current node @ " + currentNode.position);
 				if (random.Next(2) == 0) {
 					wander();
 				} else {
@@ -39,7 +38,6 @@ namespace Game {
 		}
 
 		private void roam() {
-			Debug.Log("roam()");
 			List<TerrainNode> neighbours = currentNode.neighbouringNodes;
 			int next = random.Next(neighbours.Count);
 			currentNode = neighbours[next];
@@ -47,14 +45,12 @@ namespace Game {
 		}
 
         private void wander()  {
-			Debug.Log("wander()");
 			moveToRandomPoint();
         }
 
 		private void moveToRandomPoint() {
             Vector2 targetXY = getRandomPointWithinNode(currentNode);
 			Vector3 targetPosition = WorldManager.instance.findSurfacePosition(targetXY);
-			Debug.Log("moveToRandomPoint " + targetPosition);
 			currentDelayTime = 0;
 			nextActionDelay = minActionDelaySeconds + (float)random.NextDouble() * maxActionDelaySeconds;
 			MoveToLocation(targetPosition);

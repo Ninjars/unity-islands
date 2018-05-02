@@ -37,7 +37,7 @@ namespace Game {
 
 			terrainNodes = world.centers.Select(center => new TerrainNode(this, center.index, new Vector3(center.coord.x, center.scaledElevation(world.verticalScale), center.coord.y), !center.isClipped)).ToList();
 			solidTerrainNodes = terrainNodes.Where(node => node.isSolid).ToList();
-			centralNode = world.indexOfClosestCenter(0, world.size/2, world.size/2, true);
+			centralNode = world.indexOfClosestCenter(0, new Vector3(world.size/2, 0, world.size/2), true);
 		}
 
 		void Start() {
@@ -62,8 +62,8 @@ namespace Game {
 			return world.centers[index].neighbours.Where(center => !center.isClipped).Select(center => terrainNodes[center.index]).ToList();
 		}
 
-        internal TerrainNode getClosestTerrainNode(float x, float y) {
-            return terrainNodes[world.indexOfClosestCenter(centralNode, x, y, false)];
+        internal TerrainNode getClosestTerrainNode(Vector3 point) {
+            return terrainNodes[world.indexOfClosestCenter(centralNode, point, true)];
         }
 
 		internal System.Random GetRandom() {
@@ -72,14 +72,14 @@ namespace Game {
 
         internal float getRadiusOfNode(int index) {
             WorldGenerator.Center center = world.centers[index];
-			float smallestRadiusSquared = 100 * 100;
-			foreach (WorldGenerator.Center c in world.centers) {
-				var distance = center.coord.sqrDistance(c.coord);
-				if (distance < smallestRadiusSquared) {
-					smallestRadiusSquared = distance;
+			float smallestRadius = 10000;
+			foreach (WorldGenerator.Center c in center.neighbours) {
+				var distance = Vector3.Distance(center.coord.toVector3(), c.coord.toVector3());
+				if (distance < smallestRadius) {
+					smallestRadius = distance;
 				}
 			}
-			return smallestRadiusSquared;
+			return smallestRadius / 2;
         }
 
 		void OnDrawGizmos() {

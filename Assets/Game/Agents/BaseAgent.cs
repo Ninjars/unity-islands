@@ -10,7 +10,6 @@ namespace Game {
 
 		protected virtual void init() {
 			agent = GetComponent<NavMeshAgent> ();
-			Debug.Log(agent);
 		}
 
 		public void MoveToLocation(Vector3 targetPoint) {

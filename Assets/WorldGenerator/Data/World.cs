@@ -47,9 +47,8 @@ namespace WorldGenerator {
 			this.islands = islands;
         }
 
-		public int indexOfClosestCenter(int startIndex, float x, float y, bool allowUnclipped) {
+		public int indexOfClosestCenter(int startIndex, Vector3 point, bool allowUnclipped) {
 			Center c = centers[startIndex];
-			Vector3 point = new Vector3(x, 0, y);
 			return indexOfClosestCenter(c, point, allowUnclipped);
 		}
 
