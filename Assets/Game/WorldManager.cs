@@ -12,7 +12,8 @@ namespace Game {
 		public int agentSpawnCount = 20;
 		public bool debugDrawDelauney = false;
         public bool debugDrawCornerConnections = false;
-		public bool debugDrawDownlopes = true;
+		public bool debugDrawDownlopes = false;
+		public bool debugDrawTerrainNodes = false;
 
 
         private WorldGenerator.World world;
@@ -116,6 +117,12 @@ namespace Game {
 								corner.coord.toVector3(verticalScale * 1.01f),
 								Color.green);
 					}
+				}
+			}
+			if (debugDrawTerrainNodes) {
+				Gizmos.color = Color.green;
+				foreach (TerrainNode node in solidTerrainNodes) {
+					Gizmos.DrawSphere(node.position, node.radius);
 				}
 			}
 		}

@@ -139,6 +139,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minActionDelaySeconds: 3
   maxActionDelaySeconds: 6
+  debugDraw: 0
 --- !u!195 &195657574802104694
 NavMeshAgent:
   m_ObjectHideFlags: 1

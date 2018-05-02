@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.AI;
@@ -17,5 +18,11 @@ namespace Game {
 			agent.isStopped = false;
 		}
 
-	}
+        internal void debugNavigationDraw() {
+			Debug.DrawLine(
+				gameObject.transform.position,
+				agent.destination,
+				Color.red);
+        }
+    }
 }

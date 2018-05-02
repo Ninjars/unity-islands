@@ -13,6 +13,7 @@ namespace Game {
 
 		public float minActionDelaySeconds = 5;
 		public float maxActionDelaySeconds = 10;
+		public bool debugDraw = false;
 
 		void Awake() {
 			base.init();
@@ -61,6 +62,19 @@ namespace Game {
 			float x = radius * 2 * (float)random.NextDouble() - radius;
 			float y = radius * 2 * (float)random.NextDouble() - radius;
 			return new Vector2(node.position.x + x, node.position.z + y);
+		}
+
+		void OnDrawGizmos() {
+			if (debugDraw) {
+				if (currentNode == null) {
+					return;
+				}
+				Debug.DrawLine(
+					gameObject.transform.position,
+					currentNode.position,
+					Color.green);
+				base.debugNavigationDraw();
+			}
 		}
     }
 }
