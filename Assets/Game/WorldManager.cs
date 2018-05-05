@@ -15,12 +15,9 @@ namespace Game {
 		public bool debugDrawDownlopes = false;
 		public bool debugDrawTerrainNodes = false;
 
-
         private WorldGenerator.World world;
 		private List<TerrainNode> terrainNodes;
-
-        public List<TerrainNode> solidTerrainNodes;
-
+        private List<TerrainNode> solidTerrainNodes;
         private System.Random gameRandom;
         private int centralNode;
 
@@ -54,7 +51,6 @@ namespace Game {
 			if (Physics.Raycast(origin, Vector3.down, out hit, (int) world.verticalScale)) {
 				return hit.point;
 			} else {
-				Debug.Log("cast from " + origin + " failed to hit geometry");
 				return Vector3.zero;
 			}
         }

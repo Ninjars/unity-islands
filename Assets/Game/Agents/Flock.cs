@@ -6,6 +6,7 @@ using UnityEngine;
 namespace Game {
 
 	public class Flock : MonoBehaviour {
+		private static List<Flock> flocks = new List<Flock>();
 		public GameObject flockAgentPrefab;
 		public int initialFlockSize = 10;
 		public int roamTimeMin = 10;
@@ -22,6 +23,8 @@ namespace Game {
         void Awake() {
 			random = WorldManager.instance.GetRandom();
 			currentNode = WorldManager.instance.getClosestTerrainNode(gameObject.transform.position);
+			flocks.Add(this);
+			gameObject.name = "Flock " + flocks.Count;
 		}
 
 		void Start () {
@@ -38,15 +41,39 @@ namespace Game {
 			if (currentRoamTime > currentRoamTimer) {
 				currentRoamTime = 0;
 				currentRoamTimer = roamTimeMin + (float)random.NextDouble() * roamTimeMax;
+				moveToNewNode();
+			}
+		}
 
-				List<TerrainNode> neighbours = currentNode.neighbouringNodes;
-				int next = random.Next(neighbours.Count);
-				currentNode = neighbours[next];
-				gameObject.transform.position = currentNode.position;
-				foreach (FlockMember member in members) {
-					member.travelTo(currentNode);
+		void moveToNewNode() {
+			List<TerrainNode> neighbours = currentNode.neighbouringNodes;
+			int next = random.Next(neighbours.Count);
+			currentNode = neighbours[next];
+			foreach (Flock flock in flocks) {
+				if (flock != this && flock.currentNode == currentNode) {
+					mergeIntoFlock(flock);
+					return;
 				}
 			}
+			gameObject.transform.position = currentNode.position;
+			foreach (FlockMember member in members) {
+				member.travelTo(currentNode);
+			}
+		}
+
+		void mergeIntoFlock(Flock flock) {
+			Debug.Log("mergeIntoFlock: " + gameObject.name + " to " + flock.gameObject.name);
+			foreach (FlockMember member in members) {
+				flock.addMember(member);
+			}
+			members.Clear();
+			flocks.Remove(this);
+			Destroy(gameObject);
+		}
+
+		private void addMember(FlockMember member) {
+			members.Add(member);
+			member.travelTo(currentNode);
 		}
 
 		private void OnDrawGizmos() {
