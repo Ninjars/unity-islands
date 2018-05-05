@@ -55,7 +55,7 @@ namespace Game {
 				return hit.point;
 			} else {
 				Debug.Log("cast from " + origin + " failed to hit geometry");
-				return origin;
+				return Vector3.zero;
 			}
         }
 

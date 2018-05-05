@@ -43,7 +43,13 @@ public class TerrainNode {
 		}
 
 		public Vector3 getRandomPoint3D(float factor = 1) {
-			return worldManager.findSurfacePosition(getRandomPoint2D(factor));
+			for (int i = 0; i < 25; i++) {
+				Vector3 pos = worldManager.findSurfacePosition(getRandomPoint2D(factor));
+				if (!pos.Equals(Vector3.zero)) {
+					return pos;
+				}
+			}
+			return position;
 		}
 	}
 }
