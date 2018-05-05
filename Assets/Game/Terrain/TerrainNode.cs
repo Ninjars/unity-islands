@@ -35,5 +35,15 @@ public class TerrainNode {
 			this.position = position;
 			this.isSolid = isSolid;
 		}
+
+		public Vector2 getRandomPoint2D(float factor = 1) {
+			float x = radius * 2 * (float)worldManager.GetRandom().NextDouble() - radius;
+			float y = radius * 2 * (float)worldManager.GetRandom().NextDouble() - radius;
+			return new Vector2(position.x + x * factor, position.z + y * factor);
+		}
+
+		public Vector3 getRandomPoint3D(float factor = 1) {
+			return worldManager.findSurfacePosition(getRandomPoint2D(factor));
+		}
 	}
 }

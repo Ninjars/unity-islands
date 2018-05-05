@@ -50,18 +50,10 @@ namespace Game {
         }
 
 		private void moveToRandomPoint() {
-            Vector2 targetXY = getRandomPointWithinNode(currentNode);
-			Vector3 targetPosition = WorldManager.instance.findSurfacePosition(targetXY);
+            Vector3 targetPosition = currentNode.getRandomPoint3D();
 			currentDelayTime = 0;
 			nextActionDelay = minActionDelaySeconds + (float)random.NextDouble() * maxActionDelaySeconds;
 			MoveToLocation(targetPosition);
-		}
-
-		private Vector2 getRandomPointWithinNode(TerrainNode node) {
-			var radius = node.radius;
-			float x = radius * 2 * (float)random.NextDouble() - radius;
-			float y = radius * 2 * (float)random.NextDouble() - radius;
-			return new Vector2(node.position.x + x, node.position.z + y);
 		}
 
 		void OnDrawGizmos() {
