@@ -73,14 +73,11 @@ namespace Game {
 
         internal float getRadiusOfNode(int index) {
             WorldGenerator.Center center = world.centers[index];
-			float smallestRadius = 10000;
+			float radiusSum = 0;
 			foreach (WorldGenerator.Center c in center.neighbours) {
-				var distance = Vector3.Distance(center.coord.toVector3(), c.coord.toVector3());
-				if (distance < smallestRadius) {
-					smallestRadius = distance;
-				}
+				radiusSum += Vector3.Distance(center.coord.toVector3(), c.coord.toVector3());
 			}
-			return smallestRadius / 2;
+			return radiusSum / (2 * center.neighbours.Count);
         }
 
 		void OnDrawGizmos() {
