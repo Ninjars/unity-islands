@@ -20,9 +20,6 @@ namespace Game {
 
 
         void Awake() {
-			if (gameObject.GetComponent<FlockMember>() == null) {
-				Debug.LogError("Flock agent must be a FlockMember");
-			}
 			random = WorldManager.instance.GetRandom();
 			currentNode = WorldManager.instance.getClosestTerrainNode(gameObject.transform.position);
 		}
