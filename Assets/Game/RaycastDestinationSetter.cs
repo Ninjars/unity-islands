@@ -2,11 +2,11 @@
 using System.Collections;
 using System;
 
-namespace Agents {
+namespace Game {
 	public class RaycastDestinationSetter : MonoBehaviour {
 		public Camera camera;
-		public DirectedAgent directedAgent;
 		public GameObject agentPrefab;
+		private BaseAgent directedAgent;
 		private WaitForSeconds shotDuration = new WaitForSeconds(0.07f);    // WaitForSeconds object used by our ShotEffect coroutine, determines time laser line will remain visible
 		private LineRenderer laserLine;                                     // Reference to the LineRenderer component which will display our laserline
 
@@ -44,7 +44,7 @@ namespace Agents {
         private void instantiateAgent(Vector3 point) {
 			Debug.Log("instantiateAgent @ " + point);
             GameObject agent = Instantiate(agentPrefab, point, new Quaternion(0, 0, 0, 1));
-			directedAgent = agent.GetComponent<DirectedAgent>();
+			directedAgent = agent.GetComponent<BaseAgent>();
         }
 
         private IEnumerator ShotEffect() {

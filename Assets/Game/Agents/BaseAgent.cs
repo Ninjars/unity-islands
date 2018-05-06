@@ -24,5 +24,9 @@ namespace Game {
 				agent.destination,
 				Color.red);
         }
+
+        internal NavMeshAgent getNavAgent() {
+            return agent;
+        }
     }
 }

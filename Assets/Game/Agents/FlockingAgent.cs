@@ -10,14 +10,20 @@ namespace Game {
 
 		private float currentDelayTime;
 		private float nextActionDelay;
+		private ThreatState threatState;
+		private float baseSpeed;
+		private float baseAcceleration;
 
 		public float minActionDelaySeconds = 5;
 		public float maxActionDelaySeconds = 10;
+		public float threatenedSpeedBoostFactor = 2f;
 		public bool debugDraw = false;
 
 		void Awake() {
 			base.init();
 			random = WorldManager.instance.GetRandom();
+			baseSpeed = base.getNavAgent().speed;
+			baseAcceleration = base.getNavAgent().acceleration;
 		}
 
 		void Start () {
@@ -25,6 +31,10 @@ namespace Game {
 		}
 		
 		void Update () {
+			if (threatState != ThreatState.UNTHREATENED) {
+				currentDelayTime = nextActionDelay;
+				return;
+			}
 			currentDelayTime += Time.deltaTime;
 			if (currentDelayTime > nextActionDelay) {
 				moveToRandomPoint();
@@ -62,6 +72,19 @@ namespace Game {
 			currentDelayTime = 0;
 			nextActionDelay = maxActionDelaySeconds;
 			MoveToLocation(targetPosition);
+        }
+
+        public void defensivePosture(Vector3 position) {
+            threatState = ThreatState.THREATENED;
+			base.getNavAgent().speed = baseSpeed * threatenedSpeedBoostFactor;
+			base.getNavAgent().acceleration = baseAcceleration * threatenedSpeedBoostFactor;
+			MoveToLocation(position);
+        }
+
+        public void normalPosture() {
+            threatState = ThreatState.UNTHREATENED;
+			base.getNavAgent().speed = baseSpeed;
+			base.getNavAgent().acceleration = baseAcceleration;
         }
     }
 }

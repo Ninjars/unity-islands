@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.49641275, b: 0.5748174, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -311,8 +311,9 @@ MonoBehaviour:
   pointCount: 2000
   verticalScale: 100
   agentsToGenerateNavMeshFor:
-  - {fileID: 1536018599219746, guid: 5ad536fbff1954b0bbf9f1ac08d90987, type: 2}
-  - {fileID: 1862771268344296, guid: 0d2be07852bbf4662ab2f42d0f28c937, type: 2}
+  - {fileID: 1373011990487972, guid: a7006d0c9269d4653b3b8516ddd016b5, type: 2}
+  - {fileID: 1568038760296514, guid: e0f6e8e7ad5c4439c88d9312a96d0dae, type: 2}
+  - {fileID: 1288152474189938, guid: b3a8a80960bd2495f9f2e1f645de748f, type: 2}
   clippingHeight: 0.25
 --- !u!4 &793683792
 Transform:
@@ -704,12 +705,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1364154735}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7d80e67d2a99fa849a0c63a9c3b8258e, type: 3}
+  m_Script: {fileID: 11500000, guid: c85de90b7e0d640eba48f07b014ba368, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   camera: {fileID: 1282923795}
-  directedAgent: {fileID: 0}
-  agentPrefab: {fileID: 1862771268344296, guid: 0d2be07852bbf4662ab2f42d0f28c937,
+  agentPrefab: {fileID: 1373011990487972, guid: a7006d0c9269d4653b3b8516ddd016b5,
     type: 2}
 --- !u!120 &1364154738
 LineRenderer:
