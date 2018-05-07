@@ -25,6 +25,7 @@ namespace Game {
         private TerrainNode currentNode;
 		private List<FlockMember> members = new List<FlockMember>();
 		private ThreatState threatState = ThreatState.UNTHREATENED;
+		private List<ThreatProvider> threatProviders = new List<ThreatProvider>();
 
         void Awake() {
 			random = WorldManager.instance.GetRandom();
@@ -37,15 +38,17 @@ namespace Game {
 			for (int i = 0; i < initialFlockSize; i++) {
 				GameObject newMember = Instantiate(flockAgentPrefab, currentNode.getRandomPoint3D(), UnityEngine.Random.rotation);
 				FlockMember flockMember = newMember.GetComponent<FlockMember>();
-				flockMember.travelTo(currentNode);
-				members.Add(flockMember);
+				addMember(flockMember);
 			}
 			InvokeRepeating("checkForThreats", 1, 1);
 		}
 
-		void checkForThreats() {
+        internal TerrainNode getCurrentNode() {
+            return currentNode;
+        }
+
+        void checkForThreats() {
 			var collisions = Physics.OverlapSphere(getPosition(), threatDetectionRadius, -1);
-			List<ThreatProvider> threatProviders = null;
 			int threat = 0;
 			foreach (Collider collision in collisions) {
 				var otherGO = collision.gameObject;
@@ -61,13 +64,13 @@ namespace Game {
 			}
 
 			if (threat >= threatResponseThreshold) {
-				transitionIntoState(ThreatState.THREATENED, threatProviders);
+				transitionIntoState(ThreatState.THREATENED);
 			} else {
 				transitionIntoState(ThreatState.UNTHREATENED);
 			}
 		}
 
-		private void transitionIntoState(ThreatState state, List<ThreatProvider> threatProviders = null) {
+		private void transitionIntoState(ThreatState state) {
 			if (threatState == state) {
 				return;
 			}
@@ -77,9 +80,7 @@ namespace Game {
 					performNormalBehaviour();
 					break;
 				case ThreatState.THREATENED:
-					if (threatProviders != null) {
-						performThreatResponse(threatProviders);
-					}
+					performThreatResponse();
 					break;
 				default:
 					Debug.Log("unhandled threatState " + threatState);
@@ -95,7 +96,7 @@ namespace Game {
 			}
         }
 
-        private void performThreatResponse(List<ThreatProvider> threatProviders) {
+        private void performThreatResponse() {
 			Debug.Log("performThreatResponse()");
 			threatState = ThreatState.THREATENED;
 			for (int i = 0; i < members.Count; i++) {
@@ -115,7 +116,7 @@ namespace Game {
 			return WorldManager.instance.findSurfacePosition(new Vector2(position.x + dx, position.z + dy));
 		}
 
-        void Update () {
+        void Update() {
 			if (threatState != ThreatState.UNTHREATENED) {
 				return;
 			}
@@ -139,7 +140,7 @@ namespace Game {
 			}
 			gameObject.transform.position = currentNode.position;
 			foreach (FlockMember member in members) {
-				member.travelTo(currentNode);
+				member.onFlockRepositioning();
 			}
 		}
 
@@ -155,7 +156,15 @@ namespace Game {
 
 		private void addMember(FlockMember member) {
 			members.Add(member);
-			member.travelTo(currentNode);
+			member.setFlock(this);
+			member.onFlockRepositioning();
+		}
+
+		public void onMemberLost(FlockMember member) {
+			members.Remove(member);
+			if (threatState == ThreatState.THREATENED) {
+				performThreatResponse();
+			}
 		}
 
 		private void OnDrawGizmos() {
@@ -174,10 +183,11 @@ namespace Game {
 	}
 
 	public interface FlockMember {
-		void travelTo(TerrainNode node);
+		void onFlockRepositioning();
 		Vector3 getPosition();
 		void regroup();
         void defensivePosture(Vector3 position);
         void normalPosture();
+        void setFlock(Flock flock);
     }
 }
