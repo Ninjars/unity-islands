@@ -15,5 +15,12 @@ namespace Game {
         public int getThreat() {
             return threat;
         }
+
+        void OnTriggerEnter(Collider other) {
+            var baseAgent = other.gameObject.GetComponentInParent<BaseAgent>();
+            if (baseAgent != null) {
+                baseAgent.receiveDamage(1);
+            }
+        }
     }
 }

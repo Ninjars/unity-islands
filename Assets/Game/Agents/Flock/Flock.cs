@@ -54,7 +54,6 @@ namespace Game {
 				var otherGO = collision.gameObject;
 				var threatComponent = otherGO.GetComponentInParent<ThreatProvider>();
 				if (threatComponent != null) {
-					Debug.Log("threat component found");
 					if (threatProviders == null) {
 						threatProviders = new List<ThreatProvider>();
 					}
@@ -89,7 +88,6 @@ namespace Game {
 		}
 
         private void performNormalBehaviour() {
-			Debug.Log("performNormalBehaviour()");
 			threatState = ThreatState.UNTHREATENED;
             foreach (var member in members) {
 				member.normalPosture();
@@ -97,7 +95,6 @@ namespace Game {
         }
 
         private void performThreatResponse() {
-			Debug.Log("performThreatResponse()");
 			threatState = ThreatState.THREATENED;
 			for (int i = 0; i < members.Count; i++) {
 				var position = getDefensivePosition(getAngle(i, members.Count), members.Count/3f);
@@ -145,7 +142,6 @@ namespace Game {
 		}
 
 		void mergeIntoFlock(Flock flock) {
-			Debug.Log("mergeIntoFlock: " + gameObject.name + " to " + flock.gameObject.name);
 			foreach (FlockMember member in members) {
 				flock.addMember(member);
 			}

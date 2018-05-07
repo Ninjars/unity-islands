@@ -7,10 +7,14 @@ using UnityEngine.AI;
 namespace Game {
 	public class BaseAgent : MonoBehaviour {
 
+		public int maxHealth = 10;
+		private int currentHealth;
+
 		private NavMeshAgent agent;
 
 		protected virtual void init() {
 			agent = GetComponent<NavMeshAgent> ();
+			currentHealth = maxHealth;
 		}
 
 		public void MoveToLocation(Vector3 targetPoint) {
@@ -28,5 +32,12 @@ namespace Game {
         internal NavMeshAgent getNavAgent() {
             return agent;
         }
+
+		public virtual void receiveDamage(int damage) {
+			currentHealth -= damage;
+			if (currentHealth <= 0) {
+				GameObject.Destroy(gameObject);
+			}
+		}
     }
 }
