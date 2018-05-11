@@ -22,5 +22,9 @@ namespace Game {
                 baseAgent.receiveDamage(1);
             }
         }
+
+        public Vector3 getPosition() {
+            return gameObject.transform.position;
+        }
     }
 }

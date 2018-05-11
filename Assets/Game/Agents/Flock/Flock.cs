@@ -64,12 +64,32 @@ namespace Game {
 
 			if (threat >= threatResponseThreshold) {
 				transitionIntoState(ThreatState.THREATENED);
+				setThreatPriority(findHighestPriorityThreat(threatProviders));
 			} else {
 				transitionIntoState(ThreatState.UNTHREATENED);
 			}
 		}
 
-		private void transitionIntoState(ThreatState state) {
+		private ThreatProvider findHighestPriorityThreat(List<ThreatProvider> threats) {
+				ThreatProvider closest = null;
+				float minDistance = threatDetectionRadius;
+				foreach (ThreatProvider provider in threatProviders) {
+					float distance = Vector3.Distance(provider.getPosition(), gameObject.transform.position);
+					if (distance < minDistance) {
+						closest = provider;
+						minDistance = distance;
+					}
+				}
+				return closest;
+		}
+
+        private void setThreatPriority(ThreatProvider threat) {
+            foreach (FlockMember member in members) {
+				member.setPriorityThreat(threat);
+			}
+        }
+
+        private void transitionIntoState(ThreatState state) {
 			if (threatState == state) {
 				return;
 			}
@@ -185,5 +205,6 @@ namespace Game {
         void defensivePosture(Vector3 position);
         void normalPosture();
         void setFlock(Flock flock);
+        void setPriorityThreat(ThreatProvider threat);
     }
 }

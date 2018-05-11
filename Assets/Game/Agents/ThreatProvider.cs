@@ -5,5 +5,6 @@ using UnityEngine;
 namespace Game {
 	public interface ThreatProvider {
 		int getThreat();
+		Vector3 getPosition();
 	}
 }

@@ -12,12 +12,13 @@ namespace Game {
 		private ThreatState threatState;
 		private float baseSpeed;
 		private float baseAcceleration;
+        private Flock flock;
+		private ThreatProvider priorityThreat;
 
 		public float minActionDelaySeconds = 5;
 		public float maxActionDelaySeconds = 10;
 		public float threatenedSpeedBoostFactor = 2f;
 		public bool debugDraw = false;
-        private Flock flock;
 
         void Awake() {
 			base.init();
@@ -27,13 +28,22 @@ namespace Game {
 		}
 		
 		void Update () {
-			if (threatState != ThreatState.UNTHREATENED) {
-				currentDelayTime = nextActionDelay;
-				return;
-			}
-			currentDelayTime += Time.deltaTime;
-			if (currentDelayTime > nextActionDelay) {
-				moveToRandomPoint();
+			switch (threatState) {
+				case ThreatState.THREATENED:
+					currentDelayTime = nextActionDelay;
+					if (priorityThreat != null && getNavAgent().velocity.sqrMagnitude < 1) {
+						transform.LookAt(priorityThreat.getPosition());
+					}
+					break;
+				case ThreatState.UNTHREATENED:
+					currentDelayTime += Time.deltaTime;
+					if (currentDelayTime > nextActionDelay) {
+						moveToRandomPoint();
+					}
+					break;
+				default:
+					Debug.LogError("unhandled threatstate " + threatState);
+					break;
 			}
 		}
 
@@ -94,6 +104,10 @@ namespace Game {
 
         public void setFlock(Flock flock) {
             this.flock = flock;
+        }
+
+        public void setPriorityThreat(ThreatProvider threat) {
+            priorityThreat = threat;
         }
     }
 }
