@@ -6,6 +6,7 @@ namespace Game {
 	public class RaycastDestinationSetter : MonoBehaviour {
 		public Camera camera;
 		public GameObject agentPrefab;
+		public bool showLine = false;
 		private BaseAgent directedAgent;
 		private WaitForSeconds shotDuration = new WaitForSeconds(0.07f);    // WaitForSeconds object used by our ShotEffect coroutine, determines time laser line will remain visible
 		private LineRenderer laserLine;                                     // Reference to the LineRenderer component which will display our laserline
@@ -22,12 +23,11 @@ namespace Game {
 				Ray ray = camera.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
 				if (Physics.Raycast (ray, out hit)) {
-					// Set the end position for our laser line 
-					laserLine.SetPosition (0, camera.transform.position - Vector3.down * 3);
-					laserLine.SetPosition (1, hit.point);
-
-					// Start our ShotEffect coroutine to turn our laser line on and off
-					StartCoroutine (ShotEffect());
+					if (showLine) {
+						laserLine.SetPosition (0, camera.transform.position - Vector3.down * 3);
+						laserLine.SetPosition (1, hit.point);
+						StartCoroutine (ShotEffect());
+					}
 
 					if (directedAgent == null) {
 						instantiateAgent(hit.point);

@@ -711,6 +711,7 @@ MonoBehaviour:
   camera: {fileID: 1282923795}
   agentPrefab: {fileID: 1373011990487972, guid: a7006d0c9269d4653b3b8516ddd016b5,
     type: 2}
+  showLine: 0
 --- !u!120 &1364154738
 LineRenderer:
   m_ObjectHideFlags: 0
