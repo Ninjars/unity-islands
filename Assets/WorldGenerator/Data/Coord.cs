@@ -60,6 +60,9 @@ namespace WorldGenerator {
 		}
 
         internal void setElevation(float v) {
+			if (float.IsNaN(v)) {
+				throw new SystemException();
+			}
             elevation = v;
 			_vector = Vector3.down;
 			_vectorScaled = Vector3.down;
