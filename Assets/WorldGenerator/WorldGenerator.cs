@@ -68,6 +68,8 @@ namespace WorldGenerator {
 			foreach (GameObject agentType in agentsToGenerateNavMeshFor) {
 				NavMeshSurface navMeshSurface = gameObj.AddComponent<NavMeshSurface>();
 				navMeshSurface.agentTypeID = agentType.GetComponent<NavMeshAgent>().agentTypeID;
+				navMeshSurface.overrideVoxelSize = true;
+				navMeshSurface.voxelSize = 0.5f;
 				navMeshSurface.BuildNavMesh();
 			}
 			timer.logEventComplete("build NavMeshes");
