@@ -26,6 +26,8 @@ namespace WorldGenerator {
         private World world;
 
 		public World generateWorld() {
+			DebugLoggingTimer timer = new DebugLoggingTimer();
+			timer.begin("generateWorld");
             GameObject gameObj = new GameObject();
             gameObj.name = "Island";
 			Rigidbody rigidbody = gameObj.AddComponent<Rigidbody>();
@@ -34,20 +36,32 @@ namespace WorldGenerator {
             int seed = 12335;
             Graph graph = generateGraph(seed);
 
+			timer.logEventComplete("generateGraph()");
+
 			WorldGenElevation.generateElevations(graph, clippingHeight);
+			timer.logEventComplete("generateElevations()");
+
 			WorldGenElevation.applyClipping(graph, clippingHeight);
+			timer.logEventComplete("applyClipping()");
+
 			List<Island> islands = findIslands(graph);
 			Debug.Log("island count " + islands.Count);
+			timer.logEventComplete("findIslands()");
 
 			world = new World(seed, worldSize, verticalScale, graph, islands);
+			timer.logEventComplete("instantiateWorld()");
 
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
 			foreach (Island island in world.islands) {
 				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size, verticalScale);
+				timer.logEventComplete("triangulate island " + island.GetHashCode());
 				
 				WorldGenElevation.generateIslandUndersideElevations(world.seed, island);
+				timer.logEventComplete("generate underside for island " + island.GetHashCode());
+
 				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size, verticalScale, island.maxElevation - island.minElevation);
+				timer.logEventComplete("triangulate underside for island " + island.GetHashCode());
 			}
 
 			// first pass at adding a nav mesh
@@ -56,6 +70,8 @@ namespace WorldGenerator {
 				navMeshSurface.agentTypeID = agentType.GetComponent<NavMeshAgent>().agentTypeID;
 				navMeshSurface.BuildNavMesh();
 			}
+			timer.logEventComplete("build NavMeshes");
+			timer.end();
 			return world;
 		}
 
@@ -66,13 +82,17 @@ namespace WorldGenerator {
         }
 
         private List<Island> findIslands(Graph graph) {
+			DebugLoggingTimer timer = new DebugLoggingTimer();
+			timer.begin("findIslands");
             List<Center> landCenters = graph.centers.Where(center => !center.isClipped).ToList();
 			List<Island> islands = new List<Island>();
+			timer.logEventComplete("perpare landCenters");
 			while (landCenters.Count > 0) {
-				List<Center> islandCenters = new List<Center>();
 				Center startCenter = landCenters[0];
+				List<Center> islandCenters = new List<Center>();
 				islandCenters.Add(startCenter);
 				List<Center> queue = startCenter.neighbours.Where(center => !center.isClipped).ToList();
+				timer.logEventComplete("perpare queue");
 				while (queue.Count > 0) {
 					Center next = queue[0];
 					queue.Remove(next);
@@ -83,9 +103,14 @@ namespace WorldGenerator {
 						}
 					}
 				}
-				landCenters.RemoveAll(c => islandCenters.Contains(c));
+				timer.logEventComplete("queue complete");
+				foreach (var center in islandCenters) {
+					landCenters.Remove(center);
+				}
 				islands.Add(createIsland(islandCenters));
+				timer.logEventComplete("createIsland island");
 			}
+			timer.end();
 			return islands;
         }
 
