@@ -88,5 +88,56 @@ namespace Elevation {
                 coord.setElevation(coord.elevation + elevation);
             }
         }
+
+        internal static void assignCornerElevations(List<Corner> corners) {
+            foreach (Corner corner in corners) {
+                float elevation = 0;
+                List<Center> touchesCenters = corner.GetTouches();
+                foreach (Center center in touchesCenters) {
+                    elevation += center.coord.elevation;
+                }
+                corner.coord.setElevation(corner.coord.elevation + elevation / (float) touchesCenters.Count);
+            }
+        }
+
+		internal static void calculateDownslopes(List<Corner> corners) {
+			foreach (Corner corner  in corners) {
+				Corner lowest = null;
+				foreach (Corner neigh in corner.GetAdjacents()) {
+					if (lowest == null) {
+						lowest = neigh;
+					} else {
+						if (neigh.coord.elevation < lowest.coord.elevation) {
+							lowest = neigh;
+						}
+					}
+				}
+				if (corner.coord.elevation > lowest.coord.elevation) {
+					corner.downslope = lowest;
+				}
+			}
+		}
+
+        /**
+            Assignes normalised moisture values to all centers
+        */
+        internal static void calculateMoisture(List<Corner> corners) {
+            float maxValue = 0;
+            foreach (Corner corner in corners) {
+                maxValue = Mathf.Max(maxValue, recursivelyApplyMoisture(corner));
+            }
+            foreach (Corner corner in corners) {
+                corner.moisture /= maxValue;
+            }
+        }
+
+        private static float recursivelyApplyMoisture(Corner corner) {
+            corner.moisture += 1;
+            if (corner.downslope != null) {
+                return recursivelyApplyMoisture(corner.downslope);
+            } else {
+                return corner.moisture;
+            }
+        }
 	}
 }

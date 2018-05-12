@@ -40,7 +40,7 @@ namespace Elevation {
                                         horizontalScale, 
                                         coord.x / radius, 
                                         coord.y / radius);
-                float radialFactor = 1f - Vector3.Distance(center, coord.toVector3()) * 2 / radius;
+                float radialFactor = 1f - Mathf.Pow(Vector3.Distance(center, coord.toVector3()) * 2 / radius, 2);
                 coord.setElevation(coord.elevation + perlin * verticalScale * radialFactor);
             }
         }

@@ -18,6 +18,8 @@ namespace WorldGenerator {
 		public int pointCount = 1000;
 		public float verticalScale = 100f;
 
+		public int worldSeed = 12345;
+
 		public List<GameObject> agentsToGenerateNavMeshFor;
 
 		[Range(0, 1f)]
@@ -33,22 +35,18 @@ namespace WorldGenerator {
 			Rigidbody rigidbody = gameObj.AddComponent<Rigidbody>();
 			rigidbody.isKinematic = true;
 
-            int seed = 12335;
-            Graph graph = generateGraph(seed);
+            Graph graph = generateGraph(worldSeed);
 
 			timer.logEventComplete("generateGraph()");
 
 			WorldGenElevation.generateElevations(graph, clippingHeight);
 			timer.logEventComplete("generateElevations()");
 
-			WorldGenElevation.applyClippingPlane(graph, clippingHeight);
-			timer.logEventComplete("applyClipping()");
-
 			List<Island> islands = findIslands(graph);
 			Debug.Log("island count " + islands.Count);
 			timer.logEventComplete("findIslands()");
 
-			world = new World(seed, worldSize, verticalScale, graph, islands);
+			world = new World(worldSeed, worldSize, verticalScale, graph, islands);
 			timer.logEventComplete("instantiateWorld()");
 
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
@@ -109,7 +107,10 @@ namespace WorldGenerator {
 				foreach (var center in islandCenters) {
 					landCenters.Remove(center);
 				}
-				islands.Add(createIsland(islandCenters));
+				if (islandCenters.Count > 1) {
+					// filter out single-center islands for being too small
+					islands.Add(createIsland(islandCenters));
+				}
 				timer.logEventComplete("createIsland island");
 			}
 			timer.end();
