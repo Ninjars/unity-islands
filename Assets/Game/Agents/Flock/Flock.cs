@@ -7,7 +7,8 @@ namespace Game {
 
 	enum ThreatState {
 		UNTHREATENED,
-		THREATENED
+		THREATENED,
+		FLEEING
 	}
 	public class Flock : MonoBehaviour {
 		private static List<Flock> flocks = new List<Flock>();
@@ -15,8 +16,15 @@ namespace Game {
 		public int initialFlockSize = 10;
 		public int roamTimeMin = 10;
 		public int roamTimeMax = 20;
+		[TooltipAttribute("Distance at which threatening things start getting noticed")]
 		public float threatDetectionRadius = 50;
-		public int threatResponseThreshold = 1;
+		[TooltipAttribute("Factor of detection radius at which threats start getting scarier")]
+		[Range(0f,1f)]
+		public float threatEscalationFactor = 0.5f;
+		[TooltipAttribute("When threat reaches this level, perform threat response behaviour")]
+		public float threatResponseThreshold = 1;
+		[TooltipAttribute("When threat reaches this level, run away")]
+		public float threatRetreatThreshold = 3;
 		public bool drawDebug;
 
 		private float currentRoamTime;
@@ -24,14 +32,31 @@ namespace Game {
         private System.Random random;
         private TerrainNode currentNode;
 		private List<FlockMember> members = new List<FlockMember>();
-		private ThreatState threatState = ThreatState.UNTHREATENED;
+		private ThreatState threatState;
 		private List<ThreatProvider> threatProviders = new List<ThreatProvider>();
+		private float threatEscalationVal;
+
+		private void configureFrom(Flock flock) {
+			flockAgentPrefab = flock.flockAgentPrefab;
+			initialFlockSize = 0;
+			roamTimeMin = flock.roamTimeMin;
+			roamTimeMax = flock.roamTimeMax;
+			threatDetectionRadius = flock.threatDetectionRadius;
+			threatEscalationFactor = flock.threatEscalationFactor;
+			threatResponseThreshold = flock.threatResponseThreshold;
+			threatRetreatThreshold = flock.threatRetreatThreshold;
+			threatState = flock.threatState;
+			members = new List<FlockMember>();
+			drawDebug = false;
+		}
 
         void Awake() {
 			random = WorldManager.instance.GetRandom();
-			currentNode = WorldManager.instance.getClosestTerrainNode(getPosition());
+			if (currentNode == null) currentNode = WorldManager.instance.getClosestTerrainNode(getPosition());
 			flocks.Add(this);
 			gameObject.name = "Flock " + flocks.Count;
+			threatEscalationVal = threatDetectionRadius * threatEscalationFactor;
+			threatState = ThreatState.UNTHREATENED;
 		}
 
 		void Start () {
@@ -49,7 +74,7 @@ namespace Game {
 
         void checkForThreats() {
 			var collisions = Physics.OverlapSphere(getPosition(), threatDetectionRadius, -1);
-			int threat = 0;
+			float threat = 0;
 			foreach (Collider collision in collisions) {
 				var otherGO = collision.gameObject;
 				var threatComponent = otherGO.GetComponentInParent<ThreatProvider>();
@@ -58,11 +83,13 @@ namespace Game {
 						threatProviders = new List<ThreatProvider>();
 					}
 					threatProviders.Add(threatComponent);
-					threat += threatComponent.getThreat();
+					threat += getWeightedThreat(threatComponent);
 				}
 			}
 
-			if (threat >= threatResponseThreshold) {
+			if (threat >= threatRetreatThreshold) {
+				breakAndRun(findHighestPriorityThreat(threatProviders));
+			} else if (threat >= threatResponseThreshold) {
 				transitionIntoState(ThreatState.THREATENED);
 				setThreatPriority(findHighestPriorityThreat(threatProviders));
 			} else {
@@ -70,7 +97,67 @@ namespace Game {
 			}
 		}
 
-		private ThreatProvider findHighestPriorityThreat(List<ThreatProvider> threats) {
+        private void breakAndRun(ThreatProvider threat) {
+			Debug.Log("breakAndRun()");
+			threatState = ThreatState.FLEEING;
+            List<TerrainNode> saferNodes = new List<TerrainNode>();
+			Vector3 threatVector = transform.position - threat.getPosition();
+			foreach (TerrainNode node in  getCurrentNode().neighbouringNodes) {
+				float threatAngle = Vector3.Angle(threatVector, transform.position - node.position);
+				if (threatAngle > 120) {
+					saferNodes.Add(node);
+				}
+			}
+			saferNodes.Shuffle();
+			if (members.Count == 1) {
+				if (saferNodes.Count > 0) {
+					moveToNode(saferNodes[0]);
+				}
+				return;
+			}
+			int newFlockCount = Math.Min(members.Count, saferNodes.Count);
+			int groupSize = (int) Math.Ceiling(members.Count / (float)newFlockCount);
+			for (int i = 0; i < newFlockCount; i++) {
+				int finalIndex;
+				if (i == newFlockCount - 1) finalIndex = members.Count;
+				else finalIndex = (i+1) * groupSize;
+				Flock flock = createNewFlockFromMembers(i*groupSize, finalIndex);
+				flock.moveToNode(saferNodes[i]);
+			}
+			members.Clear();
+			gameObject.SetActive(false);
+			GameObject.Destroy(gameObject);
+        }
+
+		private Flock createNewFlockFromMembers(int fromIndex, int endIndex) {
+			GameObject newFlockObject = Instantiate(new GameObject());
+			Flock newFlock = newFlockObject.AddComponent<Flock>();
+			newFlock.configureFrom(this);
+			for (int i = fromIndex; i < endIndex; i++) {
+				newFlock.addMember(members[i]);
+			}
+			return newFlock;
+		}
+
+		private void OnDestroy() {
+			flocks.Remove(this);
+		}
+
+        /**
+			The base threat of a threat provider can be magnified by closeness with the philosphy that it's scarier when you can see the teeth... 
+		*/
+        private float getWeightedThreat(ThreatProvider threat) {
+            float distance = Vector3.Distance(threat.getPosition(), transform.position);
+			int baseThreat = threat.getThreat();
+			if (distance > threatEscalationVal) {
+				return baseThreat;
+			} else {
+				float factor = (distance / threatEscalationVal) * (distance / threatEscalationVal);
+				return baseThreat / factor;
+			}
+        }
+
+        private ThreatProvider findHighestPriorityThreat(List<ThreatProvider> threats) {
 				ThreatProvider closest = null;
 				float minDistance = threatDetectionRadius;
 				foreach (ThreatProvider provider in threatProviders) {
@@ -102,7 +189,7 @@ namespace Game {
 					performThreatResponse();
 					break;
 				default:
-					Debug.Log("unhandled threatState " + threatState);
+					Debug.Log("unhandled threatState transition " + threatState);
 					break;
 			}
 		}
@@ -141,21 +228,25 @@ namespace Game {
 			if (currentRoamTime > currentRoamTimer) {
 				currentRoamTime = 0;
 				currentRoamTimer = roamTimeMin + (float)random.NextDouble() * roamTimeMax;
-				moveToNewNode();
+				moveToNode(getRandomNeighbourNode());
 			}
 		}
 
-		void moveToNewNode() {
+		TerrainNode getRandomNeighbourNode() {
 			List<TerrainNode> neighbours = currentNode.neighbouringNodes;
 			int next = random.Next(neighbours.Count);
-			currentNode = neighbours[next];
+			return neighbours[next];
+		}
+
+		void moveToNode(TerrainNode node) {
+			currentNode = node;
+			transform.position = currentNode.position;
 			foreach (Flock flock in flocks) {
 				if (flock != this && flock.currentNode == currentNode) {
 					mergeIntoFlock(flock);
 					return;
 				}
 			}
-			gameObject.transform.position = currentNode.position;
 			foreach (FlockMember member in members) {
 				member.onFlockRepositioning();
 			}
@@ -166,7 +257,6 @@ namespace Game {
 				flock.addMember(member);
 			}
 			members.Clear();
-			flocks.Remove(this);
 			Destroy(gameObject);
 		}
 
