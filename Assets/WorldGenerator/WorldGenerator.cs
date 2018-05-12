@@ -41,7 +41,7 @@ namespace WorldGenerator {
 			WorldGenElevation.generateElevations(graph, clippingHeight);
 			timer.logEventComplete("generateElevations()");
 
-			WorldGenElevation.applyClipping(graph, clippingHeight);
+			WorldGenElevation.applyClippingPlane(graph, clippingHeight);
 			timer.logEventComplete("applyClipping()");
 
 			List<Island> islands = findIslands(graph);

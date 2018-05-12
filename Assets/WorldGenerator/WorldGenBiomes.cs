@@ -7,7 +7,7 @@ namespace WorldGenerator {
 
         private const float LAKE_THRESHOLD = 0.3f;
 
-        internal static void separateTheLandFromTheWater(World world, PerlinIslandShape perlinIslandShape) {
+        internal static void separateTheLandFromTheWater(World world, PerlinRadialShape perlinIslandShape) {
             // assign coarse water/land separation to corners
             foreach (Corner corner in world.corners) {
                 bool isWater = !isInsideShape(perlinIslandShape, corner.coord.toVector3());
@@ -50,7 +50,7 @@ namespace WorldGenerator {
             // TODO: coast and shallows
         }
 
-        private static bool isInsideShape(PerlinIslandShape shape, Vector3 coordinate) {
+        private static bool isInsideShape(PerlinRadialShape shape, Vector3 coordinate) {
             return shape.isInside(coordinate.x, coordinate.z);
         }
 
