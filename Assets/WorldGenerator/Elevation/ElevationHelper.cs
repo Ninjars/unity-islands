@@ -66,6 +66,30 @@ namespace Elevation {
 			return this;
 		}
 
+		public ElevationHelper crater(float radius) {
+			return crater((float) random.NextDouble(), (float) random.NextDouble(), radius);
+		}
+		
+		public ElevationHelper crater(float x, float y, float radius) {
+			Coord origin = ElevationUtils.findClosestCoord(x * size, y * size, coords);
+			float originDepth = radius * 0.5f;
+			float wallHeight = radius * 0.25f;
+			float totalHeightDelta = originDepth + wallHeight;
+			float scaledRadius = radius * size;
+			float wallFalloff = scaledRadius + scaledRadius * 0.25f;
+			foreach (var coord in coords) {
+				float distance = Vector3.Distance(origin.toVector3(), coord.toVector3());
+				if (distance < scaledRadius) {
+					float factor = distance / scaledRadius;
+					coord.changeElevationBy(totalHeightDelta * (factor * factor * factor) - originDepth);
+				} else if (distance < wallFalloff) {
+					float factor = (distance - scaledRadius) / (wallFalloff - scaledRadius);
+					coord.changeElevationBy(wallHeight * (1 - (factor * factor)));
+				}
+			}
+			return this;
+		}
+
 		/**
 			Smaller scale = less detailed noise. 
 		*/
