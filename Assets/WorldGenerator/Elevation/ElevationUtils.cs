@@ -13,36 +13,19 @@ namespace Elevation {
 
         internal static void elevate(List<Coord> coords, float radius, float x, float y, float verticalScale, float power) {
             Coord initial = findClosestCoord(x, y, coords);
-            elevate(initial, coords, radius, x, y, verticalScale, power);
+            elevate(initial, coords, radius, verticalScale, power);
         }
 
-        internal static void elevate(Coord initial, List<Coord> coords, float radius, float x, float y, float verticalScale, float power) {
+        internal static void elevate(Coord initial, List<Coord> coords, float radius, float verticalScale, float power) {
             radius = Mathf.Max(radius, 1);
             foreach (Coord current in coords) {
                 float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.toVector3(), current.toVector3());
                 if (distanceFromCenter > radius) {
                     continue;
                 }
-                float distanceFactor = Mathf.Pow(distanceFromCenter / radius, 1);
-                current.setElevation(current.elevation + verticalScale * (1f - distanceFactor));
+                float distanceFactor = Mathf.Pow(distanceFromCenter / radius, power);
+                current.changeElevationBy(verticalScale * (1f - distanceFactor));
             }
-        }
-
-        internal static List<Center> elevate(Center initial, float width, float verticalScale, Center current, List<Center> processed, float falloffPower) {
-            processed.Add(current);
-            float distanceFromCenter = initial == current ? 0 : Vector3.Distance(initial.coord.toVector3(), current.coord.toVector3());
-            if (distanceFromCenter > width) {
-                return processed;
-            }
-            float distanceFactor = Mathf.Pow(distanceFromCenter / width, falloffPower);
-            float elevation = verticalScale * (1f - distanceFactor);
-            current.coord.setElevation(current.coord.elevation + elevation);
-            foreach (Center center in current.neighbours) {
-                if (!processed.Contains(center)) {
-                    processed = elevate(initial, width, verticalScale, center, processed, falloffPower);
-                }
-            }
-            return processed;
         }
 
         internal static Coord findClosestCoord(float x, float y, List<Coord> coords) {

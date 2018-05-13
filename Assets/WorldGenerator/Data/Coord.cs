@@ -67,5 +67,9 @@ namespace WorldGenerator {
 			_vector = Vector3.down;
 			_vectorScaled = Vector3.down;
         }
+
+		internal void changeElevationBy(float elevationChange) {
+			setElevation(elevation + elevationChange);
+		}
     }
 }

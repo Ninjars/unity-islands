@@ -62,7 +62,7 @@ namespace Elevation {
 		}
 
 		public ElevationHelper mound(float x, float y, float height, float radius) {
-			ElevationFunctions.addBump(centerPos, size, coords, radius, height, x, y);
+			ElevationFunctions.addBump(centerPos, size, coords, radius * size, height, x * size, y * size);
 			return this;
 		}
 

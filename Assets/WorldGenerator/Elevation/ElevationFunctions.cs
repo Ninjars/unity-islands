@@ -10,7 +10,7 @@ namespace Elevation {
         internal static void addBump(Vector3 center, float graphSize, List<Coord> coords, float radius, float verticalScale, float x, float y) {
             Coord initial = ElevationUtils.findClosestCoord(x, y, coords);
             float radialFactor = 1f - Vector3.Distance(center, initial.toVector3()) * 2 / graphSize;
-            ElevationUtils.elevate(initial, coords, radius, x, y, verticalScale * radialFactor, 2);
+            ElevationUtils.elevate(initial, coords, radius, verticalScale * radialFactor, 2);
         }
 
         internal static void addCone(List<Coord> coords, float radius, float x, float y, float verticalScale) {
