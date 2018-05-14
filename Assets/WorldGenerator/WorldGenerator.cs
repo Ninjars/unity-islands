@@ -32,6 +32,7 @@ namespace WorldGenerator {
 			timer.begin("generateWorld");
             GameObject gameObj = new GameObject();
             gameObj.name = "Island";
+			gameObj.layer = LayerMask.NameToLayer("Terrain");
 			Rigidbody rigidbody = gameObj.AddComponent<Rigidbody>();
 			rigidbody.isKinematic = true;
 

@@ -99,13 +99,13 @@ namespace WorldGenerator {
         private static void addMeshSubObject(GameObject containingObject, Material material, float worldSize, List<int> indices, List<Vector3> vertices, List<Color> colors) {
 			GameObject gameObject = new GameObject();
 			gameObject.name = "mesh section";
+			gameObject.layer = LayerMask.NameToLayer("Terrain");
 			gameObject.transform.SetParent(containingObject.transform);
 			gameObject.transform.position = Vector3.zero;
 
             MeshFilter meshFilter = gameObject.AddComponent<MeshFilter>();
             Mesh mesh = meshFilter.mesh;
             gameObject.AddComponent<MeshRenderer>();
-            gameObject.AddComponent<MeshCollider>().sharedMesh = mesh;
 			gameObject.GetComponent<Renderer>().material = material;
 
 			mesh.vertices = vertices.ToArray();
