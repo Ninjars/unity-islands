@@ -56,4 +56,8 @@ MonoBehaviour:
   initialFlockSize: 10
   roamTimeMin: 3
   roamTimeMax: 10
+  threatDetectionRadius: 50
+  threatEscalationFactor: 0.5
+  threatResponseThreshold: 1
+  threatRetreatThreshold: 3
   drawDebug: 0

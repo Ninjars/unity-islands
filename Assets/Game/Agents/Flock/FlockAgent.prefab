@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 195415153460587024}
   - component: {fileID: 65765219691464564}
   - component: {fileID: 54084824539857918}
+  - component: {fileID: 114753253678948012}
   m_Layer: 0
   m_Name: FlockAgent
   m_TagString: Untagged
@@ -230,6 +231,26 @@ MonoBehaviour:
   maxActionDelaySeconds: 10
   threatenedSpeedBoostFactor: 2
   debugDraw: 0
+--- !u!114 &114753253678948012
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1568038760296514}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 06e82be2f463b4300b0420a5dec60204, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  leftLegOrigins:
+  - {x: -1, y: -0.4, z: 1}
+  - {x: -1, y: -0.4, z: -1}
+  rightLegOrigins:
+  - {x: 1, y: -0.4, z: 1}
+  - {x: 1, y: -0.4, z: -1}
+  legOffset: 0.5
+  rangeOfMotion: 90
+  footPrefab: {fileID: 1859814081827106, guid: a6d2cbcfecefc4e3a850f8bf6d802506, type: 2}
 --- !u!195 &195415153460587024
 NavMeshAgent:
   m_ObjectHideFlags: 1
