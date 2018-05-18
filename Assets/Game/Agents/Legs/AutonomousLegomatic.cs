@@ -10,10 +10,9 @@ namespace Game {
 		public List<Vector3> leftLegOrigins;
 		public List<Vector3> rightLegOrigins;
 		public float legOffset = 0.5f;
-		public float rangeOfMotion = 90;
+		public float maxFootDistance = 1f;
 		public GameObject footPrefab;
 
-		private float maxForwardOffset;
 		private List<GameObject> leftFeet;
 		private List<GameObject> rightFeet;
 		private LayerMask footLayerMask;
@@ -29,7 +28,6 @@ namespace Game {
 				GameObject.Destroy(this);
 				return;
 			}
-			maxForwardOffset = 1.5f;//Mathf.Sin(rangeOfMotion / 2f) * legOffset;
 			footLayerMask = LayerMask.GetMask("Terrain");
 			Vector3 leftOffset = transform.TransformPoint(Vector3.left * legOffset);
 			leftFeet = new List<GameObject>(leftLegOrigins.Count);
@@ -69,12 +67,12 @@ namespace Game {
 				restPosition = transform.TransformPoint(leftLegOrigins[footIndexer.index] + leftOffset);
 			} else {
 				currentFoot = rightFeet[footIndexer.index];
-				restPosition = transform.TransformPoint(rightLegOrigins[footIndexer.index] + rightOffset);//rightLegOrigins[footIndexer.index] + rightOffset + transform.position;
+				restPosition = transform.TransformPoint(rightLegOrigins[footIndexer.index] + rightOffset);
 			}
 			var distance = Vector3.Distance(restPosition, currentFoot.transform.position);
-			if (distance > maxForwardOffset) {
+			if (distance > maxFootDistance) {
 				// step foot in direction of current motion
-				Vector3 targetPosition = transform.forward * maxForwardOffset + restPosition;
+				Vector3 targetPosition = transform.forward * maxFootDistance + restPosition;
 				updateFoot(currentFoot, targetPosition);
 				footIndexer.increment();
 			}
@@ -99,8 +97,7 @@ namespace Game {
 		private void updateFoot(GameObject foot, Vector3 origin) {
 			RaycastHit hit;
 			if (Physics.Raycast(origin + Vector3.up, Vector3.down, out hit, Mathf.Infinity, footLayerMask)) {
-				foot.transform.position = hit.point;
-				foot.transform.rotation = Quaternion.LookRotation(transform.forward, hit.normal);
+				foot.GetComponent<Foot>().setTarget(hit.point, Quaternion.LookRotation(transform.forward, hit.normal));
 			}
 		}
 		
