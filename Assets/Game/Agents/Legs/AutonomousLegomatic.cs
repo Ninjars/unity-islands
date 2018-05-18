@@ -1,64 +1,133 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class AutonomousLegomatic : MonoBehaviour {
+namespace Game {
 
-	public List<Vector3> leftLegOrigins;
-	public List<Vector3> rightLegOrigins;
-	public float legOffset = 0.5f;
-	public float rangeOfMotion = 90;
-	public GameObject footPrefab;
+	public class AutonomousLegomatic : MonoBehaviour {
 
-	private float maxForwardOffset;
-	private List<GameObject> leftFeet;
-	private List<GameObject> rightFeet;
-	private LayerMask footLayerMask;
-	void Awake() {
-		if (leftLegOrigins.Count != rightLegOrigins.Count) {
-			Debug.LogError("need same number of legs each side!");
-			GameObject.Destroy(this);
-			return;
-		}
-		maxForwardOffset = Mathf.Sin(rangeOfMotion / 2f) * legOffset;
-		footLayerMask = LayerMask.GetMask("Terrain");
-		Vector3 leftOffset = transform.TransformPoint(Vector3.left * legOffset);
-		leftFeet = new List<GameObject>(leftLegOrigins.Count);
-		foreach (var position in leftLegOrigins) {
-			leftFeet.Add(GameObject.Instantiate(footPrefab, position + leftOffset, transform.rotation));
-			
-		}
-		Vector3 rightOffset = transform.TransformPoint(Vector3.right * legOffset);
-		rightFeet = new List<GameObject>(rightLegOrigins.Count);
-		foreach (var position in rightLegOrigins) {
-			rightFeet.Add(GameObject.Instantiate(footPrefab, position + rightOffset, transform.rotation));
-		}
-	}
+		public List<Vector3> leftLegOrigins;
+		public List<Vector3> rightLegOrigins;
+		public float legOffset = 0.5f;
+		public float rangeOfMotion = 90;
+		public GameObject footPrefab;
 
-	// Use this for initialization
-	void Start () {
+		private float maxForwardOffset;
+		private List<GameObject> leftFeet;
+		private List<GameObject> rightFeet;
+		private LayerMask footLayerMask;
+		private FootIndexer footIndexer;
+		private Vector3 leftOffset;
+		private Vector3 rightOffset;
+		private float footMoveTimer;
+		private float footMoveThreshold = 0.25f;
+
+		void Awake() {
+			if (leftLegOrigins.Count != rightLegOrigins.Count) {
+				Debug.LogError("need same number of legs each side!");
+				GameObject.Destroy(this);
+				return;
+			}
+			maxForwardOffset = 1.5f;//Mathf.Sin(rangeOfMotion / 2f) * legOffset;
+			footLayerMask = LayerMask.GetMask("Terrain");
+			Vector3 leftOffset = transform.TransformPoint(Vector3.left * legOffset);
+			leftFeet = new List<GameObject>(leftLegOrigins.Count);
+			foreach (var position in leftLegOrigins) {
+				leftFeet.Add(GameObject.Instantiate(footPrefab, position + leftOffset, transform.rotation));
+				
+			}
+			Vector3 rightOffset = transform.TransformPoint(Vector3.right * legOffset);
+			rightFeet = new List<GameObject>(rightLegOrigins.Count);
+			foreach (var position in rightLegOrigins) {
+				rightFeet.Add(GameObject.Instantiate(footPrefab, position + rightOffset, transform.rotation));
+			}
+			footIndexer = new FootIndexer(leftFeet.Count);
+			leftOffset = Vector3.left * legOffset;
+			rightOffset = Vector3.right * legOffset;
+		}
+
+		// Use this for initialization
+		void Start () {
+			positionAllFeet();
+		}
 		
-	}
-	
-	// Update is called once per frame
-	void Update () {
-		updateFeetPositions();
-	}
-
-	private void updateFeetPositions() {
-		Vector3 leftOffset = Vector3.left * legOffset;
-		Vector3 rightOffset = Vector3.right * legOffset;
-		for (int i = 0; i < leftFeet.Count; i++) {
-			updateFoot(leftFeet[i], transform.TransformPoint(leftLegOrigins[i] + leftOffset));
-			updateFoot(rightFeet[i], transform.TransformPoint(rightLegOrigins[i] + rightOffset));
+		void Update () {
+			checkForFootPositionUpdate(Time.deltaTime);
 		}
-	}
 
-	private void updateFoot(GameObject foot, Vector3 origin) {
-		RaycastHit hit;
-        if (Physics.Raycast(origin + Vector3.up, Vector3.down, out hit, Mathf.Infinity, footLayerMask)) {
-			foot.transform.position = hit.point;
-			foot.transform.up = hit.normal;
+        private void checkForFootPositionUpdate(float deltaTime) {
+			footMoveTimer += deltaTime;
+			if (footMoveTimer < footMoveThreshold) {
+				return;
+			}
+			footMoveTimer -= footMoveThreshold;
+            GameObject currentFoot;
+			Vector3 restPosition;
+			if (footIndexer.currentSide == FootIndexer.Side.LEFT) {
+				currentFoot = leftFeet[footIndexer.index];
+				restPosition = transform.TransformPoint(leftLegOrigins[footIndexer.index] + leftOffset);
+			} else {
+				currentFoot = rightFeet[footIndexer.index];
+				restPosition = transform.TransformPoint(rightLegOrigins[footIndexer.index] + rightOffset);//rightLegOrigins[footIndexer.index] + rightOffset + transform.position;
+			}
+			var distance = Vector3.Distance(restPosition, currentFoot.transform.position);
+			if (distance > maxForwardOffset) {
+				// step foot in direction of current motion
+				Vector3 targetPosition = transform.forward * maxForwardOffset + restPosition;
+				updateFoot(currentFoot, targetPosition);
+				footIndexer.increment();
+			}
+        }
+
+        void OnDestroy() {
+			foreach (var foot in leftFeet) {
+				GameObject.Destroy(foot);
+			}
+			foreach (var foot in rightFeet) {
+				GameObject.Destroy(foot);
+			}
+		}
+
+		private void positionAllFeet() {
+			for (int i = 0; i < leftFeet.Count; i++) {
+				updateFoot(leftFeet[i], transform.TransformPoint(leftLegOrigins[i] + leftOffset));
+				updateFoot(rightFeet[i], transform.TransformPoint(rightLegOrigins[i] + rightOffset));
+			}
+		}
+
+		private void updateFoot(GameObject foot, Vector3 origin) {
+			RaycastHit hit;
+			if (Physics.Raycast(origin + Vector3.up, Vector3.down, out hit, Mathf.Infinity, footLayerMask)) {
+				foot.transform.position = hit.point;
+				foot.transform.rotation = Quaternion.LookRotation(transform.forward, hit.normal);
+			}
+		}
+		
+		private class FootIndexer {
+			public enum Side {
+				LEFT, RIGHT
+			}
+
+			public Side currentSide { get; private set; }
+			public int index { get; private set; }
+
+			private readonly int maxIndex;
+
+			public FootIndexer(int footCount) {
+				maxIndex = footCount;
+				currentSide = Side.LEFT;
+				index = 0;
+			}
+
+			public void increment() {
+				if (currentSide == Side.LEFT) {
+					currentSide = Side.RIGHT;
+				} else {
+					currentSide = Side.LEFT;
+					index = (index + 1) % maxIndex;
+				}
+			}
 		}
 	}
 }
