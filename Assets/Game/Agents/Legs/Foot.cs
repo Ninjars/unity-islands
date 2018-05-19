@@ -4,7 +4,8 @@ using UnityEngine;
 
 namespace Game {
 	public class Foot : MonoBehaviour {
-		public float movementDurationSeconds = 0.1f;
+		public float movementDurationSeconds = 0.2f;
+		public float stepHeight = 1f;
 
 		private Vector3 targetPosition;
 		private Quaternion targetRotation;
@@ -14,18 +15,12 @@ namespace Game {
 		
 		void Update () {
 			var elapsed = Time.time - startTime;
-			if (elapsed > movementDurationSeconds) {
-				if (targetPosition != null) {
-					transform.position = targetPosition;
-				}
-				if (targetRotation != null) {
-					transform.rotation = targetRotation;
-				}
-				return;
-			}
-			var fraction = Mathf.SmoothStep(0.0f, 1.0f, elapsed / movementDurationSeconds);
-			transform.position = Vector3.Lerp(initialPosition, targetPosition, fraction);
-			transform.rotation = Quaternion.Lerp(initialRotation, targetRotation, fraction);
+			var rawFraction = elapsed / movementDurationSeconds;
+			var horizontalFraction = Mathf.SmoothStep(0.0f, 1.0f, rawFraction);
+			var verticalFraction =  Mathf.SmoothStep(0.0f, 1.0f, 1 - Mathf.Abs(rawFraction - 0.5f) * 2);
+			transform.position = Vector3.Lerp(initialPosition, targetPosition, horizontalFraction);
+			transform.position +=  Vector3.Lerp(Vector3.zero, Vector3.up * stepHeight, verticalFraction);
+			transform.rotation = Quaternion.Lerp(initialRotation, targetRotation, horizontalFraction);
 		}
 
 		public void setTarget(Vector3 position, Quaternion rotation) {
