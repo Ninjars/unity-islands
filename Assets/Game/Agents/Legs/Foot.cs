@@ -7,7 +7,7 @@ namespace Game {
 		public float movementDurationSeconds = 0.2f;
 		public float stepHeight = 1f;
 
-		private Vector3 targetPosition;
+		public Vector3 targetPosition;
 		private Quaternion targetRotation;
 		private Vector3 initialPosition;
 		private Quaternion initialRotation;

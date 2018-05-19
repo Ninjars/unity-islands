@@ -13,14 +13,15 @@ namespace Game {
 		public float maxFootDistance = 1f;
 		public GameObject footPrefab;
 
-		private List<GameObject> leftFeet;
-		private List<GameObject> rightFeet;
+		private List<Foot> leftFeet;
+		private List<Foot> rightFeet;
 		private LayerMask footLayerMask;
 		private FootIndexer footIndexer;
 		private Vector3 leftOffset;
 		private Vector3 rightOffset;
 		private float footMoveTimer;
 		private float footMoveThreshold = 0.25f;
+		private IMovingEntity entityReference;
 
 		void Awake() {
 			if (leftLegOrigins.Count != rightLegOrigins.Count) {
@@ -30,19 +31,21 @@ namespace Game {
 			}
 			footLayerMask = LayerMask.GetMask("Terrain");
 			Vector3 leftOffset = transform.TransformPoint(Vector3.left * legOffset);
-			leftFeet = new List<GameObject>(leftLegOrigins.Count);
+			leftFeet = new List<Foot>(leftLegOrigins.Count);
 			foreach (var position in leftLegOrigins) {
-				leftFeet.Add(GameObject.Instantiate(footPrefab, position + leftOffset, transform.rotation));
-				
+				var foot = GameObject.Instantiate(footPrefab, position + leftOffset, transform.rotation);
+				leftFeet.Add(foot.GetComponent<Foot>());
 			}
 			Vector3 rightOffset = transform.TransformPoint(Vector3.right * legOffset);
-			rightFeet = new List<GameObject>(rightLegOrigins.Count);
+			rightFeet = new List<Foot>(rightLegOrigins.Count);
 			foreach (var position in rightLegOrigins) {
-				rightFeet.Add(GameObject.Instantiate(footPrefab, position + rightOffset, transform.rotation));
+				var foot =GameObject.Instantiate(footPrefab, position + rightOffset, transform.rotation);
+				rightFeet.Add(foot.GetComponent<Foot>());
 			}
 			footIndexer = new FootIndexer(leftFeet.Count);
 			leftOffset = Vector3.left * legOffset;
 			rightOffset = Vector3.right * legOffset;
+			entityReference = gameObject.GetComponent<IMovingEntity>();
 		}
 
 		// Use this for initialization
@@ -60,7 +63,7 @@ namespace Game {
 				return;
 			}
 			footMoveTimer -= footMoveThreshold;
-            GameObject currentFoot;
+            Foot currentFoot;
 			Vector3 restPosition;
 			if (footIndexer.currentSide == FootIndexer.Side.LEFT) {
 				currentFoot = leftFeet[footIndexer.index];
@@ -69,21 +72,31 @@ namespace Game {
 				currentFoot = rightFeet[footIndexer.index];
 				restPosition = transform.TransformPoint(rightLegOrigins[footIndexer.index] + rightOffset);
 			}
-			var distance = Vector3.Distance(restPosition, currentFoot.transform.position);
-			if (distance > maxFootDistance) {
-				// step foot in direction of current motion
-				Vector3 targetPosition = transform.forward * maxFootDistance + restPosition;
-				updateFoot(currentFoot, targetPosition);
+			if (entityReference == null || entityReference.isMoving()) {
+				var distance = Vector3.Distance(restPosition, currentFoot.transform.position);
+				if (distance > maxFootDistance) {
+					// step foot in direction of current motion
+					Vector3 targetPosition = transform.forward * maxFootDistance + restPosition;
+					updateFoot(currentFoot, targetPosition);
+					footIndexer.increment();
+					
+				}
+			} else {
+				updateFoot(currentFoot, restPosition);
 				footIndexer.increment();
 			}
         }
 
         void OnDestroy() {
-			foreach (var foot in leftFeet) {
-				GameObject.Destroy(foot);
-			}
-			foreach (var foot in rightFeet) {
-				GameObject.Destroy(foot);
+			try {
+				foreach (var foot in leftFeet) {
+					GameObject.Destroy(foot.gameObject);
+				}
+				foreach (var foot in rightFeet) {
+					GameObject.Destroy(foot.gameObject);
+				}
+			} catch (Exception e) {
+				// this silences annoying error logging when stopping the app, probably due to how objects are being destroyed
 			}
 		}
 
@@ -94,11 +107,15 @@ namespace Game {
 			}
 		}
 
-		private void updateFoot(GameObject foot, Vector3 origin) {
+		private bool updateFoot(Foot foot, Vector3 origin) {
+			if (Mathf.Approximately(origin.x, foot.targetPosition.x) && Mathf.Approximately(origin.z, foot.targetPosition.z)) {
+				return false;
+			}
 			RaycastHit hit;
 			if (Physics.Raycast(origin + Vector3.up, Vector3.down, out hit, Mathf.Infinity, footLayerMask)) {
-				foot.GetComponent<Foot>().setTarget(hit.point, Quaternion.LookRotation(transform.forward, hit.normal));
+				foot.setTarget(hit.point, Quaternion.LookRotation(transform.forward, hit.normal));
 			}
+			return true;
 		}
 		
 		private class FootIndexer {

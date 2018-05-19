@@ -31,7 +31,7 @@ namespace Game {
 			switch (threatState) {
 				case ThreatState.THREATENED:
 					currentDelayTime = nextActionDelay;
-					if (priorityThreat != null && getNavAgent().velocity.sqrMagnitude < 1) {
+					if (priorityThreat != null && !isMoving()) {
 						transform.LookAt(priorityThreat.getPosition());
 					}
 					break;

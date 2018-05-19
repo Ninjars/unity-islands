@@ -5,7 +5,9 @@ using UnityEngine;
 using UnityEngine.AI;
 
 namespace Game {
-	public class BaseAgent : MonoBehaviour {
+	public interface IMovingEntity {
+		bool isMoving();
+	}	public class BaseAgent : MonoBehaviour, IMovingEntity {
 
 		public int maxHealth = 10;
 		private int currentHealth;
@@ -39,5 +41,9 @@ namespace Game {
 				GameObject.Destroy(gameObject);
 			}
 		}
+
+        public bool isMoving() {
+            return agent.velocity.sqrMagnitude > 0;
+        }
     }
 }
