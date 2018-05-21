@@ -250,7 +250,7 @@ MonoBehaviour:
   - {x: 1, y: -0.4, z: 1}
   - {x: 1, y: -0.4, z: -1}
   legOffset: 0.5
-  rangeOfMotion: 90
+  maxFootDistance: 1
   footPrefab: {fileID: 1859814081827106, guid: a6d2cbcfecefc4e3a850f8bf6d802506, type: 2}
 --- !u!195 &195415153460587024
 NavMeshAgent:
