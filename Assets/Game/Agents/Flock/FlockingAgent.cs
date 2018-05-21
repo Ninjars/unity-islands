@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Linq;
 
 namespace Game {
 	public class FlockingAgent : BaseAgent, FlockMember {
@@ -18,6 +19,7 @@ namespace Game {
 		public float minActionDelaySeconds = 5;
 		public float maxActionDelaySeconds = 10;
 		public float threatenedSpeedBoostFactor = 2f;
+		public float energyHarvestRate = 1;
 		public bool debugDraw = false;
 
         void Awake() {
@@ -40,6 +42,7 @@ namespace Game {
 					if (currentDelayTime > nextActionDelay) {
 						moveToRandomPoint();
 					}
+					harvestEnergy(Time.deltaTime);
 					break;
 				default:
 					Debug.LogError("unhandled threatstate " + threatState);
@@ -47,7 +50,11 @@ namespace Game {
 			}
 		}
 
-		void OnDestroy() {
+        private void harvestEnergy(float timeDelta) {
+            flock.addEnergy(flock.getCurrentNode().getResource(ResourceType.LOW_DENSITY_ENERGY).harvest(energyHarvestRate / timeDelta));
+        }
+
+        void OnDestroy() {
 			if (flock != null) {
 				flock.onMemberLost(this);
 			}

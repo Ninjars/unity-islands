@@ -35,8 +35,9 @@ namespace Game {
 		private ThreatState threatState;
 		private List<ThreatProvider> threatProviders = new List<ThreatProvider>();
 		private float threatEscalationVal;
+        private float accumulatedEnergy = 0;
 
-		private void configureFrom(Flock flock) {
+        private void configureFrom(Flock flock, float energy) {
 			flockAgentPrefab = flock.flockAgentPrefab;
 			initialFlockSize = 0;
 			roamTimeMin = flock.roamTimeMin;
@@ -47,6 +48,7 @@ namespace Game {
 			threatRetreatThreshold = flock.threatRetreatThreshold;
 			threatState = flock.threatState;
 			members = new List<FlockMember>();
+			accumulatedEnergy = energy;
 			drawDebug = false;
 		}
 
@@ -132,7 +134,7 @@ namespace Game {
 		private Flock createNewFlockFromMembers(int fromIndex, int endIndex) {
 			GameObject newFlockObject = Instantiate(new GameObject());
 			Flock newFlock = newFlockObject.AddComponent<Flock>();
-			newFlock.configureFrom(this);
+			newFlock.configureFrom(this, accumulatedEnergy * (endIndex - fromIndex) / (float)members.Count);
 			for (int i = fromIndex; i < endIndex; i++) {
 				newFlock.addMember(members[i]);
 			}
@@ -228,7 +230,7 @@ namespace Game {
 			if (currentRoamTime > currentRoamTimer) {
 				currentRoamTime = 0;
 				currentRoamTimer = roamTimeMin + (float)random.NextDouble() * roamTimeMax;
-				moveToNode(getRandomNeighbourNode());
+				moveToNode(getBestNeighbourNode());
 			}
 		}
 
@@ -238,7 +240,24 @@ namespace Game {
 			return neighbours[next];
 		}
 
+		TerrainNode getBestNeighbourNode() {
+			List<TerrainNode> neighbours = currentNode.neighbouringNodes;
+			TerrainNode bestNode = null;
+			float value = 0;
+			foreach (var node in neighbours) {
+				var resource = node.getResource(ResourceType.LOW_DENSITY_ENERGY);
+				if (resource.getCurrentValue() > value) {
+					bestNode = node;
+					value = resource.getCurrentValue();
+				}
+			}
+			return bestNode;
+		}
+
 		void moveToNode(TerrainNode node) {
+			if (node == null) {
+				return;
+			}
 			currentNode = node;
 			transform.position = currentNode.getPosition();
 			foreach (Flock flock in flocks) {
@@ -286,6 +305,10 @@ namespace Game {
 		private Vector3 getPosition() {
 			return gameObject.transform.position;
 		}
+
+        internal void addEnergy(float energyChange) {
+            this.accumulatedEnergy += energyChange;
+        }
 	}
 
 	public interface FlockMember {

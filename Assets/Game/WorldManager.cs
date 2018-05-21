@@ -40,9 +40,11 @@ namespace Game {
 
 		private TerrainNode createTerrainNode(WorldGenerator.Center center) {
 			var node = new TerrainNode(this, center.index, new Vector3(center.coord.x, center.scaledElevation(world.verticalScale), center.coord.y), !center.isClipped);
-			var rate = 1 - center.coord.elevation;
-			BackgroundEnergy energy = new BackgroundEnergy(node, 0, rate);
-			node.addResource(energy);
+			if (!center.isClipped) {
+				var rate = 1 - center.coord.elevation;
+				BackgroundEnergy energy = new BackgroundEnergy(node, 0, rate);
+				node.addResource(energy);
+			}
 			return node;
 		}
 

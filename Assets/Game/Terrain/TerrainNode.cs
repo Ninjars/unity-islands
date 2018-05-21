@@ -10,7 +10,7 @@ namespace Game {
         private readonly Vector3 position;
 
         public bool isSolid { get; private set; }
-        public List<IResource> resources { get; private set; }
+        private Dictionary<ResourceType, IResource> resources = new Dictionary<ResourceType, IResource>();
 
         private float _radius = -1;
 		public float radius {
@@ -36,7 +36,6 @@ namespace Game {
 			this.nodeIndex = index;
 			this.position = position;
 			this.isSolid = isSolid;
-			resources = new List<IResource>();
 		}
 
 		public Vector2 getRandomPoint2D(float factor = 1) {
@@ -56,8 +55,12 @@ namespace Game {
 		}
 
         internal void addResource(IResource resource) {
-            resources.Add(resource);
+            resources.Add(resource.getType(), resource);
         }
+
+		public IResource getResource(ResourceType type) {
+			return resources[type];
+		}
 
         internal Vector3 getPosition()  {
             return position;
