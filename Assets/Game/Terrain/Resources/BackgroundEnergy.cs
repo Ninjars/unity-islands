@@ -5,15 +5,16 @@ using UnityEngine;
 namespace Game {
     public class BackgroundEnergy : IResource {
         private readonly TerrainNode node;
+        private readonly float accumulationRate;
 
         private float lastValue;
         private float lastValueCheck;
-        private float accumulationRate;
 
         public BackgroundEnergy(TerrainNode parentNode, float initialValue, float accumulationRate) {
             this.node = parentNode;
             lastValue = initialValue;
             lastValueCheck = Time.time;
+            this.accumulationRate = accumulationRate;
 		}
         public ResourceType getType() {
             return ResourceType.LOW_DENSITY_ENERGY;
