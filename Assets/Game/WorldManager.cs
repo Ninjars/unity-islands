@@ -14,6 +14,7 @@ namespace Game {
         public bool debugDrawCornerConnections = false;
 		public bool debugDrawDownlopes = false;
 		public bool debugDrawTerrainNodes = false;
+		public bool debugShowNodeEnergy = false;
 
         private WorldGenerator.World world;
 		private List<TerrainNode> terrainNodes;
@@ -126,6 +127,14 @@ namespace Game {
 				Gizmos.color = Color.green;
 				foreach (TerrainNode node in solidTerrainNodes) {
 					Gizmos.DrawSphere(node.getPosition(), node.radius);
+				}
+			}
+			if (debugShowNodeEnergy) {
+				foreach (TerrainNode node in solidTerrainNodes) {
+					var res = node.getResource(ResourceType.LOW_DENSITY_ENERGY);
+					if (res != null) {
+						DebugUtils.drawString(node.getPosition(), res.getCurrentValue().ToString());
+					}
 				}
 			}
 		}
