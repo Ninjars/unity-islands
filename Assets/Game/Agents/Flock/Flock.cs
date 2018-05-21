@@ -275,6 +275,7 @@ namespace Game {
 			foreach (FlockMember member in members) {
 				flock.addMember(member);
 			}
+			flock.addEnergy(accumulatedEnergy);
 			members.Clear();
 			Destroy(gameObject);
 		}
@@ -300,6 +301,7 @@ namespace Game {
 			foreach (FlockMember member in members) {
 				Gizmos.DrawLine(getPosition(), member.getPosition());
 			}
+			DebugUtils.drawString(getPosition(), accumulatedEnergy.ToString());
 		}
 
 		private Vector3 getPosition() {

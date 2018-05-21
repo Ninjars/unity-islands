@@ -230,6 +230,7 @@ MonoBehaviour:
   minActionDelaySeconds: 5
   maxActionDelaySeconds: 10
   threatenedSpeedBoostFactor: 2
+  energyHarvestRate: 1
   debugDraw: 0
 --- !u!114 &114753253678948012
 MonoBehaviour:
