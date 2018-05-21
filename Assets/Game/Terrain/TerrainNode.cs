@@ -1,20 +1,22 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 namespace Game {
-public class TerrainNode {
+	public class TerrainNode {
         private readonly WorldManager worldManager;
-        private readonly int index;
-        public readonly Vector3 position;
+        private readonly int nodeIndex;
+        private readonly Vector3 position;
 
-        public readonly bool isSolid;
+        public bool isSolid { get; private set; }
+        public List<IResource> resources { get; private set; }
 
         private float _radius = -1;
 		public float radius {
 			get {
 				if (_radius < 0) {
-					_radius = worldManager.getRadiusOfNode(index);
+					_radius = worldManager.getRadiusOfNode(nodeIndex);
 				}
 				return _radius;
 			 }
@@ -23,7 +25,7 @@ public class TerrainNode {
 		public List<TerrainNode> neighbouringNodes {
 			get {
 				if (_neighbouringNodes == null) {
-					_neighbouringNodes = worldManager.getNeighbouringSolidNodes(index);
+					_neighbouringNodes = worldManager.getNeighbouringSolidNodes(nodeIndex);
 				}
 				return _neighbouringNodes;
 			}
@@ -31,9 +33,10 @@ public class TerrainNode {
 
         public TerrainNode(WorldManager world, int index, Vector3 position, bool isSolid) {
 			this.worldManager = world;
-			this.index = index;
+			this.nodeIndex = index;
 			this.position = position;
 			this.isSolid = isSolid;
+			resources = new List<IResource>();
 		}
 
 		public Vector2 getRandomPoint2D(float factor = 1) {
@@ -51,5 +54,13 @@ public class TerrainNode {
 			}
 			return position;
 		}
-	}
+
+        internal void addResource(IResource resource) {
+            resources.Add(resource);
+        }
+
+        internal Vector3 getPosition()  {
+            return position;
+        }
+    }
 }

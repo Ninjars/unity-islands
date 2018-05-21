@@ -103,7 +103,7 @@ namespace Game {
             List<TerrainNode> saferNodes = new List<TerrainNode>();
 			Vector3 threatVector = transform.position - threat.getPosition();
 			foreach (TerrainNode node in  getCurrentNode().neighbouringNodes) {
-				float threatAngle = Vector3.Angle(threatVector, transform.position - node.position);
+				float threatAngle = Vector3.Angle(threatVector, transform.position - node.getPosition());
 				if (threatAngle > 120) {
 					saferNodes.Add(node);
 				}
@@ -240,7 +240,7 @@ namespace Game {
 
 		void moveToNode(TerrainNode node) {
 			currentNode = node;
-			transform.position = currentNode.position;
+			transform.position = currentNode.getPosition();
 			foreach (Flock flock in flocks) {
 				if (flock != this && flock.currentNode == currentNode) {
 					mergeIntoFlock(flock);

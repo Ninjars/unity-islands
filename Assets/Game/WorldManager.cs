@@ -33,14 +33,22 @@ namespace Game {
 			world = worldGenerator.generateWorld();
 			gameRandom = new System.Random(world.seed);
 
-			terrainNodes = world.centers.Select(center => new TerrainNode(this, center.index, new Vector3(center.coord.x, center.scaledElevation(world.verticalScale), center.coord.y), !center.isClipped)).ToList();
+			terrainNodes = world.centers.Select(center => createTerrainNode(center)).ToList();
 			solidTerrainNodes = terrainNodes.Where(node => node.isSolid).ToList();
 			centralNode = world.indexOfClosestCenter(0, new Vector3(world.size/2, 0, world.size/2), true);
 		}
 
+		private TerrainNode createTerrainNode(WorldGenerator.Center center) {
+			var node = new TerrainNode(this, center.index, new Vector3(center.coord.x, center.scaledElevation(world.verticalScale), center.coord.y), !center.isClipped);
+			var rate = 1 - center.coord.elevation;
+			BackgroundEnergy energy = new BackgroundEnergy(node, 0, rate);
+			node.addResource(energy);
+			return node;
+		}
+
 		void Start() {
 			for (int i = 0; i < agentSpawnCount; i++) {
-				Vector3 position = solidTerrainNodes[gameRandom.Next(solidTerrainNodes.Count)].position + Vector3.up;
+				Vector3 position = solidTerrainNodes[gameRandom.Next(solidTerrainNodes.Count)].getPosition() + Vector3.up;
 				Instantiate(agent, position, UnityEngine.Random.rotation);
 			}
 		}
@@ -115,7 +123,7 @@ namespace Game {
 			if (debugDrawTerrainNodes) {
 				Gizmos.color = Color.green;
 				foreach (TerrainNode node in solidTerrainNodes) {
-					Gizmos.DrawSphere(node.position, node.radius);
+					Gizmos.DrawSphere(node.getPosition(), node.radius);
 				}
 			}
 		}

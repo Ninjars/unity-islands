@@ -63,7 +63,7 @@ namespace Game {
 				}
 				Debug.DrawLine(
 					gameObject.transform.position,
-					currentNode.position,
+					currentNode.getPosition(),
 					Color.green);
 				base.debugNavigationDraw();
 			}
