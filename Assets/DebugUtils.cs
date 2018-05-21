@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using UnityEditor;
 using UnityEngine;
 
 public class DebugLoggingTimer {
@@ -24,5 +25,12 @@ public class DebugLoggingTimer {
 		long time = stopwatch.ElapsedMilliseconds;
 		UnityEngine.Debug.Log(">> completed " + stage + " : " + (time - previousCheck));
 		previousCheck = time;
+	}
+}
+
+public static class DebugUtils {
+	public static void drawString(Vector3 worldPos, String text, Color? colour = null) {
+		if (colour.HasValue) UnityEditor.Handles.color = colour.GetValueOrDefault(Color.black);
+		Handles.Label(worldPos, text);
 	}
 }
