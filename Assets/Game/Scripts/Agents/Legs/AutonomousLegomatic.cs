@@ -12,10 +12,10 @@ namespace Game {
 		public float legOffset = 0.5f;
 		public float maxFootDistance = 1f;
 		public GameObject footPrefab;
+		public LayerMask footLayerMask;
 
 		private List<Foot> leftFeet;
 		private List<Foot> rightFeet;
-		private LayerMask footLayerMask;
 		private FootIndexer footIndexer;
 		private Vector3 leftOffset;
 		private Vector3 rightOffset;
@@ -29,7 +29,6 @@ namespace Game {
 				GameObject.Destroy(this);
 				return;
 			}
-			footLayerMask = LayerMask.GetMask("Terrain");
 			Vector3 leftOffset = transform.TransformPoint(Vector3.left * legOffset);
 			leftFeet = new List<Foot>(leftLegOrigins.Count);
 			foreach (var position in leftLegOrigins) {
@@ -48,7 +47,6 @@ namespace Game {
 			entityReference = gameObject.GetComponent<IMovingEntity>();
 		}
 
-		// Use this for initialization
 		void Start () {
 			positionAllFeet();
 		}
@@ -84,6 +82,15 @@ namespace Game {
 			} else {
 				updateFoot(currentFoot, restPosition);
 				footIndexer.increment();
+			}
+        }
+
+        internal void scaleFeet(Vector3 scale) {
+            foreach (var foot in leftFeet) {
+				foot.transform.localScale = scale;
+			}
+			foreach (var foot in rightFeet) {
+				foot.transform.localScale = scale;
 			}
         }
 
