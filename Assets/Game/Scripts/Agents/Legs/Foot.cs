@@ -15,9 +15,9 @@ namespace Game {
 		
 		void Update () {
 			var elapsed = Time.time - startTime;
-			var rawFraction = elapsed / movementDurationSeconds;
+			var rawFraction = Mathf.Clamp01(elapsed / movementDurationSeconds);
 			var horizontalFraction = Mathf.SmoothStep(0.0f, 1.0f, rawFraction);
-			var verticalFraction =  Mathf.SmoothStep(0.0f, 1.0f, Mathf.Clamp01(1 - Mathf.Abs(rawFraction - 0.5f) * 2));
+			var verticalFraction =  Mathf.SmoothStep(0.0f, 1.0f, 1 - Mathf.Abs(rawFraction - 0.5f) * 2);
 			transform.position = Vector3.Lerp(initialPosition, targetPosition, horizontalFraction);
 			transform.position +=  Vector3.Lerp(Vector3.zero, Vector3.up * stepHeight, verticalFraction);
 			transform.rotation = Quaternion.Lerp(initialRotation, targetRotation, horizontalFraction);

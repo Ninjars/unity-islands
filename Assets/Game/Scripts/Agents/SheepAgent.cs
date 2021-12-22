@@ -2,7 +2,7 @@
 using UnityEngine;
 
 namespace Game {
-    [RequireComponent(typeof(AudioSource))]
+    [RequireComponent(typeof(AudioSource), typeof(AutonomousLegomatic))]
     public class SheepAgent : BaseAgent {
         private float currentDelayTime;
         private float nextActionDelay;
