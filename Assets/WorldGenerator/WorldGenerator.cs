@@ -8,7 +8,6 @@ namespace WorldGenerator {
     public class WorldGenerator : MonoBehaviour {
 
 		public Material material;
-		public AnimationCurve initialDistributionCurve;
 		public float worldSize = 1000;
 		public int pointCount = 1000;
 		public float verticalScale = 100f;
@@ -141,7 +140,7 @@ namespace WorldGenerator {
 		}
 
         private Graph generateGraph(int seed) {
-			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount, initialDistributionCurve);
+			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount);
 			
 			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
 
