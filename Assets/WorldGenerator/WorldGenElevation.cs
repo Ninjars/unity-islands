@@ -92,7 +92,6 @@ namespace WorldGenerator {
             elevationHelper
                     .normalise()
                     .smooth(graph.centers, 1)
-                    .erode(graph.corners)
                     .updateCornerElevations(graph.corners)
                     .clip(graph.centers, graph.corners, clippingPlaneHeight);
         }

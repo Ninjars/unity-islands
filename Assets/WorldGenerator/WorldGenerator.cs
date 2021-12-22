@@ -2,11 +2,6 @@
 using UnityEngine;
 using UnityEngine.AI;
 using TriangleNet.Voronoi;
-using System;
-using TriangleNet.Topology.DCEL;
-using TriangleNet.Geometry;
-using TriangleNet.Meshing;
-using TriangleNet.Topology;
 using System.Linq;
 
 namespace WorldGenerator {
@@ -30,12 +25,13 @@ namespace WorldGenerator {
 		public World generateWorld() {
 			DebugLoggingTimer timer = new DebugLoggingTimer();
 			timer.begin("generateWorld");
+
+			// initialise gameobject
             GameObject gameObj = new GameObject();
             gameObj.name = "Island";
 			gameObj.layer = LayerMask.NameToLayer("Terrain");
-			Rigidbody rigidbody = gameObj.AddComponent<Rigidbody>();
-			rigidbody.isKinematic = true;
 
+			// create 2d voronoi-derived graph, with centers, edges and corners
             Graph graph = generateGraph(worldSeed);
 
 			timer.logEventComplete("generateGraph()");

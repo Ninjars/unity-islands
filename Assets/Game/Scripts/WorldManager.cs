@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEngine;
 
 namespace Game {
+	[RequireComponent(typeof(WorldGenerator.WorldGenerator))]
 	public class WorldManager : MonoBehaviour {
 
 		public static WorldManager instance;
