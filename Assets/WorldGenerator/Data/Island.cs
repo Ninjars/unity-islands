@@ -27,7 +27,7 @@ public class Island {
 			this.center = islandCenter;
 			this.bounds = bounds;
 			this.corners = new List<Corner>();
-			minElevation = 1000;
+			minElevation = float.MaxValue;
 			foreach(Center c in centers) {
 				if (c.coord.elevation > maxElevation) {
 					maxElevation = c.coord.elevation;
@@ -41,9 +41,10 @@ public class Island {
 					}
 				}
 			}
-			Coord[] coords = centers.Select(c => new Coord(c.coord.x, 0, c.coord.y)).ToArray();
-			List<Corner> rimCoords = corners.Where(c => c.isIslandRim).ToList();
-            Coord[] cornerCoords = rimCoords.Select(c => new Coord(c.coord.x, c.coord.elevation, c.coord.y)).ToArray();
+			List<Corner> rimCorners = corners.Where(c => c.isIslandRim).ToList();
+            Coord[] cornerCoords = rimCorners.Select(c => new Coord(c.coord.x, c.coord.elevation, c.coord.y)).ToArray();
+			float lowestRimCorner = cornerCoords.Aggregate((prev, next) => prev.elevation < next.elevation ? prev : next).elevation;
+			Coord[] coords = centers.Select(c => new Coord(c.coord.x, -lowestRimCorner, c.coord.y)).ToArray();
             undersideCoords = new List<ConnectedCoord>(centers.Count);
 			for (int i = 0; i < centers.Count; i++) {
 				Center center = centers[i];
@@ -54,7 +55,7 @@ public class Island {
 									.ToList();
 				IEnumerable<CoordUnderside> neighbouringRimCoords = center.corners
 									.Where(c => c.isIslandRim)
-									.Select(c => new CoordUnderside(cornerCoords[rimCoords.IndexOf(c)], true));
+									.Select(c => new CoordUnderside(cornerCoords[rimCorners.IndexOf(c)], true));
 				neighbouringCoords.AddRange(neighbouringRimCoords);
 				undersideCoords.Add(new ConnectedCoord(centerCoord, neighbouringCoords));
 			}

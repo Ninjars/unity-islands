@@ -67,7 +67,7 @@ namespace WorldGenerator {
 			return centers;
 		}
 
-        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices, float worldSize) {
+        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices) {
 			List<Corner> idCorners = new List<Corner>(vertices.Count);
 			for (int i = 0; i < vertices.Count; i++) {
 				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];

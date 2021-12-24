@@ -16,8 +16,7 @@ namespace WorldGenerator {
 
 		public List<GameObject> agentsToGenerateNavMeshFor;
 
-		[Range(0, 1f)]
-		public float clippingHeight = 0.25f;
+		public float clippingHeight = 10f;
 		
         private World world;
 
@@ -49,13 +48,13 @@ namespace WorldGenerator {
 			// WorldGenBiomes.separateTheLandFromTheWater(world, new PerlinIslandShape(seed, worldSize));
 			
 			foreach (Island island in world.islands) {
-				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size, verticalScale);
+				WorldGenMesh.triangulate(gameObj, material, island.centers, world.size);
 				timer.logEventComplete("triangulate island " + island.GetHashCode());
 				
 				WorldGenElevation.generateIslandUndersideElevations(world.seed, island);
 				timer.logEventComplete("generate underside for island " + island.GetHashCode());
 
-				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size, verticalScale, island.maxElevation - island.minElevation);
+				WorldGenMesh.triangulate(gameObj, material, island.undersideCoords, world.size);
 				timer.logEventComplete("triangulate underside for island " + island.GetHashCode());
 			}
 
@@ -142,7 +141,7 @@ namespace WorldGenerator {
         private Graph generateGraph(int seed) {
 			VoronoiBase voronoi = WorldGeneratorUtils.generateVoronoi(seed, worldSize, pointCount);
 			
-			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices, worldSize);
+			List<Corner> corners = WorldGeneratorUtils.createCorners(voronoi.Vertices);
 
 			List<Center> centers = WorldGeneratorUtils.createCenters(voronoi.Faces, corners);
 

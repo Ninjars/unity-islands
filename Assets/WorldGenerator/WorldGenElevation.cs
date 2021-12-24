@@ -138,20 +138,10 @@ namespace WorldGenerator {
             float islandMinDim = Mathf.Min(island.bounds.width, island.bounds.height);
             float islandMaxDim = Mathf.Max(island.bounds.width, island.bounds.height);
             
-            for (int i = 0; i < 5; i++) {
-                var x = random.getFloat(islandMinDim);
-                var y = random.getFloat(islandMinDim);
-                ElevationFunctions.addBump(island.center, islandMaxDim, islandCoords, random.getFloat(islandMinDim), 0.5f, (float) x, (float) y);
-            }
-            
-            ElevationFunctions.addCone(islandCoords, islandMaxDim / 2f, island.center.x, island.center.z, 0.1f);
-            ElevationFunctions.addRadialWeightedNoise(island.center, islandMinDim / 2f, islandCoords, random, 3f, 0.2f);
-            ElevationFunctions.addNoise(islandCoords, random, 10f, 0.2f);
-
-            ElevationFunctions.normalise(islandCoords);
+            ElevationFunctions.addRadialWeightedNoise(island.center, islandMinDim * 0.5f, islandCoords, random, 7f, 100f);
+            ElevationFunctions.addRadialWeightedNoise(island.center, islandMinDim * 0.8f, islandCoords, random, 15f, 30f);
+            ElevationFunctions.addNoise(islandCoords, random, 30f, 5f);
             ElevationUtils.invert(islandCoords);
-            ElevationUtils.offsetElevation(islandCoords, island.minElevation);
         }
-
     }
 }
