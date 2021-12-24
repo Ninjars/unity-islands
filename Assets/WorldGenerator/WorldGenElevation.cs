@@ -22,8 +22,48 @@ namespace WorldGenerator {
         
         public void generateElevations() {
             elevationHelper = new ElevationHelper(random, graph.center, graph.size, graph.centers);
-            applyNoise(3);
-            applyPlateauCluster(height: 20, radius: 0.1f, count: 4);
+            elevationHelper.applyFeatures(new List<ElevationFeature>{
+                new ElevationFeature(
+                    feature: ElevationFeature.FeatureType.NOISE,
+                    minHeight: 0.5f, maxHeight: 2f,
+                    noiseScale: 0.5f,
+                    minIterations: 3, maxIterations: 3
+                ),
+                new ElevationFeature(
+                    feature: ElevationFeature.FeatureType.NOISE,
+                    minHeight: 2f, maxHeight: 8f,
+                    noiseScale: 0.05f,
+                    minIterations: 1, maxIterations: 2
+                ),
+                new ElevationFeature(
+                    feature: ElevationFeature.FeatureType.POSITION_BIASED_NOISE,
+                    minHeight: 2f, maxHeight: 8f,
+                    minFeatureRadius: graph.size * 0.25f, maxFeatureRadius: graph.size * 0.75f,
+                    noiseScale: 0.5f,
+                    minOffset: 0, maxOffset: 0.6f,
+                    minIterations: 1, maxIterations: 2
+                ),
+                new ElevationFeature(
+                    feature: ElevationFeature.FeatureType.MOUND,
+                    minHeight: 8f, maxHeight: 20f,
+                    minFeatureRadius: graph.size * 0.25f, maxFeatureRadius: graph.size * 0.6f,
+                    minOffset: 0, maxOffset: 0.8f,
+                    minIterations: 1, maxIterations: 6
+                ),
+                new ElevationFeature(
+                    feature: ElevationFeature.FeatureType.PLATEAU,
+                    minHeight: 5f, maxHeight: 20f,
+                    minFeatureRadius: graph.size * 0.05f, maxFeatureRadius: graph.size * 0.4f,
+                    minOffset: 0, maxOffset: 0.8f,
+                    minIterations: 1, maxIterations: 6
+                ),
+            });
+            // applyNoise(3);
+            // applyPlateauCluster(height: 20, radius: 0.1f, count: 4);
+            // applyPlateauCluster();
+            // applyCraterCluster(radius: 0.1f);
+            // applyCraterCluster(radius: 0.08f);
+            // applyCraterCluster(radius: 0.05f);
             complete();
         }
 
@@ -88,7 +128,6 @@ namespace WorldGenerator {
         private void complete() {
             elevationHelper
                     .smooth(graph.centers, 2)
-                    // .normalise()
                     .updateCornerElevations(graph.corners)
                     .clip(graph.centers, graph.corners, clippingPlaneHeight);
         }
