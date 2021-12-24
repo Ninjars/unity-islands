@@ -25,9 +25,9 @@ namespace Elevation {
 
         public ElevationHelper applyFeatures(List<ElevationFeature> features) {
             foreach (var feature in features) {
-                Vector2 offset = feature.getOffsetVector(random);
                 int iterations = feature.getIterations(random);
                 foreach (var i in Enumerable.Range(0, iterations)) {
+                	Vector2 offset = feature.getOffsetVector(random);
                     switch (feature.feature) {
                         case ElevationFeature.FeatureType.RADIAL_GRADIENT:
                             linearRadialGradient(offset.x, offset.y, feature.getHeight(random), feature.getRadius(random));
@@ -60,7 +60,7 @@ namespace Elevation {
 			radius, x and y are normalised to map size
 		 */
         public ElevationHelper linearRadialGradient(float x, float y, float height, float radius) {
-            ElevationFunctions.addCone(coords, radius * size, x * size, y * size, height);
+            ElevationFunctions.addCone(coords, radius, x * size, y * size, height);
             cornersUpToDate = false;
             return this;
         }
@@ -73,7 +73,7 @@ namespace Elevation {
 			radius, x and y are normalised to map size.
 		 */
         public ElevationHelper plateau(float x, float y, float height, float radius) {
-            PerlinRadialShape shape = new PerlinRadialShape(random, radius * size, 1, x * size, y * size);
+            PerlinRadialShape shape = new PerlinRadialShape(random, radius, 1, x * size, y * size);
             Coord centralCoord = ElevationUtils.findClosestCoord(x * size, y * size, coords);
             float plateauHeight = centralCoord.elevation + height;
             foreach (var coord in coords) {
@@ -90,7 +90,7 @@ namespace Elevation {
         }
 
         public ElevationHelper mound(float x, float y, float height, float radius) {
-            ElevationFunctions.addBump(centerPos, size, coords, radius * size, height, x * size, y * size);
+            ElevationFunctions.addBump(centerPos, size, coords, radius, height, x * size, y * size);
             return this;
         }
 
@@ -103,15 +103,14 @@ namespace Elevation {
             float originDepth = radius * 0.5f;
             float wallHeight = radius * 0.25f;
             float totalHeightDelta = originDepth + wallHeight;
-            float scaledRadius = radius * size;
-            float wallFalloff = scaledRadius + scaledRadius * 0.25f;
+            float wallFalloff = radius + radius * 0.25f;
             foreach (var coord in coords) {
                 float distance = Vector3.Distance(origin.toVector3(), coord.toVector3());
-                if (distance < scaledRadius) {
-                    float factor = distance / scaledRadius;
+                if (distance < radius) {
+                    float factor = distance / radius;
                     coord.changeElevationBy(totalHeightDelta * (factor * factor * factor) - originDepth);
                 } else if (distance < wallFalloff) {
-                    float factor = (distance - scaledRadius) / (wallFalloff - scaledRadius);
+                    float factor = (distance - radius) / (wallFalloff - radius);
                     coord.changeElevationBy(wallHeight * (1 - (factor * factor)));
                 }
             }
@@ -128,7 +127,8 @@ namespace Elevation {
         }
 
         public ElevationHelper radialNoise(float x, float y, float radius, float scale, float height) {
-            ElevationFunctions.addRadialWeightedNoise(new Vector3(x, 0, y), radius, coords, random, scale, height);
+			Debug.Log($"radialNoise({x}, {y})");
+            ElevationFunctions.addRadialWeightedNoise(new Vector3(x * size, 0, y * size), radius, coords, random, scale, height);
             return this;
         }
 

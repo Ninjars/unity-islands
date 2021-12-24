@@ -6,8 +6,8 @@ using Utils;
 using WorldGenerator;
 
 namespace Elevation {
-	public class ElevationFunctions {
-        
+    public class ElevationFunctions {
+
         internal static void addBump(Vector3 center, float graphSize, List<Coord> coords, float radius, float verticalScale, float x, float y) {
             Coord initial = ElevationUtils.findClosestCoord(x, y, coords);
             float radialFactor = 1f - Vector3.Distance(center, initial.toVector3()) * 2 / graphSize;
@@ -21,9 +21,9 @@ namespace Elevation {
         internal static void addNoise(List<Coord> coords, RandomProvider random, float horizontalScale, float verticalScale) {
             float offset = random.getFloat();
             foreach (Coord coord in coords) {
-                var perlin = ElevationUtils.getPerlin(offset, 
-                                        horizontalScale, 
-                                        coord.x, 
+                var perlin = ElevationUtils.getPerlin(offset,
+                                        horizontalScale,
+                                        coord.x,
                                         coord.y);
                 coord.setElevation(coord.elevation + perlin * verticalScale);
             }
@@ -35,14 +35,16 @@ namespace Elevation {
             Change the vertical scale to change the strength of the effect.
          */
         internal static void addRadialWeightedNoise(Vector3 center, float radius, List<Coord> coords, RandomProvider random, float horizontalScale, float verticalScale) {
-			float offset = random.getFloat();
+            float offset = random.getFloat();
             foreach (Coord coord in coords) {
-                var perlin = ElevationUtils.getPerlin(offset, 
-                                        horizontalScale, 
-                                        coord.x / radius, 
-                                        coord.y / radius);
-                float radialFactor = 1f - Mathf.Pow(Vector3.Distance(center, coord.toVector3()) * 2 / radius, 2);
-                coord.setElevation(coord.elevation + perlin * verticalScale * radialFactor);
+                var perlin = ElevationUtils.getPerlin(
+                    offset,
+                    horizontalScale,
+                    coord.x / radius,
+                    coord.y / radius
+                );
+                float distance = Vector3.Distance(center, coord.toVector3());
+                coord.setElevation(Mathf.Lerp(coord.elevation, coord.elevation + perlin * verticalScale, 1 - Mathf.Clamp01(distance / radius)));
             }
         }
 
@@ -80,7 +82,7 @@ namespace Elevation {
                 foreach (Center neighbour in neighbours) {
                     totalElevation += neighbour.coord.elevation;
                 }
-                center.coord.setElevation(totalElevation / (float) neighbours.Count);
+                center.coord.setElevation(totalElevation / (float)neighbours.Count);
             }
         }
 
@@ -89,5 +91,5 @@ namespace Elevation {
                 corner.coord.setElevation(corner.coord.elevation - 0.1f * corner.moisture);
             }
         }
-	}
+    }
 }

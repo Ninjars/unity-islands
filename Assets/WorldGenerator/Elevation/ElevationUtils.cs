@@ -62,7 +62,7 @@ namespace Elevation {
 
         internal static void invert(List<Coord> coords) {
             foreach (Coord coord in coords) {
-                coord.setElevation(coord.elevation - coord.elevation);
+                coord.setElevation(-coord.elevation);
             }
         }
 

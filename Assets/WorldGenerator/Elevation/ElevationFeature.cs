@@ -25,12 +25,38 @@ namespace Elevation {
         // number of times to apply the feature with the same parameters (though different random values)
         public int minIterations, maxIterations;
 
+        public ElevationFeature(
+            FeatureType feature,
+            float minHeight,
+            float maxHeight,
+            float noiseScale = 0,
+            float minFeatureRadius = -1,
+            float maxFeatureRadius = -1,
+            float minOffset = -1,
+            float maxOffset = -1,
+            int minIterations = -1,
+            int maxIterations = -1
+        ) {
+            this.feature = feature;
+            this.minHeight = minHeight;
+            this.maxHeight = maxHeight;
+            this.noiseScale = noiseScale;
+            this.minFeatureRadius = minFeatureRadius;
+            this.maxFeatureRadius = maxFeatureRadius;
+            this.minOffset = minOffset;
+            this.maxOffset = maxOffset;
+            this.minIterations = minIterations;
+            this.maxIterations = maxIterations;
+        }
+
         public Vector2 getOffsetVector(RandomProvider random) {
+            Vector2 normalisedOffset;
             if (minOffset < 0 || maxOffset < 0) {
-                return Utils.Utils.RandomRadial2DUnitVector(random,  random.getFloat());
+                normalisedOffset = Utils.Utils.RandomRadial2DUnitVector(random,  random.getFloat());
             } else {
-                return Utils.Utils.RandomRadial2DUnitVector(random,  random.getFloat(minOffset, maxOffset));
+                normalisedOffset = Utils.Utils.RandomRadial2DUnitVector(random,  random.getFloat(minOffset, maxOffset));
             }
+            return normalisedOffset * 0.5f + Vector2.one * 0.5f;
         }
 
         public float getRadius(RandomProvider random) {
@@ -42,7 +68,7 @@ namespace Elevation {
         }
 
         public int getIterations(RandomProvider random) {
-            if (minOffset < 0 || maxOffset < 0) {
+            if (minIterations < 0 || maxIterations < 0) {
                 return 1;
             } else {
                 return random.getInt(minIterations, maxIterations);
