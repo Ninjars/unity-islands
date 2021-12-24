@@ -82,7 +82,7 @@ namespace Game {
         }
 
         private void spawnSheep(int foodLevel, int voice) {
-            var position = Game.Utils.RandomNavSphere(transform.position, spawnRadius, -1);
+            var position = Utils.Utils.RandomNavSphere(transform.position, spawnRadius, -1);
             var sheep = GameObject.Instantiate(sheepPrefab, position, UnityEngine.Random.rotation);
             sheep.foodEaten = foodLevel;
             if (voice >= 0) {

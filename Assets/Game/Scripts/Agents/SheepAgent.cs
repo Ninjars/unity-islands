@@ -111,7 +111,7 @@ namespace Game {
                 foodEaten -= foodCountToReproduce;
 
                 for (int i = 0; i < UnityEngine.Random.Range(1, 4); i++) {
-                    var position = Game.Utils.RandomNavSphere(transform.position, 3f, -1);
+                    var position = Utils.Utils.RandomNavSphere(transform.position, 3f, -1);
                     if (position.x == Mathf.Infinity) continue;
                     GameObject.Instantiate(babySpawnParticleEffect, position, Quaternion.identity);
                     var newSheep = GameObject.Instantiate(this, position, UnityEngine.Random.rotation);
@@ -174,7 +174,7 @@ namespace Game {
         }
 
         private void moveToRandomPoint() {
-            Vector3 targetPosition = Game.Utils.RandomNavSphere(transform.position, wanderDistance, -1);
+            Vector3 targetPosition = Utils.Utils.RandomNavSphere(transform.position, wanderDistance, -1);
             nextActionDelay = UnityEngine.Random.Range(minActionDelaySeconds, maxActionDelaySeconds);
             MoveToLocation(targetPosition);
         }
