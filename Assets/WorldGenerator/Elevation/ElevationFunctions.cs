@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 using WorldGenerator;
 
 namespace Elevation {
@@ -17,8 +18,8 @@ namespace Elevation {
             ElevationUtils.elevate(coords, radius, x, y, verticalScale, 1);
         }
 
-        internal static void addNoise(List<Coord> coords, System.Random random, float horizontalScale, float verticalScale) {
-            float offset = (float) random.NextDouble();
+        internal static void addNoise(List<Coord> coords, RandomProvider random, float horizontalScale, float verticalScale) {
+            float offset = random.getFloat();
             foreach (Coord coord in coords) {
                 var perlin = ElevationUtils.getPerlin(offset, 
                                         horizontalScale, 
@@ -33,8 +34,8 @@ namespace Elevation {
             Changing the horizonal scale should change the frequency of the effect.  Smaller numbers = less detailed.
             Change the vertical scale to change the strength of the effect.
          */
-        internal static void addRadialWeightedNoise(Vector3 center, float radius, List<Coord> coords, System.Random random, float horizontalScale, float verticalScale) {
-			float offset = (float) random.NextDouble();
+        internal static void addRadialWeightedNoise(Vector3 center, float radius, List<Coord> coords, RandomProvider random, float horizontalScale, float verticalScale) {
+			float offset = random.getFloat();
             foreach (Coord coord in coords) {
                 var perlin = ElevationUtils.getPerlin(offset, 
                                         horizontalScale, 
