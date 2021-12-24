@@ -12,5 +12,14 @@ namespace Utils {
 
             return navHit.position;
         }
+
+        public static Vector2 RandomRadial2DUnitVector(RandomProvider random, float distance) {
+            float angle = random.getFloat(0, 2 * Mathf.PI);
+            float radius = Mathf.Sqrt(distance);
+            return new Vector2(
+                radius * Mathf.Cos(angle),
+                radius * Mathf.Sin(angle)
+            );
+        }
     }
 }
