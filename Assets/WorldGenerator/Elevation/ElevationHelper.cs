@@ -10,24 +10,50 @@ namespace Elevation {
     public class ElevationHelper {
         private readonly RandomProvider random;
         private readonly Vector3 centerPos;
+        private readonly List<Center> centers;
         private readonly List<Coord> coords;
         private bool cornersUpToDate = false;
         private float size;
 
-        public ElevationHelper(RandomProvider random, Vector3 center, float size, List<Coord> centerCoords) {
+        public ElevationHelper(RandomProvider random, Vector3 center, float size, List<Center> centers) {
             this.random = random;
             this.centerPos = center;
             this.size = size;
-            this.coords = centerCoords;
+            this.centers = centers;
+            this.coords = centers.Select(c => c.coord).ToList();
         }
 
-
-        public ElevationHelper linearRadialGradient(float height) {
-            return linearRadialGradient(0.5f, 0.5f, height, 0.5f);
-        }
-
-        public ElevationHelper linearRadialGradient(float x, float y, float height) {
-            return linearRadialGradient(x, y, height, 0.5f);
+        public ElevationHelper applyFeatures(List<ElevationFeature> features) {
+            foreach (var feature in features) {
+                Vector2 offset = feature.getOffsetVector(random);
+                int iterations = feature.getIterations(random);
+                foreach (var i in Enumerable.Range(0, iterations)) {
+                    switch (feature.feature) {
+                        case ElevationFeature.FeatureType.RADIAL_GRADIENT:
+                            linearRadialGradient(offset.x, offset.y, feature.getHeight(random), feature.getRadius(random));
+                            break;
+                        case ElevationFeature.FeatureType.NOISE:
+                            noise(feature.noiseScale, feature.getHeight(random));
+                            break;
+                        case ElevationFeature.FeatureType.POSITION_BIASED_NOISE:
+                            radialNoise(offset.x, offset.y, feature.getRadius(random), feature.noiseScale, feature.getHeight(random));
+                            break;
+                        case ElevationFeature.FeatureType.SMOOTH:
+                            ElevationFunctions.smooth(centers);
+                            break;
+                        case ElevationFeature.FeatureType.MOUND:
+							mound(offset.x, offset.y, feature.getHeight(random), feature.getRadius(random));
+                            break;
+                        case ElevationFeature.FeatureType.PLATEAU:
+							plateau(offset.x, offset.y, feature.getHeight(random), feature.getRadius(random));
+                            break;
+                        case ElevationFeature.FeatureType.CRATER:
+							crater(offset.x, offset.y, feature.getRadius(random));
+                            break;
+                    }
+                }
+            }
+            return this;
         }
 
         /**
@@ -101,8 +127,8 @@ namespace Elevation {
             return this;
         }
 
-        public ElevationHelper islandCenteredNoise(float scale, float height) {
-            ElevationFunctions.addRadialWeightedNoise(centerPos, size, coords, random, scale, height);
+        public ElevationHelper radialNoise(float x, float y, float radius, float scale, float height) {
+            ElevationFunctions.addRadialWeightedNoise(new Vector3(x, 0, y), radius, coords, random, scale, height);
             return this;
         }
 

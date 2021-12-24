@@ -21,23 +21,18 @@ namespace WorldGenerator {
         }
         
         public void generateElevations() {
-            List<Coord> graphCenterCoords = graph.centers.Select(c => c.coord).ToList();
-            elevationHelper = new ElevationHelper(random, graph.center, graph.size, graphCenterCoords);
-            applyNoise();
-            applyPlateauCluster();
-            applyPlateauCluster();
-            applyCraterCluster(radius: 0.1f);
-            applyCraterCluster(radius: 0.08f);
-            applyCraterCluster(radius: 0.05f);
+            elevationHelper = new ElevationHelper(random, graph.center, graph.size, graph.centers);
+            applyNoise(3);
+            applyPlateauCluster(height: 20, radius: 0.1f, count: 4);
             complete();
         }
 
-        private void applyNoise() {
+        private void applyNoise(float scale) {
             elevationHelper
-                    .islandCenteredNoise(2f, 0.1f)
-                    .islandCenteredNoise(5f, 0.1f)
-                    .noise(0.005f, 0.05f)
-                    .noise(10f, 0.01f);
+                    .radialNoise(0.5f, 0.5f, graph.size * 0.5f, 2f, scale)
+                    .radialNoise(0.5f, 0.5f, graph.size * 0.5f, 5f, scale)
+                    .noise(0.005f, scale * 0.5f)
+                    .noise(10f, scale * 0.1f);
         }
 
         private void applyMoundCluster(float height = 0.1f, float radius = 0.1f, int count = 3) {
@@ -92,8 +87,8 @@ namespace WorldGenerator {
 
         private void complete() {
             elevationHelper
-                    .normalise()
-                    .smooth(graph.centers, 1)
+                    .smooth(graph.centers, 2)
+                    // .normalise()
                     .updateCornerElevations(graph.corners)
                     .clip(graph.centers, graph.corners, clippingPlaneHeight);
         }
