@@ -298,38 +298,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   material: {fileID: 2100000, guid: 558401376f4da714184abf62e4b77bd9, type: 2}
-  initialDistributionCurve:
-    serializedVersion: 2
-    m_Curve:
-    - serializedVersion: 3
-      time: 0
-      value: 0.1000061
-      inSlope: 1.4582596
-      outSlope: 1.4582596
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    - serializedVersion: 3
-      time: 1
-      value: 0.8999939
-      inSlope: 1.18263
-      outSlope: 1.18263
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.33333334
-    m_PreInfinity: 2
-    m_PostInfinity: 2
-    m_RotationOrder: 0
   worldSize: 250
   pointCount: 2000
   verticalScale: 100
-  worldSeed: 1
+  worldSeed: 0
   agentsToGenerateNavMeshFor:
   - {fileID: 1373011990487972, guid: a7006d0c9269d4653b3b8516ddd016b5, type: 3}
   - {fileID: 1568038760296514, guid: e0f6e8e7ad5c4439c88d9312a96d0dae, type: 3}
-  clippingHeight: 0.25
+  clippingHeight: 15
 --- !u!4 &793683792
 Transform:
   m_ObjectHideFlags: 0
@@ -436,7 +412,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 970615424}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1000, y: 0, z: 1000}
+  m_LocalPosition: {x: 250, y: 0, z: 250}
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 1993165233}
@@ -607,7 +583,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1235698136}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1000, y: 0, z: 0}
+  m_LocalPosition: {x: 250, y: 0, z: 0}
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 1993165233}
@@ -923,7 +899,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1727268675}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 1, y: 0, z: 1000}
+  m_LocalPosition: {x: 0, y: 0, z: 250}
   m_LocalScale: {x: 10, y: 1, z: 10}
   m_Children: []
   m_Father: {fileID: 1993165233}
