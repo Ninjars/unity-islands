@@ -13,24 +13,28 @@ namespace Game {
         private string saveGameName = "SheepIslandsSave";
 
         [Header("World Generation Attributes")]
+        [Tooltip("Used to form the world seed. Will use a random seed if no name is provided.")]
         public string worldName;
+        [Tooltip("Square maximum dimension of the world")]
         public float size = 100;
+        [Tooltip("Number of points used to generate the world graph")]
         public int pointCount = 250;
-        public float clippingHeight = 10f;
+        [Tooltip("The lowest percentile of the generated world will be clipped")]
+        [Range(0, 1)]
+        public float clipPercentile = 0.5f;
+        [Tooltip("Used to generate the world nav meshes")]
         public List<GameObject> validNavAgents;
         public Material topSideMaterial;
         public Material undersideSideMaterial;
 
-        [Header("World Population} Attributes")]
+        [Header("World Population Attributes")]
         public SheepAgent sheepPrefab;
         public int initialSheepCount = 3;
-        public float spawnRadius = 30;
         public AmbienceController ambientSoundController;
 
         private InteractionController interactionController;
         private UIController uiController;
         private WorldManager worldManager;
-        private bool isSpring;
 
         void Start() {
             interactionController = GetComponent<InteractionController>();
@@ -98,7 +102,7 @@ namespace Game {
                     undersideSideMaterial,
                     size,
                     pointCount,
-                    clippingHeight,
+                    clipPercentile,
                     validNavAgents
                 )
             );

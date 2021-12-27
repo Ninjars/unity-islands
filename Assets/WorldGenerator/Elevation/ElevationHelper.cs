@@ -160,8 +160,11 @@ namespace Elevation {
             return this;
         }
 
-        public void clip(List<Center> centers, List<Corner> corners, float clippingPlaneHeight) {
-            List<Center> clippedCenters = centers.Where(center => center.coord.elevation < clippingPlaneHeight).ToList();
+        public void clip(List<Center> centers, List<Corner> corners, float clipPercentile) {
+            List<Center> orderedCenters = centers.OrderBy(c => c.elevation).ToList();
+            int cutoffIndex = Mathf.Clamp(Mathf.FloorToInt(centers.Count * clipPercentile), 0, centers.Count);
+
+            List<Center> clippedCenters = orderedCenters.Take(cutoffIndex).ToList();
             List<Center> borderCenters = centers.Where(center => center.isBorder).ToList();
             List<Center> queue = new List<Center>(borderCenters);
             while (queue.Count > 0) {
@@ -181,7 +184,7 @@ namespace Elevation {
             }
 
             foreach (Corner corner in corners) {
-                int clippedCenterCount = corner.GetTouches().Where(center => center.isClipped).ToList().Count;
+                int clippedCenterCount = corner.GetTouches().Where(center => center.isClipped).Count();
                 corner.isClipped = clippedCenterCount == corner.GetTouches().Count;
                 corner.isIslandRim = !corner.isClipped && clippedCenterCount > 0;
             }

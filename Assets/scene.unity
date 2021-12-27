@@ -331,7 +331,7 @@ MonoBehaviour:
   worldName: 
   size: 250
   pointCount: 250
-  clippingHeight: 8
+  clipPercentile: 0.5
   validNavAgents:
   - {fileID: 1568038760296514, guid: ff772e7ee99b8654c9d553aafb2416d0, type: 3}
   topSideMaterial: {fileID: 2100000, guid: 07728344afa0d2d4cb3b204ce00de648, type: 2}
@@ -340,7 +340,6 @@ MonoBehaviour:
   sheepPrefab: {fileID: 2354573857298383470, guid: ff772e7ee99b8654c9d553aafb2416d0,
     type: 3}
   initialSheepCount: 30
-  spawnRadius: 30
   ambientSoundController: {fileID: 0}
 --- !u!114 &793683795
 MonoBehaviour:

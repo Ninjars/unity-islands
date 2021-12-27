@@ -11,12 +11,12 @@ namespace WorldGenerator {
     public class WorldGenElevation {
         private readonly RandomProvider random;
         private readonly Graph graph;
-        private readonly float clippingPlaneHeight;
+        private readonly float clipPercentile;
         private ElevationHelper elevationHelper;
 
-        public WorldGenElevation(Graph graph, float clippingPlaneHeight) {
+        public WorldGenElevation(Graph graph, float clipPercentile) {
             this.graph = graph;
-            this.clippingPlaneHeight = clippingPlaneHeight;
+            this.clipPercentile = clipPercentile;
             random = new SeededRandomProvider(graph.seed);
         }
         
@@ -129,7 +129,7 @@ namespace WorldGenerator {
             elevationHelper
                     .smooth(graph.centers, 2)
                     .updateCornerElevations(graph.corners)
-                    .clip(graph.centers, graph.corners, clippingPlaneHeight);
+                    .clip(graph.centers, graph.corners, clipPercentile);
         }
 
         public static void generateIslandUndersideElevations(int seed, Island island) {

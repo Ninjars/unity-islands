@@ -12,17 +12,17 @@ namespace WorldGenerator {
         public readonly Material undersideMaterial;
         public readonly float size;
         public readonly int pointCount;
-        public readonly float clippingHeight;
+        public readonly float clipPercentile;
         public readonly List<GameObject> navAgents;
 
-        public WorldConfig(string worldName, int seed, Material topSideMaterial, Material undersideMaterial, float size, int pointCount, float clippingHeight, List<GameObject> navAgents) {
+        public WorldConfig(string worldName, int seed, Material topSideMaterial, Material undersideMaterial, float size, int pointCount, float clipPercentile, List<GameObject> navAgents) {
             this.worldName = worldName;
             this.seed = seed;
             this.topSideMaterial = topSideMaterial;
             this.undersideMaterial = undersideMaterial;
             this.size = size;
             this.pointCount = pointCount;
-            this.clippingHeight = clippingHeight;
+            this.clipPercentile = clipPercentile;
             this.navAgents = navAgents;
         }
     }
@@ -37,7 +37,7 @@ namespace WorldGenerator {
 
             timer.logEventComplete("generateGraph()");
 
-            WorldGenElevation elevationGenerator = new WorldGenElevation(graph, config.clippingHeight);
+            WorldGenElevation elevationGenerator = new WorldGenElevation(graph, config.clipPercentile);
             elevationGenerator.generateElevations();
             timer.logEventComplete("generateElevations()");
 
