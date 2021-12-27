@@ -41,6 +41,9 @@ namespace WorldGenerator {
         public TerrainType terrainType { get; internal set; }
         public bool isClipped { get; internal set; }
         public bool isOnRim { get; internal set; }
+        public float elevation {
+            get { return coord.elevation; }
+        }
 
         public Center(int index, Coord coord) {
             this.index = index;
@@ -75,10 +78,6 @@ namespace WorldGenerator {
 
         internal bool isOcean() {
             return terrainType == TerrainType.OCEAN;
-        }
-
-        public float scaledElevation(float factor) {
-            return coord.elevation * factor;
         }
 
         public Center findClosestNeighbour(Vector3 point, bool allowUnclipped) {

@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using Utils;
 
 namespace WorldGenerator {
 	public class PerlinRadialShape {
@@ -10,12 +11,12 @@ namespace WorldGenerator {
         private readonly float offset;
 		private readonly float scale;
 
-        public PerlinRadialShape(System.Random random, float radius, float scale, float centerX, float centerY) {
+        public PerlinRadialShape(RandomProvider random, float radius, float scale, float centerX, float centerY) {
 			this.size = radius;
 			this.centerPolarX = ((centerX / size) - 0.5f) * 2f;
 			this.centerPolarY = ((centerY / size) - 0.5f) * 2f;
 			this.scale = scale;
-			offset = (float) random.NextDouble();
+			offset = random.getFloat();
 		}
 
 		public bool isInside(float x, float y) {

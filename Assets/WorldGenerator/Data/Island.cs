@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace WorldGenerator {
 public class Island {
+		public readonly int islandId;
         public List<ConnectedCoord> undersideCoords {
 			get; private set;
 		}
@@ -18,32 +19,28 @@ public class Island {
 			private set;
 		}
         public Vector3 center { get; private set; }
-        public Rect bounds { get; private set; }
-		public float maxElevation { get; private set; }
-		public float minElevation { get; private set; }
+		public readonly Rect simpleExtents;
+        public Bounds topsideBounds { get; set; }
+        public Bounds totalBounds { get; set; }
 
-        public Island(List<Center> centers, Vector3 islandCenter, Rect bounds) {
+        public Island(int islandId, List<Center> centers, Rect simpleExtents) {
+			this.islandId = islandId;
 			this.centers = centers;
-			this.center = islandCenter;
-			this.bounds = bounds;
+			this.simpleExtents = simpleExtents;
+			this.center = new Vector3(simpleExtents.center.x, 0, simpleExtents.center.y);
+			
 			this.corners = new List<Corner>();
-			minElevation = 1000;
 			foreach(Center c in centers) {
-				if (c.coord.elevation > maxElevation) {
-					maxElevation = c.coord.elevation;
-				}
-				if (c.coord.elevation < minElevation) {
-					minElevation = c.coord.elevation;
-				}
 				foreach (Corner corner in c.corners) {
 					if (!corners.Contains(corner)) {
 						corners.Add(corner);
 					}
 				}
 			}
-			Coord[] coords = centers.Select(c => new Coord(c.coord.x, 0, c.coord.y)).ToArray();
-			List<Corner> rimCoords = corners.Where(c => c.isIslandRim).ToList();
-            Coord[] cornerCoords = rimCoords.Select(c => new Coord(c.coord.x, c.coord.elevation, c.coord.y)).ToArray();
+			List<Corner> rimCorners = corners.Where(c => c.isIslandRim).ToList();
+            Coord[] cornerCoords = rimCorners.Select(c => new Coord(c.coord.x, c.coord.elevation, c.coord.y)).ToArray();
+			float lowestRimCorner = cornerCoords.Aggregate((prev, next) => prev.elevation < next.elevation ? prev : next).elevation;
+			Coord[] coords = centers.Select(c => new Coord(c.coord.x, -lowestRimCorner, c.coord.y)).ToArray();
             undersideCoords = new List<ConnectedCoord>(centers.Count);
 			for (int i = 0; i < centers.Count; i++) {
 				Center center = centers[i];
@@ -54,7 +51,7 @@ public class Island {
 									.ToList();
 				IEnumerable<CoordUnderside> neighbouringRimCoords = center.corners
 									.Where(c => c.isIslandRim)
-									.Select(c => new CoordUnderside(cornerCoords[rimCoords.IndexOf(c)], true));
+									.Select(c => new CoordUnderside(cornerCoords[rimCorners.IndexOf(c)], true));
 				neighbouringCoords.AddRange(neighbouringRimCoords);
 				undersideCoords.Add(new ConnectedCoord(centerCoord, neighbouringCoords));
 			}

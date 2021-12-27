@@ -9,7 +9,7 @@ using UnityEngine;
 namespace WorldGenerator {
 	public static class WorldGeneratorUtils {
 
-		public static VoronoiBase generateVoronoi(int seed, float worldSize, int pointCount, AnimationCurve curve) {
+		public static VoronoiBase generateVoronoi(int seed, float worldSize, int pointCount) {
 			System.Random pointRandom = new System.Random(seed);
 			List<Vector2> cornerPoints = new List<Vector2>(4);
 			cornerPoints.Add(new Vector2(0, 0));
@@ -20,8 +20,8 @@ namespace WorldGenerator {
 			List<Vector2> points = new List<Vector2>(pointCount);
 			points.AddRange(cornerPoints);
 			for (int i = 0; i < pointCount; i++) {
-				float x = curve.Evaluate((float) pointRandom.NextDouble()) * worldSize;
-				float y = curve.Evaluate((float) pointRandom.NextDouble()) * worldSize;
+				float x = (float) pointRandom.NextDouble() * worldSize;
+				float y = (float) pointRandom.NextDouble() * worldSize;
                 points.Add(new Vector2(x, y));
             }
 			points = performLloydRelaxation(points, cornerPoints);
@@ -67,7 +67,7 @@ namespace WorldGenerator {
 			return centers;
 		}
 
-        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices, float worldSize) {
+        internal static List<Corner> createCorners(List<TriangleNet.Topology.DCEL.Vertex> vertices) {
 			List<Corner> idCorners = new List<Corner>(vertices.Count);
 			for (int i = 0; i < vertices.Count; i++) {
 				TriangleNet.Topology.DCEL.Vertex vertex = vertices[i];

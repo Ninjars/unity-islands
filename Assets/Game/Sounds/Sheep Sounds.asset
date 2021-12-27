@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0aac7088db675be479321b2da3b4f40d, type: 3}
+  m_Name: Sheep Sounds
+  m_EditorClassIdentifier: 
+  sounds:
+  - {fileID: 8300000, guid: b4c611e21253f61469e11bd7347bf3a4, type: 3}
+  - {fileID: 8300000, guid: 6680a9a63d946ee41bf8b71078cceb56, type: 3}
+  - {fileID: 8300000, guid: c3377113da5391b4ca373bbd45acff18, type: 3}
+  - {fileID: 8300000, guid: a36d8713b72c03346b26ae0283fd1445, type: 3}
+  - {fileID: 8300000, guid: 58ee60b5d6b7d2643b1be8cafca001f6, type: 3}
+  - {fileID: 8300000, guid: 5bb9be0962217d7499eecc53a7dc7fc1, type: 3}
+  - {fileID: 8300000, guid: a60623356802e694096fea7f0fc1c429, type: 3}
+  - {fileID: 8300000, guid: 92adfe7aebd33f643afe0a0576420964, type: 3}
+  - {fileID: 8300000, guid: bc4181dea69fbc54e86c85174bee9c78, type: 3}

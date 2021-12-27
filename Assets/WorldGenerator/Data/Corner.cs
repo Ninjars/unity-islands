@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using TriangleNet.Topology.DCEL;
-using UnityEngine;
-
+﻿using System.Collections.Generic;
 
 namespace WorldGenerator {
     public class Corner {
@@ -60,25 +55,8 @@ namespace WorldGenerator {
             return centers;
         }
 
-        internal void setPosition(float x, float y)
-        {
-            coord.setXY(x, y);
-        }
-
         internal bool isWater() {
             return terrainType.Equals(TerrainType.LAKE) || terrainType.Equals(TerrainType.OCEAN);
-        }
-
-        internal bool isLand() {
-            return !isWater();
-        }
-
-        internal void addVertexIndex(int index) {
-            vertexIndices.Add(index);
-        }
-
-        public float scaledElevation(float factor) {
-            return coord.y * factor;
         }
 
 		public override string ToString() {
