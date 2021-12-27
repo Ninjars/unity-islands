@@ -135,8 +135,7 @@ namespace WorldGenerator {
         public static void generateIslandUndersideElevations(int seed, Island island) {
             RandomProvider random = new SeededRandomProvider(seed);
             List<Coord> islandCoords = island.undersideCoords.Where(c => !c.coord.isFixed).Select(c => c.coord.coord).ToList();
-            float islandMinDim = Mathf.Min(island.bounds.width, island.bounds.height);
-            float islandMaxDim = Mathf.Max(island.bounds.width, island.bounds.height);
+            float islandMinDim = island.topsideBounds.min.magnitude;
             
             ElevationFunctions.addRadialWeightedNoise(island.center, islandMinDim * 0.5f, islandCoords, random, 7f, 100f);
             ElevationFunctions.addRadialWeightedNoise(island.center, islandMinDim * 0.8f, islandCoords, random, 15f, 30f);

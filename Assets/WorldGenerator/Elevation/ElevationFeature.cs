@@ -52,9 +52,9 @@ namespace Elevation {
         public Vector2 getOffsetVector(RandomProvider random) {
             Vector2 normalisedOffset;
             if (minOffset < 0 || maxOffset < 0) {
-                normalisedOffset = Utils.Utils.RandomRadial2DUnitVector(random,  random.getFloat());
+                normalisedOffset = Utils.RandomUtils.RandomRadial2DUnitVector(random,  random.getFloat());
             } else {
-                normalisedOffset = Utils.Utils.RandomRadial2DUnitVector(random,  random.getFloat(minOffset, maxOffset));
+                normalisedOffset = Utils.RandomUtils.RandomRadial2DUnitVector(random,  random.getFloat(minOffset, maxOffset));
             }
             return normalisedOffset * 0.5f + Vector2.one * 0.5f;
         }

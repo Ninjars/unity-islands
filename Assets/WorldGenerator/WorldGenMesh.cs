@@ -20,11 +20,11 @@ namespace WorldGenerator {
             foreach (Center center in sortedCenters) {
                 addTrianglesForCenter(center, indices, vertices, colors);
                 if (vertices.Count > vertexLimit) {
-                    addMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                    createMeshSubObject(gameObject, material, size, indices, vertices, colors);
                 }
             }
             if (vertices.Count > 0) {
-                addMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                createMeshSubObject(gameObject, material, size, indices, vertices, colors);
             }
         }
         public static void triangulate(GameObject gameObject, Material material, List<ConnectedCoord> coords, float size) {
@@ -43,11 +43,11 @@ namespace WorldGenerator {
                 processedCenters.Add(centerCoord);
 
                 if (vertices.Count > vertexLimit) {
-                    addMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                    createMeshSubObject(gameObject, material, size, indices, vertices, colors);
                 }
             }
             if (vertices.Count > 0) {
-                addMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                createMeshSubObject(gameObject, material, size, indices, vertices, colors);
             }
         }
 
@@ -94,7 +94,7 @@ namespace WorldGenerator {
             return d1 > d2;
         }
 
-        private static void addMeshSubObject(GameObject containingObject, Material material, float worldSize, List<int> indices, List<Vector3> vertices, List<Color> colors) {
+        private static GameObject createMeshSubObject(GameObject containingObject, Material material, float worldSize, List<int> indices, List<Vector3> vertices, List<Color> colors) {
             GameObject gameObject = new GameObject();
             gameObject.name = "mesh section";
             gameObject.layer = LayerMask.NameToLayer("Terrain");
@@ -122,6 +122,8 @@ namespace WorldGenerator {
             indices.Clear();
             vertices.Clear();
             colors.Clear();
+
+            return gameObject;
         }
 
         private static void addTrianglesForCenter(

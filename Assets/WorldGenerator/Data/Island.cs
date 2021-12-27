@@ -5,6 +5,7 @@ using UnityEngine;
 
 namespace WorldGenerator {
 public class Island {
+		public readonly int islandId;
         public List<ConnectedCoord> undersideCoords {
 			get; private set;
 		}
@@ -18,23 +19,18 @@ public class Island {
 			private set;
 		}
         public Vector3 center { get; private set; }
-        public Rect bounds { get; private set; }
-		public float maxElevation { get; private set; }
-		public float minElevation { get; private set; }
+		public readonly Rect simpleExtents;
+        public Bounds topsideBounds { get; set; }
+        public Bounds totalBounds { get; set; }
 
-        public Island(List<Center> centers, Vector3 islandCenter, Rect bounds) {
+        public Island(int islandId, List<Center> centers, Rect simpleExtents) {
+			this.islandId = islandId;
 			this.centers = centers;
-			this.center = islandCenter;
-			this.bounds = bounds;
+			this.simpleExtents = simpleExtents;
+			this.center = new Vector3(simpleExtents.center.x, 0, simpleExtents.center.y);
+			
 			this.corners = new List<Corner>();
-			minElevation = float.MaxValue;
 			foreach(Center c in centers) {
-				if (c.coord.elevation > maxElevation) {
-					maxElevation = c.coord.elevation;
-				}
-				if (c.coord.elevation < minElevation) {
-					minElevation = c.coord.elevation;
-				}
 				foreach (Corner corner in c.corners) {
 					if (!corners.Contains(corner)) {
 						corners.Add(corner);

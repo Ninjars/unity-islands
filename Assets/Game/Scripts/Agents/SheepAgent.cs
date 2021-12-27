@@ -25,6 +25,7 @@ namespace Game {
         public int foodEaten;
         public int foodCountToReproduce = 5;
         public int babyFoodCount = -5;
+        public Utils.RandomProvider random;
         private float baseBabyScale = 0.33f;
         private AutonomousLegomatic legController;
         public GameObject babySpawnParticleEffect;
@@ -39,14 +40,14 @@ namespace Game {
             audioSource = GetComponent<AudioSource>();
             legController = GetComponent<AutonomousLegomatic>();
             initialObjPos = body.localPosition;
-            if (voiceIndex < 0) {
-                setVoice(UnityEngine.Random.Range(0, sheepSounds.sounds.Count));
-            }
-            baaInterval = UnityEngine.Random.Range(minBaaInterval, maxBaaInterval) * 0.5f;
             foodHits = new Collider[5];
         }
 
         void Start() {
+            if (voiceIndex < 0) {
+                setVoice(random.getInt(0, sheepSounds.sounds.Count));
+            }
+            baaInterval = random.getFloat(minBaaInterval, maxBaaInterval) * 0.5f;
             moveToRandomPoint();
             updateScale();
         }
@@ -69,7 +70,7 @@ namespace Game {
         internal void setVoice(int voiceIndex) {
             if (voiceIndex < 0 || voiceIndex >= sheepSounds.sounds.Count) {
                 Debug.Log($"invalid voice index {voiceIndex}");
-                voiceIndex = UnityEngine.Random.Range(0, sheepSounds.sounds.Count);
+                voiceIndex = random.getInt(0, sheepSounds.sounds.Count);
             }
             this.voiceIndex = voiceIndex;
             voice = sheepSounds.sounds[voiceIndex];
@@ -110,11 +111,11 @@ namespace Game {
             if (foodEaten >= foodCountToReproduce) {
                 foodEaten -= foodCountToReproduce;
 
-                for (int i = 0; i < UnityEngine.Random.Range(1, 4); i++) {
-                    var position = Utils.Utils.RandomNavSphere(transform.position, 3f, -1);
+                for (int i = 0; i < random.getInt(1, 4); i++) {
+                    var position = Utils.RandomUtils.RandomNavSphere(random, transform.position, 3f, -1);
                     if (position.x == Mathf.Infinity) continue;
                     GameObject.Instantiate(babySpawnParticleEffect, position, Quaternion.identity);
-                    var newSheep = GameObject.Instantiate(this, position, UnityEngine.Random.rotation);
+                    var newSheep = GameObject.Instantiate(this, position, Utils.RandomUtils.RandomRotation(random));
                     newSheep.foodEaten = babyFoodCount;
                 }
 
@@ -157,7 +158,7 @@ namespace Game {
         private void updateBreathing() {
             breathTimer -= Time.deltaTime;
             if (breathTimer < 0) {
-                breathCycleCurrent = breathCycleTime * UnityEngine.Random.Range(0.8f, 1.2f);
+                breathCycleCurrent = breathCycleTime * random.getFloat(0.8f, 1.2f);
                 breathTimer = breathCycleCurrent;
             }
             var fraction = 1 - breathTimer / breathCycleCurrent;
@@ -168,14 +169,14 @@ namespace Game {
         private void updateBaa() {
             baaInterval -= Time.deltaTime;
             if (baaInterval < 0) {
-                baaInterval = UnityEngine.Random.Range(minBaaInterval, maxBaaInterval);
+                baaInterval = random.getFloat(minBaaInterval, maxBaaInterval);
                 baa();
             }
         }
 
         private void moveToRandomPoint() {
-            Vector3 targetPosition = Utils.Utils.RandomNavSphere(transform.position, wanderDistance, -1);
-            nextActionDelay = UnityEngine.Random.Range(minActionDelaySeconds, maxActionDelaySeconds);
+            Vector3 targetPosition = Utils.RandomUtils.RandomNavSphere(random, transform.position, wanderDistance, -1);
+            nextActionDelay = random.getFloat(minActionDelaySeconds, maxActionDelaySeconds);
             MoveToLocation(targetPosition);
         }
     }

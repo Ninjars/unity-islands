@@ -276,8 +276,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 793683792}
-  - component: {fileID: 793683791}
   - component: {fileID: 793683793}
+  - component: {fileID: 793683794}
+  - component: {fileID: 793683795}
+  - component: {fileID: 793683796}
   m_Layer: 0
   m_Name: WorldManager
   m_TagString: Untagged
@@ -285,27 +287,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &793683791
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 793683790}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 351b6d3e11d962545a972f8b570d20d5, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  material: {fileID: 2100000, guid: 558401376f4da714184abf62e4b77bd9, type: 2}
-  worldSize: 250
-  pointCount: 2000
-  verticalScale: 100
-  worldSeed: 0
-  agentsToGenerateNavMeshFor:
-  - {fileID: 1373011990487972, guid: a7006d0c9269d4653b3b8516ddd016b5, type: 3}
-  - {fileID: 1568038760296514, guid: e0f6e8e7ad5c4439c88d9312a96d0dae, type: 3}
-  clippingHeight: 15
 --- !u!4 &793683792
 Transform:
   m_ObjectHideFlags: 0
@@ -332,13 +313,69 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 784f90dbf78584490a032e9649a2bfd7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  agent: {fileID: 1568038760296514, guid: ff772e7ee99b8654c9d553aafb2416d0, type: 3}
-  agentSpawnCount: 1
   debugDrawDelauney: 0
   debugDrawCornerConnections: 0
   debugDrawDownlopes: 0
-  debugDrawTerrainNodes: 0
-  debugShowNodeEnergy: 0
+--- !u!114 &793683794
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 793683790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fed81c96683094643bdd19e6cd45b887, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  worldName: 
+  size: 250
+  pointCount: 250
+  clippingHeight: 8
+  validNavAgents:
+  - {fileID: 1568038760296514, guid: ff772e7ee99b8654c9d553aafb2416d0, type: 3}
+  topSideMaterial: {fileID: 2100000, guid: 07728344afa0d2d4cb3b204ce00de648, type: 2}
+  undersideSideMaterial: {fileID: 2100000, guid: b3e12244ebd9e2647bfe96197784a320,
+    type: 2}
+  sheepPrefab: {fileID: 2354573857298383470, guid: ff772e7ee99b8654c9d553aafb2416d0,
+    type: 3}
+  initialSheepCount: 30
+  spawnRadius: 30
+  ambientSoundController: {fileID: 0}
+--- !u!114 &793683795
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 793683790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 57090165937e2a24c80da55ad0511dd6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  groundLayerMask:
+    serializedVersion: 2
+    m_Bits: 256
+  sheepLayerMask:
+    serializedVersion: 2
+    m_Bits: 0
+  placedObject: {fileID: 0}
+--- !u!114 &793683796
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 793683790}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1548fe5b03bdf7c449b425c1e77f1ac0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  inGameCameraController: {fileID: 0}
+  menuCameraController: {fileID: 0}
+  startGameButton: {fileID: 0}
 --- !u!1 &970615424
 GameObject:
   m_ObjectHideFlags: 0
@@ -725,7 +762,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c85de90b7e0d640eba48f07b014ba368, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  camera: {fileID: 1282923795}
+  cam: {fileID: 0}
   agentPrefab: {fileID: 1373011990487972, guid: a7006d0c9269d4653b3b8516ddd016b5,
     type: 3}
   showLine: 0

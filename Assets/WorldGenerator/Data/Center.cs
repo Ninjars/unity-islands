@@ -77,8 +77,8 @@ namespace WorldGenerator {
             return terrainType == TerrainType.OCEAN;
         }
 
-        public float scaledElevation(float factor) {
-            return coord.elevation * factor;
+        public float elevation() {
+            return coord.elevation;
         }
 
         public Center findClosestNeighbour(Vector3 point, bool allowUnclipped) {

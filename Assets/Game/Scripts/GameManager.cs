@@ -1,71 +1,83 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Game {
-    [RequireComponent(typeof(InteractionController))]
+    interface WorldProvider {
+        WorldData getWorldData();
+    }
+
+    [RequireComponent(typeof(InteractionController), typeof(UIController), typeof(WorldManager))]
     public class GameManager : MonoBehaviour {
-        private string saveGameName = "sheepIsle";
+        private string saveGameName = "SheepIslandsSave";
+
+        [Header("World Generation Attributes")]
+        public string worldName;
+        public float size = 100;
+        public int pointCount = 250;
+        public float clippingHeight = 10f;
+        public List<GameObject> validNavAgents;
+        public Material topSideMaterial;
+        public Material undersideSideMaterial;
+
+        [Header("World Population} Attributes")]
         public SheepAgent sheepPrefab;
         public int initialSheepCount = 3;
         public float spawnRadius = 30;
-        public GameObject inGameCameraController;
-        public MenuCameraController menuCameraController;
-
-        public Text startGameButton;
-
         public AmbienceController ambientSoundController;
 
         private InteractionController interactionController;
+        private UIController uiController;
+        private WorldManager worldManager;
         private bool isSpring;
 
         void Start() {
             interactionController = GetComponent<InteractionController>();
-            // GameEventMessage.AddListener((GameEventMessage message) => onGameMessage(message.EventName));
-            if (SaveGameSystem.DoesSaveGameExist(saveGameName)) {
-                var success = loadIsland();
-                if (!success) {
-                    Debug.Log("failed to load saved island");
-                    spawnInitialSheep();
-                    startGameButton.text = "Start";
-                } else {
-                    SheepAgent[] allSheep = FindObjectsOfType<SheepAgent>();
-                    if (allSheep.Length == initialSheepCount) {
-                        startGameButton.text = "Start";
-                    } else {
-                        startGameButton.text = "Continue";
-                    }
-                }
+            uiController = GetComponent<UIController>();
+            worldManager = GetComponent<WorldManager>();
 
-            } else {
-                spawnInitialSheep();
-                startGameButton.text = "Start";
+            bool saveLoaded = false;
+            if (SaveGameSystem.DoesSaveGameExist(saveGameName)) {
+                Debug.Log("Loading save");
+                saveLoaded = loadIsland();
+                if (!saveLoaded) {
+                    Debug.Log("failed to load saved island");
+                }
             }
+
+            if (!saveLoaded) {
+                Debug.Log("Creating new island");
+                initialiseWorld();
+            }
+            uiController.setSaveGameExists(saveLoaded);
+
+            // TODO: port ui controls over from sheep isle
+            // GameEventMessage.AddListener((GameEventMessage message) => onGameMessage(message.EventName));
         }
 
         private void onGameMessage(string message) {
             switch (message) {
                 case "EXIT": {
-                    onExitEvent();
-                    break;
-                }
+                        onExitEvent();
+                        break;
+                    }
                 case "SAVE": {
-                    onSaveEvent();
-                    break;
-                }
+                        onSaveEvent();
+                        break;
+                    }
                 case "RESET": {
-                    onResetEvent();
-                    break;
-                }
+                        onResetEvent();
+                        break;
+                    }
                 case "MENU-VISIBLE": {
-                    onMenuVisible();
-                    break;
-                }
+                        onMenuVisible();
+                        break;
+                    }
                 case "MENU-HIDDEN": {
-                    onMenuHidden();
-                    break;
-                }
+                        onMenuHidden();
+                        break;
+                    }
             }
         }
 
@@ -75,15 +87,49 @@ namespace Game {
             }
         }
 
-        private void spawnInitialSheep() {
+        private void initialiseWorld() {
+            int seed = worldName.Length == 0 ? Mathf.FloorToInt(UnityEngine.Random.value * int.MaxValue) : worldName.GetHashCode();
+
+            WorldData world = worldManager.generateWorld(
+                new WorldGenerator.WorldConfig(
+                    worldName,
+                    seed,
+                    topSideMaterial,
+                    undersideSideMaterial,
+                    size,
+                    pointCount,
+                    clippingHeight,
+                    validNavAgents
+                )
+            );
+
+            Utils.RandomProvider gameRandom = new Utils.SeededRandomProvider(world.randomSeedValue);
+            spawnInitialSheep(world, gameRandom);
+        }
+
+        private void spawnInitialSheep(WorldData world, Utils.RandomProvider random) {
+            Debug.Log($"spawning {initialSheepCount} sheep");
+            IslandData island = world.islands[0];
+            Vector3 spawnOrigin = island.topsideBounds.center;
+            float maxRadius = island.topsideBounds.max.magnitude * 0.75f;
             for (int i = 0; i < initialSheepCount; i++) {
-                spawnSheep(0, -1);
+                int attempts = 0;
+                Vector3 position = Vector3.positiveInfinity;
+                while (attempts < 5 && position.x == float.PositiveInfinity)  {
+                    float spawnRadius = random.getFloat(maxRadius);
+                    position = Utils.RandomUtils.RandomNavSphere(random, spawnOrigin, spawnRadius, -1);
+                    attempts++;
+                }
+                if (position.x != float.PositiveInfinity) {
+                    spawnSheep(random, position, 0, -1);
+                }
             }
         }
 
-        private void spawnSheep(int foodLevel, int voice) {
-            var position = Utils.Utils.RandomNavSphere(transform.position, spawnRadius, -1);
+        private void spawnSheep(Utils.RandomProvider random, Vector3 position, int foodLevel, int voice) {
+            Debug.Log($"spawn position: {position}");
             var sheep = GameObject.Instantiate(sheepPrefab, position, UnityEngine.Random.rotation);
+            sheep.random = random;
             sheep.foodEaten = foodLevel;
             if (voice >= 0) {
                 sheep.setVoice(voice);
@@ -99,7 +145,8 @@ namespace Game {
             foreach (var food in allFood) {
                 GameObject.Destroy(food.gameObject);
             }
-            spawnInitialSheep();
+            
+            initialiseWorld();
             onSaveEvent();
         }
 
@@ -121,20 +168,18 @@ namespace Game {
         }
 
         public void onMenuVisible() {
-            inGameCameraController.SetActive(false);
-            menuCameraController.enabled = true;
+            uiController.onMenuVisible();
             interactionController.enabled = false;
         }
 
         public void onMenuHidden() {
-            inGameCameraController.SetActive(true);
-            menuCameraController.enabled = false;
+            uiController.onMenuHidden();
             interactionController.enabled = true;
-            startGameButton.text = "Continue";
         }
 
         #region save functions
         private bool loadIsland() {
+            // TODO: restore entire world from save
             var saveGame = SaveGameSystem.LoadGame(saveGameName);
             if (saveGame == null) {
                 return false;
@@ -142,9 +187,9 @@ namespace Game {
 
             try {
                 foreach (var value in saveGame.sheepData) {
-                    spawnSheep(value.level, value.voice);
+                    // spawnSheep(value.level, value.voice);
                 }
-            } catch (NullReferenceException e) {
+            } catch (NullReferenceException) {
                 Debug.Log("invalid save file");
                 SaveGameSystem.DeleteSaveGame(saveGameName);
                 return false;
