@@ -4,7 +4,7 @@ using System;
 
 namespace Game {
 	public class RaycastDestinationSetter : MonoBehaviour {
-		public Camera camera;
+		public Camera cam;
 		public GameObject agentPrefab;
 		public bool showLine = false;
 		private BaseAgent directedAgent;
@@ -20,11 +20,11 @@ namespace Game {
 			// Check if the player has pressed the fire button and if enough time has elapsed since they last fired
 			if (Input.GetButtonDown("Fire1")) {
 				// Check if our raycast has hit anything
-				Ray ray = camera.ScreenPointToRay(Input.mousePosition);
+				Ray ray = cam.ScreenPointToRay(Input.mousePosition);
 				RaycastHit hit;
 				if (Physics.Raycast (ray, out hit)) {
 					if (showLine) {
-						laserLine.SetPosition (0, camera.transform.position - Vector3.down * 3);
+						laserLine.SetPosition (0, cam.transform.position - Vector3.down * 3);
 						laserLine.SetPosition (1, hit.point);
 						StartCoroutine (ShotEffect());
 					}
