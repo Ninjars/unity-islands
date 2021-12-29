@@ -19,3 +19,7 @@ Soil dampened by either proximity to collected water, repeated rain cloud passes
 Other stretch-goal features would include the presence of cute critters living in areas on the rock already which would vanish if their homes were covered by soil, giving the player a reason to not just paint the whole island in green but to have the option to explore what interactions with the indigenous life are possible. Perhaps they like to eat insects, so if you find a good balance they can co-exist peacefully with the sheep and both benefit from the terraforming the player performs. Also an advanced vegetation type could be trees, grown after the sheep have sprouted to aid in the formation of rain clouds to make the next island more hospitable - and also to give the sheep some shelter from the rain on their current island!
 
 The sheep themselves need a bunch of work, with animations and a variety of states to display as well as improvements to the feet movement to make them better match the sheep's changes in position.
+
+## Packages Used
+- [Amplify Shader Editor](https://assetstore.unity.com/packages/tools/visual-scripting/amplify-shader-editor-68570)
+- [Brute Force - Grass Shader](https://assetstore.unity.com/packages/vfx/shaders/brute-force-grass-shader-192388)

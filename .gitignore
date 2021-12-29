@@ -33,3 +33,5 @@ sysinfo.txt
 *.apk
 *.unitypackage
 Assets/Plugins/Clipper/clipper_library.csproj.meta
+Assets/AmplifyShaderEditor/
+Assets/BruteForce-GrassShader/
