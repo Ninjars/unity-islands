@@ -1,4 +1,5 @@
 ﻿// original from https://www.patreon.com/posts/grass-geometry-1-40090373
+// augmented to support tessellation and refactored for code style preferences
 Shader "Custom/Grass Geometry Shader" {
     Properties {
         _BottomColor("Bottom Color", Color) = (0,1,0,1)
@@ -16,6 +17,8 @@ Shader "Custom/Grass Geometry Shader" {
         _AmbientStrength("Ambient Strength",  Range(0,1)) = 0.5
         _MinDist("Min Distance", Float) = 40
         _MaxDist("Max Distance", Float) = 60
+		[Space]
+		_TessellationUniform ("Tessellation Uniform", Range(1, 64)) = 1
     }
  
  
@@ -23,6 +26,7 @@ Shader "Custom/Grass Geometry Shader" {
     #include "UnityCG.cginc" 
     #include "Lighting.cginc"
     #include "AutoLight.cginc"
+    #include "CustomTessellation.cginc"
     #pragma multi_compile _SHADOWS_SCREEN
     #pragma multi_compile_fwdbase_fullforwardshadows
     #pragma multi_compile_fog
@@ -164,7 +168,7 @@ Shader "Custom/Grass Geometry Shader" {
             float offset = (1 - radius) * _Rad;
             for (int i = 0; i < GrassSegments; i++) {
                 // taper width, increase height;
-                float t = i / (float)GrassSegments;
+                float t = i / (float)(GrassSegments - 1);
                 float segmentHeight = _GrassHeight * t;
                 float segmentWidth = _GrassWidth * (1 - t);
  
@@ -204,7 +208,9 @@ Shader "Custom/Grass Geometry Shader" {
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag 
+            #pragma hull hull
             #pragma geometry geom
+            #pragma domain domain
             #pragma target 4.6
             #pragma multi_compile_fwdbase_fullforwardshadows
 
@@ -230,7 +236,7 @@ Shader "Custom/Grass Geometry Shader" {
                 final += (unity_AmbientSky * baseColor * _AmbientStrength);
                 // add fog
                 UNITY_APPLY_FOG(i.fogCoord, final);
-            return final;
+                return final;
             }
             ENDCG
         }
@@ -247,6 +253,8 @@ Shader "Custom/Grass Geometry Shader" {
             #pragma vertex vert
             #pragma geometry geom
             #pragma fragment frag
+            #pragma hull hull
+            #pragma domain domain
             #pragma multi_compile_fwdadd_fullforwardshadows
 
             float4 frag(GeoToFragment i) : SV_Target {
@@ -269,6 +277,8 @@ Shader "Custom/Grass Geometry Shader" {
             #pragma vertex vert
             #pragma geometry geom
             #pragma fragment frag
+            #pragma hull hull
+            #pragma domain domain
             #pragma multi_compile_shadowcaster
 
             float4 frag(GeoToFragment i) : SV_Target
