@@ -8,12 +8,12 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: m_topside_grass
-  m_Shader: {fileID: 4800000, guid: 7cd5d6fe2c6238e469561875c01946f3, type: 3}
+  m_Shader: {fileID: 4800000, guid: 2a0f063e71a52aa468efed1456e8a485, type: 3}
   m_ShaderKeywords: USE_PR USE_RT USE_S USE_SC USE_WC _RTEFFECT_ON
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 2000
+  m_CustomRenderQueue: -1
   stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
@@ -52,7 +52,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MainTex:
-        m_Texture: {fileID: 2800000, guid: 4e1d764fa7e47f34eae88e37253c2542, type: 3}
+        m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _MetallicGlossMap:
@@ -79,11 +79,29 @@ Material:
         m_Texture: {fileID: 0}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
+    - _WindDistortionMap:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
+    - _texcoord:
+        m_Texture: {fileID: 0}
+        m_Scale: {x: 1, y: 1}
+        m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AmbientStrength: 1
+    - _BendRotationRandom: 0.2
+    - _BladeCurve: 2
+    - _BladeForward: 0.38
+    - _BladeHeight: 0.5
+    - _BladeHeightRandom: 0.3
+    - _BladeWidth: 0.05
+    - _BladeWidthRandom: 0.02
+    - _BranchPhase: 0
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
     - _DstBlend: 0
+    - _EdgeFlutter: 1
     - _FadeAmplitude: 28
     - _FadeDistance: 16
     - _FadeDistanceEnd: 100
@@ -92,12 +110,16 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _GrassCut: 0
+    - _GrassHeight: 1
     - _GrassSaturation: 2
     - _GrassShading: 0.085
     - _GrassThinness: 0.4
     - _GrassThinnessIntersection: 2
+    - _GrassWidth: 0.1
     - _LightIntensity: 1
+    - _MaxDist: 10
     - _Metallic: 0
+    - _MinDist: 1000
     - _MinimumNumberStacks: 2
     - _Mode: 0
     - _NoisePower: 2
@@ -105,20 +127,29 @@ Material:
     - _OcclusionStrength: 1
     - _OffsetValue: 1
     - _Parallax: 0.02
+    - _PrimaryFactor: 0
     - _ProceduralDistance: 2.71
     - _ProceduralStrength: 5.24
     - _RTEffect: 1
+    - _Rad: 0.8
+    - _Radius: 0.3
+    - _RandomHeight: 0.5
     - _RimMax: 0.62
     - _RimMin: 0.241
     - _RimPower: 3.15
+    - _SecondaryFactor: 0
     - _ShadowFuziness: 1
     - _ShadowMax: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
     - _SrcBlend: 1
+    - _Strength: 5
+    - _TessValue: 15
+    - _TessellationUniform: 8
     - _TilingN1: 5
     - _TilingN2: 0.05
     - _TilingN3: 20
+    - _TranslucentGain: 0.5
     - _UVSec: 0
     - _UseAmbientLight: 0
     - _UsePR: 1
@@ -130,11 +161,15 @@ Material:
     - _UseWC: 1
     - _WindForce: 0.2
     - _WindMovement: 1
+    - _WindSpeed: 100
+    - _WindStrength: 0.05
     - _WorldRotation: 0
     - _WorldScale: 10
     - _ZWrite: 1
     - __NumberOfStacks: 17
+    - __dirty: 0
     m_Colors:
+    - _BottomColor: {r: 0, g: 1, b: 0, a: 1}
     - _Color: {r: 0.56, g: 0.56, b: 0.56, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _GroundColor: {r: 0.90800005, g: 0.90800005, b: 0.90800005, a: 1}
@@ -143,3 +178,8 @@ Material:
     - _ProjectedShadowColor: {r: 0.4528302, g: 0.42296267, b: 0.044855822, a: 1}
     - _RimColor: {r: 0.14566667, g: 0.184, b: 0.09008333, a: 1}
     - _SelfShadowColor: {r: 0.41568628, g: 0.43137255, b: 0.36078432, a: 1}
+    - _TopColor: {r: 1, g: 1, b: 0, a: 1}
+    - _TreeInstanceColor: {r: 0, g: 0, b: 0, a: 0}
+    - _TreeInstanceScale: {r: 0, g: 0, b: 0, a: 0}
+    - _TreeOffset: {r: 0, g: 5, b: 0, a: 0}
+    - _WindFrequency: {r: 0.05, g: 0.05, b: 0, a: 0}

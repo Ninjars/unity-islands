@@ -27,7 +27,7 @@ namespace Game {
         public float clipPercentile = 0.5f;
         [Tooltip("Used to generate the world nav meshes")]
         public List<GameObject> validNavAgents;
-        public Material topSideMaterial;
+        public Material[] topSideMaterials;
         public Material undersideSideMaterial;
 
         [Header("World Population Attributes")]
@@ -101,7 +101,7 @@ namespace Game {
                 new WorldGenerator.WorldConfig(
                     worldName,
                     seed,
-                    topSideMaterial,
+                    topSideMaterials,
                     undersideSideMaterial,
                     size,
                     uvScale,

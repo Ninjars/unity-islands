@@ -8,7 +8,7 @@ namespace WorldGenerator {
     public struct WorldConfig {
         public readonly string worldName;
         public readonly int seed;
-        public readonly Material topSideMaterial;
+        public readonly Material[] topSideMaterials;
         public readonly Material undersideMaterial;
         public readonly float size;
         public readonly float uvScale;
@@ -16,10 +16,10 @@ namespace WorldGenerator {
         public readonly float clipPercentile;
         public readonly List<GameObject> navAgents;
 
-        public WorldConfig(string worldName, int seed, Material topSideMaterial, Material undersideMaterial, float size,  float uvScale, int pointCount, float clipPercentile, List<GameObject> navAgents) {
+        public WorldConfig(string worldName, int seed, Material[] topSideMaterial, Material undersideMaterial, float size,  float uvScale, int pointCount, float clipPercentile, List<GameObject> navAgents) {
             this.worldName = worldName;
             this.seed = seed;
-            this.topSideMaterial = topSideMaterial;
+            this.topSideMaterials = topSideMaterial;
             this.undersideMaterial = undersideMaterial;
             this.size = size;
             this.uvScale = uvScale;
@@ -66,7 +66,7 @@ namespace WorldGenerator {
                 gameObj.name = $"Island {island.islandId}";
                 gameObj.layer = LayerMask.NameToLayer("Terrain");
 
-                WorldGenMesh.triangulate(gameObj, config.topSideMaterial, island.centers, config.uvScale);
+                WorldGenMesh.triangulate(gameObj, config.topSideMaterials, island.centers, config.uvScale);
                 timer.logEventComplete("triangulated topside for island " + island.islandId);
 
                 island.topsideBounds = CalculateBounds(island.center, gameObj);
