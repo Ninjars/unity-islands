@@ -8,7 +8,7 @@ namespace WorldGenerator {
     public class WorldGenMesh {
         private const int vertexLimit = 63000;
 
-        public static void triangulate(GameObject gameObject, Material material, List<Center> centers, float size) {
+        public static void triangulate(GameObject gameObject, Material material, List<Center> centers, float uvScale) {
             List<int> indices = new List<int>();
             List<Vector3> vertices = new List<Vector3>();
             List<Color> colors = new List<Color>();
@@ -20,14 +20,15 @@ namespace WorldGenerator {
             foreach (Center center in sortedCenters) {
                 addTrianglesForCenter(center, indices, vertices, colors);
                 if (vertices.Count > vertexLimit) {
-                    createMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                    createMeshSubObject(gameObject, material, uvScale, indices, vertices, colors);
                 }
             }
             if (vertices.Count > 0) {
-                createMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                createMeshSubObject(gameObject, material, uvScale, indices, vertices, colors);
             }
         }
-        public static void triangulate(GameObject gameObject, Material material, List<ConnectedCoord> coords, float size) {
+
+        public static void triangulate(GameObject gameObject, Material material, List<ConnectedCoord> coords, float uvScale) {
             List<int> indices = new List<int>();
             List<Vector3> vertices = new List<Vector3>();
             List<Color> colors = new List<Color>();
@@ -43,11 +44,11 @@ namespace WorldGenerator {
                 processedCenters.Add(centerCoord);
 
                 if (vertices.Count > vertexLimit) {
-                    createMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                    createMeshSubObject(gameObject, material, uvScale, indices, vertices, colors);
                 }
             }
             if (vertices.Count > 0) {
-                createMeshSubObject(gameObject, material, size, indices, vertices, colors);
+                createMeshSubObject(gameObject, material, uvScale, indices, vertices, colors);
             }
         }
 
@@ -94,7 +95,7 @@ namespace WorldGenerator {
             return d1 > d2;
         }
 
-        private static GameObject createMeshSubObject(GameObject containingObject, Material material, float worldSize, List<int> indices, List<Vector3> vertices, List<Color> colors) {
+        private static GameObject createMeshSubObject(GameObject containingObject, Material material, float uvScale, List<int> indices, List<Vector3> vertices, List<Color> colors) {
             GameObject gameObject = new GameObject();
             gameObject.name = "mesh section";
             gameObject.layer = LayerMask.NameToLayer("Terrain");
@@ -109,12 +110,13 @@ namespace WorldGenerator {
             mesh.vertices = vertices.ToArray();
             mesh.triangles = indices.ToArray();
             mesh.colors = colors.ToArray();
-            mesh.RecalculateNormals();
-            Vector2[] myUVs = new Vector2[vertices.Count];
+            Vector2[] uvs = new Vector2[vertices.Count];
+            Debug.Log($"uv scale {uvScale}");
             for (var i = 0; i < vertices.Count; i++) {
-                myUVs[i] = new Vector2(vertices[i].x / worldSize, vertices[i].y / worldSize);
+                uvs[i] = new Vector2(vertices[i].x * uvScale, vertices[i].z * uvScale);
             }
-            mesh.uv = myUVs;
+            mesh.uv = uvs;
+            mesh.RecalculateNormals();
 
             MeshCollider collider = gameObject.AddComponent<MeshCollider>();
             collider.sharedMesh = mesh;

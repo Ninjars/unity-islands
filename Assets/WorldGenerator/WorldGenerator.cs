@@ -11,16 +11,18 @@ namespace WorldGenerator {
         public readonly Material topSideMaterial;
         public readonly Material undersideMaterial;
         public readonly float size;
+        public readonly float uvScale;
         public readonly int pointCount;
         public readonly float clipPercentile;
         public readonly List<GameObject> navAgents;
 
-        public WorldConfig(string worldName, int seed, Material topSideMaterial, Material undersideMaterial, float size, int pointCount, float clipPercentile, List<GameObject> navAgents) {
+        public WorldConfig(string worldName, int seed, Material topSideMaterial, Material undersideMaterial, float size,  float uvScale, int pointCount, float clipPercentile, List<GameObject> navAgents) {
             this.worldName = worldName;
             this.seed = seed;
             this.topSideMaterial = topSideMaterial;
             this.undersideMaterial = undersideMaterial;
             this.size = size;
+            this.uvScale = uvScale;
             this.pointCount = pointCount;
             this.clipPercentile = clipPercentile;
             this.navAgents = navAgents;
@@ -64,7 +66,7 @@ namespace WorldGenerator {
                 gameObj.name = $"Island {island.islandId}";
                 gameObj.layer = LayerMask.NameToLayer("Terrain");
 
-                WorldGenMesh.triangulate(gameObj, config.topSideMaterial, island.centers, config.size);
+                WorldGenMesh.triangulate(gameObj, config.topSideMaterial, island.centers, config.uvScale);
                 timer.logEventComplete("triangulated topside for island " + island.islandId);
 
                 island.topsideBounds = CalculateBounds(island.center, gameObj);
@@ -83,7 +85,7 @@ namespace WorldGenerator {
                 WorldGenElevation.generateIslandUndersideElevations(config.seed, island);
                 timer.logEventComplete("generated underside for island " + island.islandId);
 
-                WorldGenMesh.triangulate(gameObj, config.undersideMaterial, island.undersideCoords, config.size);
+                WorldGenMesh.triangulate(gameObj, config.undersideMaterial, island.undersideCoords, config.uvScale);
                 timer.logEventComplete("triangulated underside for island " + island.islandId);
 
                 island.totalBounds = CalculateBounds(island.center, gameObj);

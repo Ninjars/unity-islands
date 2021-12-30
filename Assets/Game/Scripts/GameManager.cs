@@ -17,6 +17,9 @@ namespace Game {
         public string worldName;
         [Tooltip("Square maximum dimension of the world")]
         public float size = 100;
+        [Tooltip("Scaling value for island UVs")]
+        [Range(0, 1)]
+        public float uvScale = 0.25f;
         [Tooltip("Number of points used to generate the world graph")]
         public int pointCount = 250;
         [Tooltip("The lowest percentile of the generated world will be clipped")]
@@ -101,6 +104,7 @@ namespace Game {
                     topSideMaterial,
                     undersideSideMaterial,
                     size,
+                    uvScale,
                     pointCount,
                     clipPercentile,
                     validNavAgents
