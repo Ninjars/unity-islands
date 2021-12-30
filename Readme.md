@@ -22,4 +22,3 @@ The sheep themselves need a bunch of work, with animations and a variety of stat
 
 ## Packages Used
 - [Amplify Shader Editor](https://assetstore.unity.com/packages/tools/visual-scripting/amplify-shader-editor-68570)
-- [Brute Force - Grass Shader](https://assetstore.unity.com/packages/vfx/shaders/brute-force-grass-shader-192388)
