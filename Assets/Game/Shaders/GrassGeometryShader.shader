@@ -1,6 +1,6 @@
-﻿// from https://www.patreon.com/posts/grass-geometry-1-40090373
-Shader "Custom/Grass Geometry Shader 3" {
-    Properties{
+﻿// original from https://www.patreon.com/posts/grass-geometry-1-40090373
+Shader "Custom/Grass Geometry Shader" {
+    Properties {
         _BottomColor("Bottom Color", Color) = (0,1,0,1)
         _TopColor("Top Color", Color) = (1,1,0,1)
         _GrassHeight("Grass Height", Float) = 1
@@ -19,35 +19,31 @@ Shader "Custom/Grass Geometry Shader 3" {
     }
  
  
-        CGINCLUDE
-#include "UnityCG.cginc" 
-#include "Lighting.cginc"
-#include "AutoLight.cginc"
-#pragma multi_compile _SHADOWS_SCREEN
-#pragma multi_compile_fwdbase_fullforwardshadows
-#pragma multi_compile_fog
-#define GrassSegments 5 // segments per blade
-#define GrassBlades 4 // blades per vertex
+    CGINCLUDE
+    #include "UnityCG.cginc" 
+    #include "Lighting.cginc"
+    #include "AutoLight.cginc"
+    #pragma multi_compile _SHADOWS_SCREEN
+    #pragma multi_compile_fwdbase_fullforwardshadows
+    #pragma multi_compile_fog
+    #define GrassSegments 5 // segments per blade
+    #define GrassBlades 4 // blades per vertex
  
-        struct v2g
-    {
+    struct VertToGeo {
         float4 pos : SV_POSITION;
         float3 norm : NORMAL;
         float2 uv : TEXCOORD0;
         float3 color : COLOR;
- 
- 
     };
  
-    struct g2f
-    {
+    struct GeoToFragment {
         float4 pos : SV_POSITION;
         float3 norm : NORMAL;
         float2 uv : TEXCOORD0;
         float3 diffuseColor : COLOR;
         float3 worldPos : TEXCOORD3;
         LIGHTING_COORDS(5, 6)
-            UNITY_FOG_COORDS(4)
+        UNITY_FOG_COORDS(4)
     };
  
     half _GrassHeight;
@@ -65,11 +61,10 @@ Shader "Custom/Grass Geometry Shader 3" {
  
     uniform float3 _PositionMoving;
  
-    v2g vert(appdata_full v)
-    {
+    VertToGeo vert(appdata_full v) {
         float3 v0 = v.vertex.xyz;
  
-        v2g OUT;
+        VertToGeo OUT;
         OUT.pos = v.vertex;
         OUT.norm = v.normal;
         OUT.uv = v.texcoord;
@@ -77,15 +72,13 @@ Shader "Custom/Grass Geometry Shader 3" {
         return OUT;
     }
  
-    float rand(float3 co)
-    {
+    float rand(float3 co) {
         return frac(sin(dot(co.xyz, float3(12.9898, 78.233, 53.539))) * 43758.5453);
     }
  
     // Construct a rotation matrix that rotates around the provided axis, sourced from:
-// https://gist.github.com/keijiro/ee439d5e7388f3aafc5296005c8c3f33
-    float3x3 AngleAxis3x3(float angle, float3 axis)
-    {
+    // https://gist.github.com/keijiro/ee439d5e7388f3aafc5296005c8c3f33
+    float3x3 AngleAxis3x3(float angle, float3 axis) {
         float c, s;
         sincos(angle, s, c);
  
@@ -102,14 +95,13 @@ Shader "Custom/Grass Geometry Shader 3" {
     }
  
     // hack because TRANSFER_VERTEX_TO_FRAGMENT has harcoded requirement for 'v.vertex'
-    struct unityTransferVertexToFragmentHack
-    {
+    struct unityTransferVertexToFragmentHack {
         float3 vertex : POSITION;
     };
  
     // per new grass vertex
-    g2f GrassVertex(float3 vertexPos, float width, float height, float offset, float curve, float2 uv, float3x3 rotation, float3 faceNormal, float3 color, float3 worldPos) {
-        g2f OUT;
+    GeoToFragment GrassVertex(float3 vertexPos, float width, float height, float offset, float curve, float2 uv, float3x3 rotation, float3 faceNormal, float3 color, float3 worldPos) {
+        GeoToFragment OUT;
         OUT.pos = UnityObjectToClipPos(vertexPos + mul(rotation, float3(width, height, curve) + float3(0, 0, offset)));
         OUT.norm = faceNormal;
         OUT.diffuseColor = color;
@@ -127,11 +119,7 @@ Shader "Custom/Grass Geometry Shader 3" {
     // wind and basic grassblade setup from https://roystan.net/articles/grass-shader.html
     // limit for vertices
     [maxvertexcount(51)]
-    void geom(point v2g IN[1], inout TriangleStream<g2f> triStream)
-    {
- 
- 
- 
+    void geom(point VertToGeo IN[1], inout TriangleStream<GeoToFragment> triStream) {
         float forward = rand(IN[0].pos.yyz) * _BladeForward;
         float3 lightPosition = _WorldSpaceLightPos0;
  
@@ -168,15 +156,13 @@ Shader "Custom/Grass Geometry Shader 3" {
         _GrassHeight *= clamp(rand(IN[0].pos.xyz), 1 - _RandomHeight, 1 + _RandomHeight);
  
         // grassblades geometry
-        for (int j = 0; j < (GrassBlades * distanceFade); j++)
-        {
+        for (int j = 0; j < (GrassBlades * distanceFade); j++) {
             // set rotation and radius of the blades
             float3x3 facingRotationMatrix = AngleAxis3x3(rand(IN[0].pos.xyz) * UNITY_TWO_PI + j, float3(0, 1, -0.1));
             float3x3 transformationMatrix = facingRotationMatrix;
             float radius = j / (float)GrassBlades;
             float offset = (1 - radius) * _Rad;
-            for (int i = 0; i < GrassSegments; i++)
-            {
+            for (int i = 0; i < GrassSegments; i++) {
                 // taper width, increase height;
                 float t = i / (float)GrassSegments;
                 float segmentHeight = _GrassHeight * t;
@@ -196,115 +182,103 @@ Shader "Custom/Grass Geometry Shader 3" {
                 // every segment adds 2 new triangles
                 triStream.Append(GrassVertex(newPos, segmentWidth, segmentHeight, offset, segmentForward, float2(0, t), transformMatrix, faceNormal, color, worldPos));
                 triStream.Append(GrassVertex(newPos, -segmentWidth, segmentHeight, offset, segmentForward, float2(1, t), transformMatrix, faceNormal, color, worldPos));
- 
- 
- 
             }
+
             // Add just below the loop to insert the vertex at the tip of the blade.
             triStream.Append(GrassVertex(v0 + float3(sphereDisp.x * 1.5, sphereDisp.y, sphereDisp.z * 1.5) + wind1, 0, _GrassHeight, offset, forward, float2(0.5, 1), transformationMatrix, faceNormal, color, worldPos));
             // restart the strip to start another grass blade
             triStream.RestartStrip();
         }
     }
- 
- 
     ENDCG
-        SubShader
-    {
+
+    SubShader {
         Cull Off
- 
-            Pass // basic color with directional lights
-            {
-                Tags
-                {
-                    "RenderType" = "Geometry"
-                    "LightMode" = "ForwardBase"
-                }
- 
+        // basic color with directional lights
+        Pass {
+            Tags {
+                "RenderType" = "Geometry"
+                "LightMode" = "ForwardBase"
+            }
+
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag 
             #pragma geometry geom
             #pragma target 4.6
             #pragma multi_compile_fwdbase_fullforwardshadows
- 
+
             float4 _TopColor;
             float4 _BottomColor;
             float _AmbientStrength;
- 
-            float4 frag(g2f i) : SV_Target
-            {
+
+            float4 frag(GeoToFragment i) : SV_Target {
                 // take shadow data
-            float shadow = 1;
+                float shadow = 1;
 #if defined(SHADOWS_SCREEN)
-            shadow = (SAMPLE_DEPTH_TEXTURE_PROJ(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).r);
+                shadow = (SAMPLE_DEPTH_TEXTURE_PROJ(_ShadowMapTexture, UNITY_PROJ_COORD(i._ShadowCoord)).r);
 #endif          
-            // base color by lerping 2 colors over the UVs
-            float4 baseColor = lerp(_BottomColor , _TopColor , saturate(i.uv.y)) * float4(i.diffuseColor, 1);
-            // multiply with lighting color
-            float4 litColor = (baseColor * _LightColor0);
-            // multiply with vertex color, and shadows
-            float4 final = litColor * shadow;
-            // add in basecolor when lights turned off
-            final += saturate((1 - shadow) * baseColor * 0.2);
-            // add in ambient color
-            final += (unity_AmbientSky * baseColor * _AmbientStrength);
-            // add fog
-            UNITY_APPLY_FOG(i.fogCoord, final);
+                // base color by lerping 2 colors over the UVs
+                float4 baseColor = lerp(_BottomColor, _TopColor, saturate(i.uv.y)) * float4(i.diffuseColor, 1);
+                // multiply with lighting color
+                float4 litColor = (baseColor * _LightColor0);
+                // multiply with vertex color, and shadows
+                float4 final = litColor * shadow;
+                // add in basecolor when lights turned off
+                final += saturate((1 - shadow) * baseColor * 0.2);
+                // add in ambient color
+                final += (unity_AmbientSky * baseColor * _AmbientStrength);
+                // add fog
+                UNITY_APPLY_FOG(i.fogCoord, final);
             return final;
             }
             ENDCG
         }
- 
-            Pass
-                // point lights
-            {
-                Tags
-                {
-                    "LightMode" = "ForwardAdd"
-                }
-                Blend OneMinusDstColor One
-                ZWrite Off
- 
+
+        // point lights
+        Pass {
+            Tags {
+                "LightMode" = "ForwardAdd"
+            }
+            Blend OneMinusDstColor One
+            ZWrite Off
+
             CGPROGRAM
             #pragma vertex vert
             #pragma geometry geom
-            #pragma fragment frag                                   
+            #pragma fragment frag
             #pragma multi_compile_fwdadd_fullforwardshadows
- 
-            float4 frag(g2f i) : SV_Target
-            {
-                    UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
- 
-                    float3 pointlights = atten * _LightColor0.rgb;
- 
-                    return float4(pointlights, 1);
-                }
+
+            float4 frag(GeoToFragment i) : SV_Target {
+                UNITY_LIGHT_ATTENUATION(atten, i, i.worldPos);
+
+                float3 pointlights = atten * _LightColor0.rgb;
+
+                return float4(pointlights, 1);
+            }
             ENDCG
+        }
+
+        // shadow pass
+        Pass {
+            Tags {
+                "LightMode" = "ShadowCaster"
             }
- 
-        Pass // shadow pass
+
+            CGPROGRAM
+            #pragma vertex vert
+            #pragma geometry geom
+            #pragma fragment frag
+            #pragma multi_compile_shadowcaster
+
+            float4 frag(GeoToFragment i) : SV_Target
             {
-                Tags
-                {
-                    "LightMode" = "ShadowCaster"
-                }
- 
-                    CGPROGRAM
-                    #pragma vertex vert
-                    #pragma geometry geom
-                    #pragma fragment frag
-                    #pragma multi_compile_shadowcaster
- 
-                    float4 frag(g2f i) : SV_Target
-                    {
- 
-                        SHADOW_CASTER_FRAGMENT(i)
-                    }
-                    ENDCG
+
+                SHADOW_CASTER_FRAGMENT(i)
             }
- 
- 
-    }    Fallback "VertexLit"
+            ENDCG
+        }
+    }
+    Fallback "VertexLit"
 }
  
