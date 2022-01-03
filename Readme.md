@@ -23,5 +23,8 @@ The sheep themselves need a bunch of work, with animations and a variety of stat
 ## Dependencies
 - [Amplify Shader Editor](https://assetstore.unity.com/packages/tools/visual-scripting/amplify-shader-editor-68570)
 - [Polaris Terrain Editor 2021](https://assetstore.unity.com/packages/tools/terrain/polaris-2021-low-poly-mesh-terrain-editor-196648)
+- [Poseidon Low Poly Water](https://assetstore.unity.com/packages/vfx/shaders/low-poly-water-builtin-urp-poseidon-153826)
+- [Jupiter Sky Shader](https://assetstore.unity.com/packages/2d/textures-materials/sky/procedural-sky-builtin-lwrp-urp-jupiter-159992)
+- [AZURE Nature](https://assetstore.unity.com/packages/3d/environments/fantasy/azure-nature-167725)
 - Unity Burst Compiler package - soft dependency for Polaris
 - Unity Editor Coroutines package - soft dependency for Polaris
