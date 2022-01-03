@@ -3,7 +3,7 @@ Initial vision was for procedurally generated islands with an ecosystem that the
 
 After initially working out how to procedurally generate islands and creating a sheep agent, the focus shifted to play around with agents and group behaviours. Flocks of sheep would roam the island "grazing" and the player could direct a sheep dog around that could "eat" the sheep. The idea here was to make things a bit technological, robo-sheep harvesting energy produced by the island substrate that they could use when flocking to defend themselves. Cos robots are cool, right? And low-poly style is about my level when it comes to modelling.
 
-The sheep ended up being too derpy and cute, and led to shifting focus to Project Sheep Island to make a Christmas gift for Else in 2019.
+The sheep ended up being too derpy and cute, and led to shifting focus to Project Sheep Island to make a Christmas gift for a close friend in 2019.
 
 ## New Direction
 Christmas 2021 I get the inspiration for a game that features, once again, sheep on floating islands - this time with a more organic theme.
@@ -19,3 +19,9 @@ Soil dampened by either proximity to collected water, repeated rain cloud passes
 Other stretch-goal features would include the presence of cute critters living in areas on the rock already which would vanish if their homes were covered by soil, giving the player a reason to not just paint the whole island in green but to have the option to explore what interactions with the indigenous life are possible. Perhaps they like to eat insects, so if you find a good balance they can co-exist peacefully with the sheep and both benefit from the terraforming the player performs. Also an advanced vegetation type could be trees, grown after the sheep have sprouted to aid in the formation of rain clouds to make the next island more hospitable - and also to give the sheep some shelter from the rain on their current island!
 
 The sheep themselves need a bunch of work, with animations and a variety of states to display as well as improvements to the feet movement to make them better match the sheep's changes in position.
+
+## Dependencies
+- [Amplify Shader Editor](https://assetstore.unity.com/packages/tools/visual-scripting/amplify-shader-editor-68570)
+- [Polaris Terrain Editor 2021](https://assetstore.unity.com/packages/tools/terrain/polaris-2021-low-poly-mesh-terrain-editor-196648)
+- Unity Burst Compiler package - soft dependency for Polaris
+- Unity Editor Coroutines package - soft dependency for Polaris
