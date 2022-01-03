@@ -589,7 +589,7 @@ PlayerSettings:
   webGLThreadsSupport: 0
   webGLWasmStreaming: 0
   scriptingDefineSymbols:
-    1: EPPZ;EPPZ_LINES;EPPZ_UTILS;EPPZ_GEOMETRY;AMPLIFY_SHADER_EDITOR
+    1: EPPZ;EPPZ_LINES;EPPZ_UTILS;EPPZ_GEOMETRY;AMPLIFY_SHADER_EDITOR;GRIFFIN_ASE;GRIFFIN_BURST;GRIFFIN_EDITOR_COROUTINES;GRIFFIN;GRIFFIN_2021;POSEIDON;JUPITER
   platformArchitecture: {}
   scriptingBackend: {}
   il2cppCompilerConfiguration: {}
