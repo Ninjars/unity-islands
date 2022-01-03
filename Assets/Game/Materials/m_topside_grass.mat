@@ -145,7 +145,8 @@ Material:
     - _SrcBlend: 1
     - _Strength: 5
     - _TessValue: 15
-    - _TessellationUniform: 8
+    - _TessellationEdgeLength: 0.5
+    - _TessellationUniform: 10
     - _TilingN1: 5
     - _TilingN2: 0.05
     - _TilingN3: 20

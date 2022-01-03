@@ -48,12 +48,22 @@ vertexOutput tessVert(vertexInput v) {
 }
 
 float _TessellationUniform;
+float _TessellationEdgeLength;
+
+float TessellationEdgeFactor (
+	vertexInput cp0, vertexInput cp1
+) {
+	float3 p0 = mul(unity_ObjectToWorld, float4(cp0.vertex.xyz, 1)).xyz;
+	float3 p1 = mul(unity_ObjectToWorld, float4(cp1.vertex.xyz, 1)).xyz;
+	float edgeLength = distance(p0, p1);
+	return edgeLength / _TessellationEdgeLength;
+}
 
 TessellationFactors patchConstantFunction (InputPatch<vertexInput, 3> patch) {
 	TessellationFactors f;
-	f.edge[0] = _TessellationUniform;
-	f.edge[1] = _TessellationUniform;
-	f.edge[2] = _TessellationUniform;
+	f.edge[0] = TessellationEdgeFactor(patch[1], patch[2]);
+	f.edge[1] = TessellationEdgeFactor(patch[0], patch[2]);
+	f.edge[2] = TessellationEdgeFactor(patch[1], patch[0]);
 	f.inside = _TessellationUniform;
 	return f;
 }
@@ -69,8 +79,11 @@ vertexInput hull (InputPatch<vertexInput, 3> patch, uint id : SV_OutputControlPo
 }
 
 [UNITY_domain("tri")]
-vertexOutput domain(TessellationFactors factors, OutputPatch<vertexInput, 3> patch, float3 barycentricCoordinates : SV_DomainLocation)
-{
+vertexOutput domain(
+	TessellationFactors factors, 
+	OutputPatch<vertexInput, 3> patch, 
+	float3 barycentricCoordinates : SV_DomainLocation
+) {
 	vertexInput v;
 
 	#define MY_DOMAIN_PROGRAM_INTERPOLATE(fieldName) v.fieldName = \

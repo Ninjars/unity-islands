@@ -1,6 +1,6 @@
 ﻿// original from https://www.patreon.com/posts/grass-geometry-1-40090373
 // augmented to support tessellation and refactored for code style preferences
-Shader "Custom/Grass Geometry Shader" {
+Shader "Jez/Grass Geometry Shader" {
     Properties {
         _BottomColor("Bottom Color", Color) = (0,1,0,1)
         _TopColor("Top Color", Color) = (1,1,0,1)
@@ -19,6 +19,7 @@ Shader "Custom/Grass Geometry Shader" {
         _MaxDist("Max Distance", Float) = 60
 		[Space]
 		_TessellationUniform ("Tessellation Uniform", Range(1, 64)) = 1
+        _TessellationEdgeLength ("Tessellation Edge Length", Range(0.1, 1)) = 0.5
     }
  
  
