@@ -267,27 +267,27 @@ Shader "Custom/Grass Geometry Shader" {
             ENDCG
         }
 
-        // shadow pass
-        Pass {
-            Tags {
-                "LightMode" = "ShadowCaster"
-            }
+        // // shadow pass
+        // Pass {
+        //     Tags {
+        //         "LightMode" = "ShadowCaster"
+        //     }
 
-            CGPROGRAM
-            #pragma vertex vert
-            #pragma geometry geom
-            #pragma fragment frag
-            #pragma hull hull
-            #pragma domain domain
-            #pragma multi_compile_shadowcaster
+        //     CGPROGRAM
+        //     #pragma vertex vert
+        //     #pragma geometry geom
+        //     #pragma fragment frag
+        //     #pragma hull hull
+        //     #pragma domain domain
+        //     #pragma multi_compile_shadowcaster
 
-            float4 frag(GeoToFragment i) : SV_Target
-            {
+        //     float4 frag(GeoToFragment i) : SV_Target
+        //     {
 
-                SHADOW_CASTER_FRAGMENT(i)
-            }
-            ENDCG
-        }
+        //         SHADOW_CASTER_FRAGMENT(i)
+        //     }
+        //     ENDCG
+        // }
     }
     Fallback "VertexLit"
 }
