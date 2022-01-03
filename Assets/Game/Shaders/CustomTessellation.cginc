@@ -7,6 +7,9 @@ struct vertexInput
 	float3 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float3 color : COLOR;
+	float2 uv : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+	float2 uv2 : TEXCOORD2;
 };
 
 struct vertexOutput
@@ -15,6 +18,9 @@ struct vertexOutput
 	float3 normal : NORMAL;
 	float4 tangent : TANGENT;
 	float3 color : COLOR;
+	float2 uv : TEXCOORD0;
+	float2 uv1 : TEXCOORD1;
+	float2 uv2 : TEXCOORD2;
 };
 
 struct TessellationFactors 
@@ -35,6 +41,9 @@ vertexOutput tessVert(vertexInput v) {
 	o.normal = v.normal;
 	o.tangent = v.tangent;
 	o.color = v.color;
+	o.uv = v.uv;
+	o.uv1 = v.uv1;
+	o.uv2 = v.uv2;
 	return o;
 }
 
@@ -73,6 +82,9 @@ vertexOutput domain(TessellationFactors factors, OutputPatch<vertexInput, 3> pat
 	MY_DOMAIN_PROGRAM_INTERPOLATE(normal)
 	MY_DOMAIN_PROGRAM_INTERPOLATE(tangent)
 	MY_DOMAIN_PROGRAM_INTERPOLATE(color)
+	MY_DOMAIN_PROGRAM_INTERPOLATE(uv)
+	MY_DOMAIN_PROGRAM_INTERPOLATE(uv1)
+	MY_DOMAIN_PROGRAM_INTERPOLATE(uv2)
 
 	return tessVert(v);
 }
