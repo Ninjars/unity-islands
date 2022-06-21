@@ -1,0 +1,49 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 14882406f79bbd342b57fadf27f4c741, type: 3}
+  m_Name: Grass Prototype Group
+  m_EditorClassIdentifier: 
+  prototypes:
+  - texture: {fileID: 0}
+    prefab: {fileID: 2863184830341695614, guid: 163a834aa7eb225438cf1cc2bf8540b1,
+      type: 3}
+    size: {x: 1, y: 1, z: 1}
+    layer: 0
+    shape: 4
+    customMesh: {fileID: 0}
+    detailMesh: {fileID: -1633821710574564935, guid: 26a964c63c61a494397491ed6a38ac87,
+      type: 3}
+    detailMaterial: {fileID: 2100000, guid: 6eaf6b958c00dd2458d54d6b64bc31ce, type: 2}
+    shadowCastingMode: 0
+    receiveShadow: 0
+    alignToSurface: 0
+    pivotOffset: 0
+    bendFactor: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    isBillboard: 0
+  - texture: {fileID: 0}
+    prefab: {fileID: 3157255099049375487, guid: b483676b3404a4544b5c5897dceee4f4,
+      type: 3}
+    size: {x: 1, y: 1, z: 1}
+    layer: 0
+    shape: 4
+    customMesh: {fileID: 0}
+    detailMesh: {fileID: -1633821710574564935, guid: d65bab743f2ff0443a6703470e679152,
+      type: 3}
+    detailMaterial: {fileID: 2100000, guid: d862d52e14d58534a98fa6b0bae2e9a9, type: 2}
+    shadowCastingMode: 0
+    receiveShadow: 0
+    alignToSurface: 0
+    pivotOffset: 0
+    bendFactor: 1
+    color: {r: 1, g: 1, b: 1, a: 1}
+    isBillboard: 0
